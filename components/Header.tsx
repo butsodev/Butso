@@ -1,12 +1,13 @@
 'use client'
 
-import { Menu, X, MessageCircle, Bell, Moon, Sun } from 'lucide-react'
+import { Menu, X, MessageCircle, Bell, Moon, Sun, ArrowLeft } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { currentUser, setCurrentPage, darkMode, toggleDarkMode } = useAppStore()
+  const { currentUser, setCurrentPage, darkMode, toggleDarkMode, pageHistory, goBack, currentPage } = useAppStore()
+  const canGoBack = pageHistory.length > 0
 
   useEffect(() => {
     const root = document.documentElement
@@ -20,12 +21,23 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 bg-background border-b border-border">
       <div className="flex items-center justify-between px-4 py-4 sm:px-6">
-        {/* Logo */}
-        <div 
-          className="text-2xl font-bold text-primary cursor-pointer"
-          onClick={() => setCurrentPage('dashboard')}
-        >
-          Butsó
+        {/* Back Button & Logo */}
+        <div className="flex items-center gap-3">
+          {canGoBack && (
+            <button
+              onClick={goBack}
+              className="p-2 hover:bg-secondary rounded-lg transition lg:hidden"
+              title="Go back"
+            >
+              <ArrowLeft size={20} className="text-foreground" />
+            </button>
+          )}
+          <div 
+            className="text-2xl font-bold text-primary cursor-pointer"
+            onClick={() => setCurrentPage('dashboard')}
+          >
+            Butsó
+          </div>
         </div>
 
         {/* Desktop Navigation */}
@@ -64,8 +76,8 @@ export function Header() {
           )}
         </nav>
 
-        {/* Icons */}
-        <div className="flex items-center gap-4">
+        {/* Icons & Navigation */}
+        <div className="flex items-center gap-2 sm:gap-4">
           <button 
             onClick={() => setCurrentPage('messaging')}
             className="p-2 hover:bg-secondary rounded-lg transition"
@@ -94,6 +106,7 @@ export function Header() {
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 hover:bg-secondary rounded-lg transition"
+            aria-label="Toggle menu"
           >
             {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>

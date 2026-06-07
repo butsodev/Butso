@@ -26,6 +26,8 @@ import { RatingsReviews } from '@/components/RatingsReviews'
 import { Toast } from '@/components/Toast'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AdvancedSearch } from '@/components/AdvancedSearch'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
+import { Sidebar } from '@/components/Sidebar'
 
 export default function Home() {
   const { currentPage, currentUser } = useAppStore()
@@ -52,7 +54,9 @@ export default function Home() {
       <div className="min-h-screen bg-background">
         <Toast />
         <Header />
-        <main>
+        <Sidebar />
+        <Breadcrumbs />
+        <main className="lg:ml-64">
         {currentPage === 'dashboard' &&
           (currentUser.role === 'worker' ? (
             <WorkerDashboard />

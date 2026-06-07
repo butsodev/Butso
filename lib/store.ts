@@ -58,6 +58,8 @@ interface AppStore {
   // Navigation
   currentPage: string
   setCurrentPage: (page: string) => void
+  pageHistory: string[]
+  goBack: () => void
   
   // Theme
   darkMode: boolean
@@ -80,12 +82,31 @@ interface AppStore {
 
 export const useAppStore = create<AppStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       currentUser: null,
       setCurrentUser: (user) => set({ currentUser: user }),
       
       currentPage: 'splash',
-      setCurrentPage: (page) => set({ currentPage: page }),
+      pageHistory: [],
+      setCurrentPage: (page) => {
+        const state = get()
+        const newHistory = state.pageHistory.slice(-9) // Keep last 10 pages
+        set({ 
+          currentPage: page,
+          pageHistory: [...newHistory, state.currentPage].filter(p => p !== 'splash')
+        })
+      },
+      goBack: () => {
+        const state = get()
+        if (state.pageHistory.length > 0) {
+          const newHistory = state.pageHistory.slice(0, -1)
+          const prevPage = newHistory[newHistory.length - 1] || 'dashboard'
+          set({
+            currentPage: prevPage,
+            pageHistory: newHistory
+          })
+        }
+      },
       
       darkMode: false,
       setDarkMode: (isDark) => set({ darkMode: isDark }),
