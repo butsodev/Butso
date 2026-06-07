@@ -24,13 +24,13 @@ export function WorkerDashboard() {
       icon: DollarSign,
       label: 'Total Earned',
       value: '₦0',
-      color: 'text-green-500',
+      color: 'text-primary',
     },
     {
       icon: Clock,
       label: 'Active',
       value: 'Available',
-      color: 'text-blue-500',
+      color: 'text-primary',
     },
   ]
 
@@ -42,7 +42,7 @@ export function WorkerDashboard() {
       className="min-h-screen bg-background pb-20"
     >
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-primary to-primary/80 text-white p-6 pt-8">
+      <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pt-8">
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -52,11 +52,11 @@ export function WorkerDashboard() {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold mb-1">Welcome, {currentUser?.name}</h1>
-              <p className="text-white/80">Here&apos;s what&apos;s happening with your jobs</p>
+              <p className="text-primary-foreground/80">Here&apos;s what&apos;s happening with your jobs</p>
             </div>
             <div className="text-right">
               <div className="text-4xl font-bold">⭐ {currentUser?.rating}</div>
-              <p className="text-white/80 text-sm">Your rating</p>
+              <p className="text-primary-foreground/80 text-sm">Your rating</p>
             </div>
           </div>
         </motion.div>
@@ -77,7 +77,7 @@ export function WorkerDashboard() {
               <motion.div
                 key={index}
                 whileHover={{ y: -5 }}
-                className="bg-white border border-border rounded-lg p-4 shadow-sm hover:shadow-md transition"
+                className="bg-card border border-border rounded-lg p-4 shadow-sm hover:shadow-md transition"
               >
                 <div className="flex items-start justify-between">
                   <div>
@@ -100,7 +100,7 @@ export function WorkerDashboard() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="bg-white rounded-lg border border-border shadow-sm p-6 mb-8"
+          className="bg-card rounded-lg border border-border shadow-sm p-6 mb-8"
         >
           <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -128,7 +128,7 @@ export function WorkerDashboard() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="bg-white rounded-lg border border-border shadow-sm p-6"
+          className="bg-card rounded-lg border border-border shadow-sm p-6"
         >
           <h2 className="text-xl font-bold text-foreground mb-4">Recent Activity</h2>
           <div className="text-center py-8 text-muted-foreground">

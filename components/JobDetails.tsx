@@ -49,7 +49,7 @@ export function JobDetails() {
       className="min-h-screen bg-background pb-20"
     >
       {/* Header with back button */}
-      <div className="bg-white border-b border-border sticky top-0 z-30">
+      <div className="bg-card border-b border-border sticky top-0 z-30">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <motion.button
             whileHover={{ x: -5 }}
@@ -67,7 +67,7 @@ export function JobDetails() {
               onClick={() => setIsFavorite(!isFavorite)}
               className={`p-2 rounded-lg transition ${
                 isFavorite
-                  ? 'bg-red-100 text-red-500'
+                  ? 'bg-destructive/15 text-destructive'
                   : 'bg-secondary text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -93,7 +93,7 @@ export function JobDetails() {
           className="space-y-6"
         >
           {/* Job Header */}
-          <div className="bg-white rounded-lg border border-border p-6 shadow-sm">
+          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h1 className="text-4xl font-bold text-foreground mb-2">{job.title}</h1>
@@ -120,14 +120,14 @@ export function JobDetails() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Clock className="text-blue-500" size={20} />
+                <Clock className="text-primary" size={20} />
                 <div>
                   <p className="text-xs text-muted-foreground">Posted</p>
                   <p className="font-semibold text-foreground">2 days ago</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <User className="text-orange-500" size={20} />
+                <User className="text-accent" size={20} />
                 <div>
                   <p className="text-xs text-muted-foreground">Type</p>
                   <p className="font-semibold text-foreground">One-time</p>
@@ -137,7 +137,7 @@ export function JobDetails() {
           </div>
 
           {/* Description */}
-          <div className="bg-white rounded-lg border border-border p-6 shadow-sm">
+          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <h2 className="text-2xl font-bold text-foreground mb-4">About This Job</h2>
             <p className="text-foreground leading-relaxed mb-4">{job.description}</p>
             
@@ -162,7 +162,7 @@ export function JobDetails() {
           </div>
 
           {/* Employer Card */}
-          <div className="bg-white rounded-lg border border-border p-6 shadow-sm">
+          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <h2 className="text-2xl font-bold text-foreground mb-4">About the Employer</h2>
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">

@@ -109,7 +109,7 @@ export function Messaging() {
         {/* Conversations List */}
         <div className={`w-full md:w-96 border-r border-border flex flex-col ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
           {/* Header */}
-          <div className="border-b border-border p-4 bg-white">
+          <div className="border-b border-border p-4 bg-card">
             <div className="flex items-center gap-4 mb-4">
               <motion.button
                 whileHover={{ x: -5 }}
@@ -153,7 +153,7 @@ export function Messaging() {
                   <div className="relative">
                     <div className="text-3xl">{conv.avatar}</div>
                     {conv.isOnline && (
-                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-primary rounded-full border-2 border-background"></div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -168,7 +168,7 @@ export function Messaging() {
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="flex-shrink-0 w-5 h-5 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center"
+                      className="flex-shrink-0 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center"
                     >
                       {conv.unread}
                     </motion.div>
@@ -181,19 +181,19 @@ export function Messaging() {
 
         {/* Chat Area */}
         {selectedConv && (
-          <div className="flex-1 flex flex-col bg-white hidden md:flex">
+          <div className="flex-1 flex flex-col bg-card hidden md:flex">
             {/* Chat Header */}
             <motion.div
               initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="border-b border-border p-4 flex items-center justify-between bg-white"
+              className="border-b border-border p-4 flex items-center justify-between bg-card"
             >
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <div className="text-3xl">{selectedConv.avatar}</div>
                   {selectedConv.isOnline && (
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-primary rounded-full border-2 border-background"></div>
                   )}
                 </div>
                 <div>
@@ -265,7 +265,7 @@ export function Messaging() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="border-t border-border p-4 bg-white"
+              className="border-t border-border p-4 bg-card"
             >
               <div className="flex gap-2">
                 <input

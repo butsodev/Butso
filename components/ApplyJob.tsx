@@ -44,7 +44,7 @@ export function ApplyJob() {
       className="min-h-screen bg-background pb-20"
     >
       {/* Header */}
-      <div className="bg-white border-b border-border sticky top-0 z-30">
+      <div className="bg-background border-b border-border sticky top-0 z-30">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-4">
           {step === 'form' && (
             <motion.button
@@ -136,7 +136,7 @@ export function ApplyJob() {
                   name="availability"
                   value={formData.availability}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground bg-white"
+                  className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground bg-input"
                 >
                   <option value="immediate">Immediately</option>
                   <option value="1week">Within 1 week</option>

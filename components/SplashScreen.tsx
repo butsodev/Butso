@@ -20,8 +20,8 @@ export function SplashScreen() {
           transition={{ delay: 0.2, duration: 0.6 }}
           className="mb-8"
         >
-          <div className="text-6xl font-bold text-white mb-4">Butsó</div>
-          <p className="text-white/90 text-lg">Connect with jobs and workers in Wukari</p>
+          <div className="text-6xl font-bold text-primary-foreground mb-4">Butsó</div>
+          <p className="text-primary-foreground/90 text-lg">Connect with jobs and workers in Wukari</p>
         </motion.div>
 
         <motion.button
@@ -31,7 +31,7 @@ export function SplashScreen() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setCurrentPage('role-select')}
-          className="w-full py-4 px-6 bg-white text-primary font-semibold rounded-lg shadow-lg hover:shadow-xl transition"
+          className="w-full py-4 px-6 bg-card text-primary font-semibold rounded-lg shadow-lg hover:shadow-xl transition"
         >
           Get Started
         </motion.button>
@@ -40,7 +40,7 @@ export function SplashScreen() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.6 }}
-          className="text-white/70 text-sm mt-6"
+          className="text-primary-foreground/70 text-sm mt-6"
         >
           Your trusted local marketplace for gigs and services
         </motion.p>

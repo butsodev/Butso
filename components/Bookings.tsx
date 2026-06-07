@@ -10,15 +10,15 @@ export function Bookings() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed':
-        return 'bg-green-100 text-green-700'
+        return 'bg-primary/15 text-primary'
       case 'pending':
-        return 'bg-yellow-100 text-yellow-700'
+        return 'bg-accent/15 text-accent'
       case 'completed':
-        return 'bg-blue-100 text-blue-700'
+        return 'bg-primary/15 text-primary'
       case 'cancelled':
-        return 'bg-red-100 text-red-700'
+        return 'bg-destructive/15 text-destructive'
       default:
-        return 'bg-gray-100 text-gray-700'
+        return 'bg-secondary text-foreground'
     }
   }
 
@@ -30,7 +30,7 @@ export function Bookings() {
       className="min-h-screen bg-background pb-20"
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-primary/80 text-white p-6 pt-8">
+      <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pt-8">
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -38,7 +38,7 @@ export function Bookings() {
           className="max-w-4xl mx-auto"
         >
           <h1 className="text-3xl font-bold mb-1">Your Bookings</h1>
-          <p className="text-white/80">Manage your scheduled bookings and payments</p>
+          <p className="text-primary-foreground/80">Manage your scheduled bookings and payments</p>
         </motion.div>
       </div>
 
@@ -51,17 +51,17 @@ export function Bookings() {
           transition={{ delay: 0.3 }}
           className="grid grid-cols-3 gap-4 my-6"
         >
-          <div className="bg-white rounded-lg border border-border p-4 shadow-sm">
+          <div className="bg-card rounded-lg border border-border p-4 shadow-sm">
             <p className="text-muted-foreground text-xs font-medium">Total Bookings</p>
             <p className="text-3xl font-bold text-foreground mt-2">{bookings.length}</p>
           </div>
-          <div className="bg-white rounded-lg border border-border p-4 shadow-sm">
+          <div className="bg-card rounded-lg border border-border p-4 shadow-sm">
             <p className="text-muted-foreground text-xs font-medium">Confirmed</p>
             <p className="text-3xl font-bold text-primary mt-2">
               {bookings.filter((b) => b.status === 'confirmed').length}
             </p>
           </div>
-          <div className="bg-white rounded-lg border border-border p-4 shadow-sm">
+          <div className="bg-card rounded-lg border border-border p-4 shadow-sm">
             <p className="text-muted-foreground text-xs font-medium">Pending</p>
             <p className="text-3xl font-bold text-accent mt-2">
               {bookings.filter((b) => b.status === 'pending').length}
@@ -74,7 +74,7 @@ export function Bookings() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="bg-white rounded-lg border border-border shadow-sm p-6"
+          className="bg-card rounded-lg border border-border shadow-sm p-6"
         >
           <h2 className="text-xl font-bold text-foreground mb-4">Active & Upcoming Bookings</h2>
           

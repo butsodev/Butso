@@ -57,7 +57,7 @@ export function WorkerProfile() {
       className="min-h-screen bg-background pb-20"
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-primary/80 text-white p-6 pt-8">
+      <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pt-8">
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -68,7 +68,7 @@ export function WorkerProfile() {
             whileHover={{ x: -5 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setCurrentPage('dashboard')}
-            className="flex items-center gap-2 text-white/80 hover:text-white transition font-semibold mb-4"
+            className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground transition font-semibold mb-4"
           >
             <ChevronLeft size={20} />
             Back
@@ -83,7 +83,7 @@ export function WorkerProfile() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-lg border border-border shadow-lg p-8 mb-6"
+          className="bg-card rounded-lg border border-border shadow-lg p-8 mb-6"
         >
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-start gap-6">
@@ -139,7 +139,7 @@ export function WorkerProfile() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="bg-white rounded-lg border border-border p-6 mb-6 shadow-sm"
+            className="bg-card rounded-lg border border-border p-6 mb-6 shadow-sm"
           >
             <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
               <Briefcase size={24} />
@@ -166,7 +166,7 @@ export function WorkerProfile() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.45 }}
-          className="bg-white rounded-lg border border-border p-6 mb-6 shadow-sm"
+          className="bg-card rounded-lg border border-border p-6 mb-6 shadow-sm"
         >
           <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
             <Award size={24} />
@@ -198,7 +198,7 @@ export function WorkerProfile() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="bg-white rounded-lg border border-border p-6 shadow-sm"
+          className="bg-card rounded-lg border border-border p-6 shadow-sm"
         >
           <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
             <Star size={24} className="text-accent" />

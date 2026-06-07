@@ -74,7 +74,7 @@ export function JobApplicants() {
       className="min-h-screen bg-background pb-20"
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-accent to-accent/80 text-white p-6 pt-8">
+      <div className="bg-gradient-to-r from-accent to-accent/80 text-primary-foreground p-6 pt-8">
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -86,14 +86,14 @@ export function JobApplicants() {
               whileHover={{ x: -5 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setCurrentPage('dashboard')}
-              className="flex items-center gap-2 text-white/80 hover:text-white transition font-semibold"
+              className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground transition font-semibold"
             >
               <ChevronLeft size={20} />
               Back
             </motion.button>
           </div>
           <h1 className="text-3xl font-bold">Job Applicants</h1>
-          <p className="text-white/80">Bathroom Renovation • ₦250,000</p>
+          <p className="text-primary-foreground/80">Bathroom Renovation • ₦250,000</p>
         </motion.div>
       </div>
 
@@ -106,7 +106,7 @@ export function JobApplicants() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="bg-white rounded-lg border border-border shadow-sm overflow-hidden"
+              className="bg-card rounded-lg border border-border shadow-sm overflow-hidden"
             >
               {/* Filter Tabs */}
               <div className="flex border-b border-border">
@@ -144,10 +144,10 @@ export function JobApplicants() {
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="font-bold text-foreground text-sm">{applicant.name}</h3>
                       {applicant.status === 'accepted' && (
-                        <CheckCircle className="text-green-500" size={16} />
+                        <CheckCircle className="text-primary" size={16} />
                       )}
                       {applicant.status === 'rejected' && (
-                        <XCircle className="text-red-500" size={16} />
+                        <XCircle className="text-destructive" size={16} />
                       )}
                     </div>
                     <div className="flex items-center gap-1 mb-1">
@@ -173,7 +173,7 @@ export function JobApplicants() {
                 className="space-y-6"
               >
                 {/* Profile Card */}
-                <div className="bg-white rounded-lg border border-border shadow-sm p-6">
+                <div className="bg-card rounded-lg border border-border shadow-sm p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-start gap-4">
                       <div className="text-5xl">👷</div>
@@ -183,17 +183,17 @@ export function JobApplicants() {
                       </div>
                     </div>
                     {selectedData.status === 'pending' && (
-                      <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full">
+                      <span className="px-3 py-1 bg-accent/15 text-accent text-xs font-semibold rounded-full">
                         Pending
                       </span>
                     )}
                     {selectedData.status === 'accepted' && (
-                      <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                      <span className="px-3 py-1 bg-primary/15 text-primary text-xs font-semibold rounded-full">
                         Accepted
                       </span>
                     )}
                     {selectedData.status === 'rejected' && (
-                      <span className="px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
+                      <span className="px-3 py-1 bg-destructive/15 text-destructive text-xs font-semibold rounded-full">
                         Rejected
                       </span>
                     )}
@@ -231,7 +231,7 @@ export function JobApplicants() {
                 </div>
 
                 {/* Cover Letter */}
-                <div className="bg-white rounded-lg border border-border shadow-sm p-6">
+                <div className="bg-card rounded-lg border border-border shadow-sm p-6">
                   <h3 className="text-lg font-bold text-foreground mb-4">Cover Letter</h3>
                   <p className="text-foreground leading-relaxed">{selectedData.coverLetter}</p>
                 </div>
@@ -258,7 +258,7 @@ export function JobApplicants() {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex-1 py-3 px-6 border border-red-300 text-red-600 font-semibold rounded-lg hover:bg-red-50 transition"
+                      className="flex-1 py-3 px-6 border border-destructive/30 text-destructive font-semibold rounded-lg hover:bg-destructive/10 transition"
                     >
                       Reject
                     </motion.button>
@@ -286,7 +286,7 @@ export function JobApplicants() {
                 )}
               </motion.div>
             ) : (
-              <div className="bg-white rounded-lg border border-border p-12 text-center">
+              <div className="bg-card rounded-lg border border-border p-12 text-center">
                 <p className="text-muted-foreground">Select an applicant to view details</p>
               </div>
             )}

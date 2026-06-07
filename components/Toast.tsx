@@ -36,13 +36,13 @@ export function Toast() {
   const getIcon = (type: string) => {
     switch (type) {
       case 'success':
-        return <CheckCircle size={20} className="text-green-600" />
+        return <CheckCircle size={20} className="text-primary" />
       case 'error':
-        return <AlertCircle size={20} className="text-red-600" />
+        return <AlertCircle size={20} className="text-destructive" />
       case 'warning':
-        return <AlertCircle size={20} className="text-orange-600" />
+        return <AlertCircle size={20} className="text-accent" />
       case 'info':
-        return <Info size={20} className="text-blue-600" />
+        return <Info size={20} className="text-primary" />
       default:
         return <Info size={20} />
     }
@@ -51,15 +51,15 @@ export function Toast() {
   const getBgColor = (type: string) => {
     switch (type) {
       case 'success':
-        return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+        return 'bg-primary/10 dark:bg-primary/20 border-primary/30 dark:border-primary/40'
       case 'error':
-        return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+        return 'bg-destructive/10 dark:bg-destructive/20 border-destructive/30 dark:border-destructive/40'
       case 'warning':
-        return 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'
+        return 'bg-accent/10 dark:bg-accent/20 border-accent/30 dark:border-accent/40'
       case 'info':
-        return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+        return 'bg-primary/10 dark:bg-primary/20 border-primary/30 dark:border-primary/40'
       default:
-        return 'bg-gray-50 dark:bg-gray-900/20'
+        return 'bg-secondary dark:bg-secondary'
     }
   }
 

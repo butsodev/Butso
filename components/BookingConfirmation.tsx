@@ -61,7 +61,7 @@ export function BookingConfirmation() {
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg p-6 text-white text-center mb-6"
+          className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg p-6 text-primary-foreground text-center mb-6"
         >
           <CheckCircle size={48} className="mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Booking Confirmed!</h2>
@@ -172,7 +172,7 @@ export function BookingConfirmation() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button 
                 onClick={() => setCurrentPage('messaging')}
-                className="bg-primary text-white py-3 rounded-lg hover:opacity-90 transition font-medium"
+                className="bg-primary text-primary-foreground py-3 rounded-lg hover:opacity-90 transition font-medium"
               >
                 Message Worker
               </button>
@@ -196,7 +196,7 @@ export function BookingConfirmation() {
             <div className="bg-card rounded-lg p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-foreground">Payment Details</h3>
-                <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs px-3 py-1 rounded-full font-medium">
+                <span className="bg-primary/15 dark:bg-primary/15 text-primary dark:text-primary text-xs px-3 py-1 rounded-full font-medium">
                   {bookingDetails.paymentStatus}
                 </span>
               </div>
@@ -224,7 +224,7 @@ export function BookingConfirmation() {
               </div>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div className="bg-primary/10 dark:bg-primary/20 border border-primary/30 dark:border-primary/40 rounded-lg p-4">
               <p className="text-sm text-blue-800 dark:text-blue-300">
                 Payment has been processed successfully. You will receive a receipt in your email.
               </p>
@@ -242,13 +242,13 @@ export function BookingConfirmation() {
             <div className="bg-card rounded-lg p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-foreground">Escrow Status</h3>
-                <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs px-3 py-1 rounded-full font-medium">
+                <span className="bg-accent/15 dark:bg-accent/20 text-accent dark:text-accent text-xs px-3 py-1 rounded-full font-medium">
                   {bookingDetails.escrowStatus}
                 </span>
               </div>
 
               <div className="space-y-4">
-                <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg p-4 text-white">
+                <div className="bg-gradient-to-r from-accent to-accent/80 rounded-lg p-4 text-primary-foreground">
                   <p className="text-sm opacity-90 mb-1">Amount in Escrow</p>
                   <h3 className="text-3xl font-bold">
                     ₦{bookingDetails.totalPrice.toLocaleString()}
@@ -260,7 +260,7 @@ export function BookingConfirmation() {
                   <div className="space-y-4">
                     <div className="flex gap-4">
                       <div className="flex flex-col items-center">
-                        <div className="w-3 h-3 rounded-full bg-green-600 mb-4"></div>
+                        <div className="w-3 h-3 rounded-full bg-primary mb-4"></div>
                         <div className="w-0.5 h-12 bg-border"></div>
                       </div>
                       <div>
@@ -294,7 +294,7 @@ export function BookingConfirmation() {
               </div>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div className="bg-primary/10 dark:bg-primary/20 border border-primary/30 dark:border-primary/40 rounded-lg p-4">
               <p className="text-sm text-blue-800 dark:text-blue-300">
                 Your payment is secured in escrow. The worker can release it only after the job is completed and both parties confirm. This protects both you and the worker.
               </p>

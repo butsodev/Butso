@@ -71,11 +71,11 @@ export function PaymentsEarnings() {
   const getTransactionIcon = (type: string) => {
     switch (type) {
       case 'earned':
-        return <TrendingUp size={20} className="text-green-600" />
+        return <TrendingUp size={20} className="text-primary" />
       case 'escrow':
-        return <Wallet size={20} className="text-orange-600" />
+        return <Wallet size={20} className="text-accent" />
       case 'withdrawal':
-        return <ArrowRight size={20} className="text-red-600" />
+        return <ArrowRight size={20} className="text-destructive" />
       default:
         return <DollarSign size={20} className="text-primary" />
     }
@@ -112,7 +112,7 @@ export function PaymentsEarnings() {
             className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6"
           >
             {/* Total Earnings */}
-            <div className="bg-gradient-to-br from-primary to-primary/80 rounded-xl p-6 text-white">
+            <div className="bg-gradient-to-br from-primary to-primary/80 rounded-xl p-6 text-primary-foreground">
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm opacity-90">Total Earnings</p>
                 <TrendingUp size={24} />
@@ -121,7 +121,7 @@ export function PaymentsEarnings() {
             </div>
 
             {/* In Escrow */}
-            <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white">
+            <div className="bg-gradient-to-br from-accent to-accent/80 rounded-xl p-6 text-primary-foreground">
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm opacity-90">In Escrow</p>
                 <Wallet size={24} />
@@ -130,7 +130,7 @@ export function PaymentsEarnings() {
             </div>
 
             {/* Available Balance */}
-            <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-xl p-6 text-white">
+            <div className="bg-gradient-to-br from-primary to-primary/80 rounded-xl p-6 text-primary-foreground">
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm opacity-90">Available</p>
                 <CreditCard size={24} />
@@ -145,7 +145,7 @@ export function PaymentsEarnings() {
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="bg-gradient-to-br from-primary to-primary/80 rounded-xl p-6 text-white mb-6"
+            className="bg-gradient-to-br from-primary to-primary/80 rounded-xl p-6 text-primary-foreground mb-6"
           >
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm opacity-90">Budget Spent</p>
@@ -164,7 +164,7 @@ export function PaymentsEarnings() {
             transition={{ delay: 0.1 }}
             className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"
           >
-            <button className="bg-primary text-white py-3 rounded-lg hover:opacity-90 transition font-medium flex items-center justify-center gap-2">
+            <button className="bg-primary text-primary-foreground py-3 rounded-lg hover:opacity-90 transition font-medium flex items-center justify-center gap-2">
               <CreditCard size={20} />
               Withdraw Money
             </button>
@@ -191,7 +191,7 @@ export function PaymentsEarnings() {
               onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-lg font-medium transition capitalize ${
                 filter === f
-                  ? 'bg-primary text-white'
+                  ? 'bg-primary text-primary-foreground'
                   : 'bg-card text-foreground hover:bg-opacity-80'
               }`}
             >
@@ -225,15 +225,15 @@ export function PaymentsEarnings() {
               <div className="text-right flex-shrink-0">
                 <p className={`font-bold text-lg ${
                   transaction.type === 'earned' || transaction.type === 'escrow'
-                    ? 'text-green-600'
-                    : 'text-red-600'
+                    ? 'text-primary'
+                    : 'text-destructive'
                 }`}>
                   {transaction.amount}
                 </p>
                 <span className={`text-xs px-2 py-1 rounded capitalize ${
                   transaction.status === 'completed'
-                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                    : 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400'
+                    ? 'bg-primary/15 dark:bg-primary/15 text-primary dark:text-primary'
+                    : 'bg-accent/15 dark:bg-accent/20 text-accent dark:text-accent'
                 }`}>
                   {transaction.status}
                 </span>

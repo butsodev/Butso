@@ -51,9 +51,9 @@ function ErrorFallback({ error }: { error?: Error }) {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 200 }}
-          className="bg-red-100 dark:bg-red-900/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
+          className="bg-destructive/15 dark:bg-destructive/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
         >
-          <AlertCircle size={32} className="text-red-600" />
+          <AlertCircle size={32} className="text-destructive" />
         </motion.div>
         <h1 className="text-3xl font-bold text-foreground mb-2">
           Oops! Something went wrong
@@ -62,13 +62,13 @@ function ErrorFallback({ error }: { error?: Error }) {
           We&apos;re sorry for the inconvenience. Please try again.
         </p>
         {error && process.env.NODE_ENV === 'development' && (
-          <p className="text-xs text-red-600 bg-red-50 dark:bg-red-900/20 p-3 rounded mb-4 font-mono overflow-auto max-h-24">
+          <p className="text-xs text-destructive bg-destructive/10 dark:bg-destructive/20 p-3 rounded mb-4 font-mono overflow-auto max-h-24">
             {error.message}
           </p>
         )}
         <button
           onClick={() => setCurrentPage('dashboard')}
-          className="bg-primary text-white px-6 py-3 rounded-lg hover:opacity-90 transition font-medium inline-flex items-center gap-2"
+          className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:opacity-90 transition font-medium inline-flex items-center gap-2"
         >
           <Home size={20} />
           Back to Dashboard

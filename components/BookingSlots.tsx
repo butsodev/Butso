@@ -88,7 +88,7 @@ export function BookingSlots() {
       className="min-h-screen bg-background pb-20"
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-primary/80 text-white p-6 pt-8">
+      <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pt-8">
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -109,7 +109,7 @@ export function BookingSlots() {
                     setSelectedSlots([])
                   }
                 }}
-                className="flex items-center gap-2 text-white/80 hover:text-white transition font-semibold"
+                className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground transition font-semibold"
               >
                 <ChevronLeft size={20} />
                 Back
@@ -119,7 +119,7 @@ export function BookingSlots() {
           <h1 className="text-3xl font-bold">
             {step === 'success' ? 'Booking Confirmed!' : 'Create Booking'}
           </h1>
-          <p className="text-white/80">
+          <p className="text-primary-foreground/80">
             {step === 'date' && 'Select a date for your work'}
             {step === 'slots' && 'Select available time slots'}
             {step === 'confirm' && 'Review and confirm your booking'}
@@ -162,7 +162,7 @@ export function BookingSlots() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="bg-white rounded-lg border border-border shadow-sm p-8"
+            className="bg-card rounded-lg border border-border shadow-sm p-8"
           >
             <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
               <Calendar className="text-primary" size={24} />
@@ -218,7 +218,7 @@ export function BookingSlots() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="bg-white rounded-lg border border-border shadow-sm p-8"
+            className="bg-card rounded-lg border border-border shadow-sm p-8"
           >
             <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
               <Clock className="text-primary" size={24} />
@@ -293,7 +293,7 @@ export function BookingSlots() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="bg-white rounded-lg border border-border shadow-sm p-8"
+            className="bg-card rounded-lg border border-border shadow-sm p-8"
           >
             <h2 className="text-2xl font-bold text-foreground mb-6">Review Your Booking</h2>
 
@@ -366,7 +366,7 @@ export function BookingSlots() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="bg-white rounded-lg border border-border shadow-sm p-12 text-center"
+            className="bg-card rounded-lg border border-border shadow-sm p-12 text-center"
           >
             <motion.div
               initial={{ scale: 0 }}

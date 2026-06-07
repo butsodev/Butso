@@ -180,7 +180,7 @@ export function Support() {
             </div>
             <button
               type="submit"
-              className="w-full bg-primary text-white py-2 rounded-lg hover:opacity-90 transition font-medium"
+              className="w-full bg-primary text-primary-foreground py-2 rounded-lg hover:opacity-90 transition font-medium"
             >
               Send Message
             </button>

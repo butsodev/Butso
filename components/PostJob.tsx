@@ -62,7 +62,7 @@ export function PostJob() {
       className="min-h-screen bg-background pb-20"
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-accent to-accent/80 text-white p-6 pt-8">
+      <div className="bg-gradient-to-r from-accent to-accent/80 text-primary-foreground p-6 pt-8">
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -70,7 +70,7 @@ export function PostJob() {
           className="max-w-4xl mx-auto"
         >
           <h1 className="text-3xl font-bold mb-1">Post a New Job</h1>
-          <p className="text-white/80">Describe the work you need done</p>
+          <p className="text-primary-foreground/80">Describe the work you need done</p>
         </motion.div>
       </div>
 
@@ -81,7 +81,7 @@ export function PostJob() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
           onSubmit={handleSubmit}
-          className="bg-white rounded-lg border border-border shadow-sm p-8 mt-6 space-y-6"
+          className="bg-card rounded-lg border border-border shadow-sm p-8 mt-6 space-y-6"
         >
           {/* Title */}
           <div>
@@ -122,7 +122,7 @@ export function PostJob() {
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-foreground bg-white"
+              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-foreground bg-card"
             >
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
@@ -157,7 +157,7 @@ export function PostJob() {
               name="location"
               value={formData.location}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-foreground bg-white"
+              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-foreground bg-card"
             >
               <option>Wukari</option>
               <option>Central Wukari</option>

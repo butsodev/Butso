@@ -121,7 +121,7 @@ export function AdvancedSearch() {
                     onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
                     className={`p-3 rounded-lg text-left transition ${
                       selectedCategory === cat
-                        ? 'bg-primary text-white'
+                        ? 'bg-primary text-primary-foreground'
                         : 'bg-card text-foreground hover:bg-opacity-80'
                     }`}
                   >
@@ -141,7 +141,7 @@ export function AdvancedSearch() {
                     onClick={() => setSelectedBudget(selectedBudget === range.label ? null : range.label)}
                     className={`w-full p-3 rounded-lg text-left transition ${
                       selectedBudget === range.label
-                        ? 'bg-primary text-white'
+                        ? 'bg-primary text-primary-foreground'
                         : 'bg-card text-foreground hover:bg-opacity-80'
                     }`}
                   >
@@ -214,7 +214,7 @@ export function AdvancedSearch() {
           </p>
           <button
             onClick={handleSearch}
-            className="bg-primary text-white px-8 py-3 rounded-lg hover:opacity-90 transition font-medium"
+            className="bg-primary text-primary-foreground px-8 py-3 rounded-lg hover:opacity-90 transition font-medium"
           >
             Search Jobs
           </button>

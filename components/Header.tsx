@@ -102,7 +102,7 @@ export function Header() {
 
       {/* Mobile Navigation */}
       {isMenuOpen && currentUser && (
-        <div className="md:hidden border-t border-border bg-white">
+        <div className="md:hidden border-t border-border bg-background">
           <nav className="flex flex-col p-4 gap-2">
             {currentUser.role === 'worker' && (
               <>

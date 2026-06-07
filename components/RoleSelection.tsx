@@ -19,14 +19,14 @@ export function RoleSelection() {
       icon: Wrench,
       title: 'I&apos;m a Worker',
       description: 'Find jobs in your area and earn money',
-      color: 'from-blue-500 to-blue-600',
+      color: 'from-primary to-primary/80',
     },
     {
       role: 'employer' as UserRole,
       icon: Briefcase,
       title: 'I&apos;m an Employer',
       description: 'Hire skilled workers for your projects',
-      color: 'from-orange-500 to-orange-600',
+      color: 'from-accent to-accent/80',
     },
   ]
 
@@ -60,14 +60,14 @@ export function RoleSelection() {
                 whileHover={{ scale: 1.05, y: -5 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => selectRole(option.role)}
-                className={`bg-gradient-to-br ${option.color} p-8 rounded-2xl shadow-lg hover:shadow-xl transition text-white group cursor-pointer`}
+                className={`bg-gradient-to-br ${option.color} p-8 rounded-2xl shadow-lg hover:shadow-xl transition text-primary-foreground group cursor-pointer`}
               >
                 <div className="flex flex-col items-center text-center">
-                  <div className="p-4 bg-white/20 rounded-full mb-4 group-hover:bg-white/30 transition">
-                    <Icon size={48} className="text-white" />
+                  <div className="p-4 bg-card/20 rounded-full mb-4 group-hover:bg-card/30 transition">
+                    <Icon size={48} className="text-primary-foreground" />
                   </div>
                   <h2 className="text-2xl font-bold mb-2">{option.title}</h2>
-                  <p className="text-white/90">{option.description}</p>
+                  <p className="text-primary-foreground/90">{option.description}</p>
                 </div>
               </motion.button>
             )

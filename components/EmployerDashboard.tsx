@@ -25,7 +25,7 @@ export function EmployerDashboard() {
       icon: Clock,
       label: 'In Progress',
       value: employerJobs.filter((j) => j.status === 'in-progress').length,
-      color: 'text-blue-500',
+      color: 'text-primary',
     },
   ]
 
@@ -37,7 +37,7 @@ export function EmployerDashboard() {
       className="min-h-screen bg-background pb-20"
     >
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-accent to-accent/80 text-white p-6 pt-8">
+      <div className="bg-gradient-to-r from-accent to-accent/80 text-primary-foreground p-6 pt-8">
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -45,7 +45,7 @@ export function EmployerDashboard() {
           className="max-w-4xl mx-auto"
         >
           <h1 className="text-3xl font-bold mb-1">Welcome, {currentUser?.name}</h1>
-          <p className="text-white/80">Manage your jobs and find the perfect workers</p>
+          <p className="text-primary-foreground/80">Manage your jobs and find the perfect workers</p>
         </motion.div>
       </div>
 
@@ -64,7 +64,7 @@ export function EmployerDashboard() {
               <motion.div
                 key={index}
                 whileHover={{ y: -5 }}
-                className="bg-white border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition"
+                className="bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition"
               >
                 <div className="flex items-start justify-between">
                   <div>
@@ -87,7 +87,7 @@ export function EmployerDashboard() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="bg-white rounded-lg border border-border shadow-sm p-6 mb-8"
+          className="bg-card rounded-lg border border-border shadow-sm p-6 mb-8"
         >
           <div className="flex items-center justify-between">
             <div>
@@ -110,7 +110,7 @@ export function EmployerDashboard() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="bg-white rounded-lg border border-border shadow-sm p-6"
+          className="bg-card rounded-lg border border-border shadow-sm p-6"
         >
           <h2 className="text-xl font-bold text-foreground mb-4">Your Active Jobs</h2>
           {employerJobs.length === 0 ? (
@@ -137,10 +137,10 @@ export function EmployerDashboard() {
                     </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       job.status === 'open' 
-                        ? 'bg-green-100 text-green-700'
+                        ? 'bg-primary/15 text-primary'
                         : job.status === 'in-progress'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-gray-100 text-gray-700'
+                        ? 'bg-primary/15 text-primary'
+                        : 'bg-secondary text-foreground'
                     }`}>
                       {job.status}
                     </span>

@@ -75,11 +75,11 @@ export function Notifications() {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'success':
-        return <CheckCircle size={24} className="text-green-600" />
+        return <CheckCircle size={24} className="text-primary" />
       case 'warning':
-        return <AlertCircle size={24} className="text-orange-600" />
+        return <AlertCircle size={24} className="text-accent" />
       case 'info':
-        return <Info size={24} className="text-blue-600" />
+        return <Info size={24} className="text-primary" />
       default:
         return <Info size={24} className="text-primary" />
     }
@@ -107,7 +107,7 @@ export function Notifications() {
             <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
           </div>
           {unreadCount > 0 && (
-            <span className="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+            <span className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">
               {unreadCount} New
             </span>
           )}

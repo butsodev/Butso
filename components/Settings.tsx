@@ -66,7 +66,7 @@ export function Settings() {
               </div>
               <button
                 onClick={() => setIsEditing(true)}
-                className="p-2 bg-primary text-white rounded-lg hover:opacity-90 transition"
+                className="p-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition"
               >
                 <Edit2 size={20} />
               </button>
@@ -115,7 +115,7 @@ export function Settings() {
               <div className="flex gap-2">
                 <button
                   onClick={handleSaveProfile}
-                  className="flex-1 bg-primary text-white py-2 rounded-lg hover:opacity-90 transition font-medium"
+                  className="flex-1 bg-primary text-primary-foreground py-2 rounded-lg hover:opacity-90 transition font-medium"
                 >
                   Save
                 </button>
@@ -164,7 +164,7 @@ export function Settings() {
               }`}
             >
               <div
-                className={`w-5 h-5 bg-white rounded-full transition transform ${
+                className={`w-5 h-5 bg-card rounded-full transition transform ${
                   darkMode ? 'translate-x-6' : 'translate-x-0.5'
                 }`}
               />
@@ -207,7 +207,7 @@ export function Settings() {
         </h3>
         <button
           onClick={handleLogout}
-          className="w-full bg-card hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 rounded-lg p-4 flex items-center gap-3 transition"
+          className="w-full bg-card hover:bg-destructive/10 dark:hover:bg-destructive/10 text-destructive rounded-lg p-4 flex items-center gap-3 transition"
         >
           <LogOut size={20} />
           <span className="font-medium">Log Out</span>

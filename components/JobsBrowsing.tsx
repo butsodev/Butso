@@ -27,7 +27,7 @@ export function JobsBrowsing() {
       className="min-h-screen bg-background pb-20"
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-primary/80 text-white p-6 pt-8">
+      <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pt-8">
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -35,7 +35,7 @@ export function JobsBrowsing() {
           className="max-w-4xl mx-auto"
         >
           <h1 className="text-3xl font-bold mb-1">Available Jobs</h1>
-          <p className="text-white/80">Browse and apply for jobs in your area</p>
+          <p className="text-primary-foreground/80">Browse and apply for jobs in your area</p>
         </motion.div>
       </div>
 
@@ -54,7 +54,7 @@ export function JobsBrowsing() {
             placeholder="Search jobs..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground placeholder:text-muted-foreground bg-white shadow-sm"
+            className="w-full pl-12 pr-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground placeholder:text-muted-foreground bg-card shadow-sm"
           />
         </motion.div>
 
@@ -72,7 +72,7 @@ export function JobsBrowsing() {
               className={`px-4 py-2 rounded-full whitespace-nowrap font-medium transition ${
                 selectedCategory === cat
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-white border border-border text-foreground hover:border-primary'
+                  : 'bg-card border border-border text-foreground hover:border-primary'
               }`}
             >
               {cat}
@@ -88,7 +88,7 @@ export function JobsBrowsing() {
           className="space-y-4"
         >
           {filteredJobs.length === 0 ? (
-            <div className="bg-white rounded-lg border border-border p-12 text-center">
+            <div className="bg-card rounded-lg border border-border p-12 text-center">
               <p className="text-muted-foreground mb-2">No jobs found</p>
               <p className="text-sm text-muted-foreground">Try adjusting your filters</p>
             </div>
@@ -101,7 +101,7 @@ export function JobsBrowsing() {
                 transition={{ delay: 0.4 + index * 0.05 }}
                 whileHover={{ y: -5 }}
                 onClick={() => setCurrentPage('job-details')}
-                className="bg-white rounded-lg border border-border p-6 shadow-sm hover:shadow-md cursor-pointer transition"
+                className="bg-card rounded-lg border border-border p-6 shadow-sm hover:shadow-md cursor-pointer transition"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -129,7 +129,7 @@ export function JobsBrowsing() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <Clock size={16} className="text-blue-500" />
+                    <Clock size={16} className="text-primary" />
                     <div>
                       <p className="text-muted-foreground text-xs">Applicants</p>
                       <p className="font-semibold text-foreground">{job.applicants.length}</p>
