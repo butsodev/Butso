@@ -17,6 +17,15 @@ import { WorkerProfile } from '@/components/WorkerProfile'
 import { JobApplicants } from '@/components/JobApplicants'
 import { BookingSlots } from '@/components/BookingSlots'
 import { Messaging } from '@/components/Messaging'
+import { Settings } from '@/components/Settings'
+import { Support } from '@/components/Support'
+import { Notifications } from '@/components/Notifications'
+import { PaymentsEarnings } from '@/components/PaymentsEarnings'
+import { BookingConfirmation } from '@/components/BookingConfirmation'
+import { RatingsReviews } from '@/components/RatingsReviews'
+import { Toast } from '@/components/Toast'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { AdvancedSearch } from '@/components/AdvancedSearch'
 
 export default function Home() {
   const { currentPage, currentUser } = useAppStore()
@@ -39,9 +48,11 @@ export default function Home() {
 
   // Render authenticated pages with header
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main>
+    <ErrorBoundary>
+      <div className="min-h-screen bg-background">
+        <Toast />
+        <Header />
+        <main>
         {currentPage === 'dashboard' &&
           (currentUser.role === 'worker' ? (
             <WorkerDashboard />
@@ -67,6 +78,20 @@ export default function Home() {
         
         {currentPage === 'messaging' && <Messaging />}
         
+        {currentPage === 'settings' && <Settings />}
+        
+        {currentPage === 'support' && <Support />}
+        
+        {currentPage === 'notifications' && <Notifications />}
+        
+        {currentPage === 'payments' && <PaymentsEarnings />}
+        
+        {currentPage === 'booking-confirmation' && <BookingConfirmation />}
+        
+        {currentPage === 'ratings-reviews' && <RatingsReviews />}
+        
+        {currentPage === 'advanced-search' && <AdvancedSearch />}
+        
         {/* Fallback for unknown pages */}
         {currentPage !== 'dashboard' &&
           currentPage !== 'jobs' &&
@@ -77,7 +102,14 @@ export default function Home() {
           currentPage !== 'worker-profile' &&
           currentPage !== 'job-applicants' &&
           currentPage !== 'booking-slots' &&
-          currentPage !== 'messaging' && (
+          currentPage !== 'messaging' &&
+          currentPage !== 'settings' &&
+          currentPage !== 'support' &&
+          currentPage !== 'notifications' &&
+          currentPage !== 'payments' &&
+          currentPage !== 'booking-confirmation' &&
+          currentPage !== 'ratings-reviews' &&
+          currentPage !== 'advanced-search' && (
             <div className="flex items-center justify-center min-h-screen">
               <div className="text-center">
                 <h1 className="text-3xl font-bold text-foreground mb-2">
@@ -90,6 +122,7 @@ export default function Home() {
             </div>
           )}
       </main>
-    </div>
+      </div>
+    </ErrorBoundary>
   )
 }

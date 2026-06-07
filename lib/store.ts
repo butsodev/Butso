@@ -59,6 +59,11 @@ interface AppStore {
   currentPage: string
   setCurrentPage: (page: string) => void
   
+  // Theme
+  darkMode: boolean
+  setDarkMode: (isDark: boolean) => void
+  toggleDarkMode: () => void
+  
   // Data
   jobs: Job[]
   setJobs: (jobs: Job[]) => void
@@ -81,6 +86,10 @@ export const useAppStore = create<AppStore>()(
       
       currentPage: 'splash',
       setCurrentPage: (page) => set({ currentPage: page }),
+      
+      darkMode: false,
+      setDarkMode: (isDark) => set({ darkMode: isDark }),
+      toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
       
       jobs: [],
       setJobs: (jobs) => set({ jobs }),

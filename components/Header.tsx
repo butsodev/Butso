@@ -1,15 +1,24 @@
 'use client'
 
-import { Menu, X, MessageCircle, Bell } from 'lucide-react'
-import { useState } from 'react'
+import { Menu, X, MessageCircle, Bell, Moon, Sun } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { currentUser, setCurrentPage } = useAppStore()
+  const { currentUser, setCurrentPage, darkMode, toggleDarkMode } = useAppStore()
+
+  useEffect(() => {
+    const root = document.documentElement
+    if (darkMode) {
+      root.classList.add('dark')
+    } else {
+      root.classList.remove('dark')
+    }
+  }, [darkMode])
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-border">
+    <header className="sticky top-0 z-40 bg-background border-b border-border">
       <div className="flex items-center justify-between px-4 py-4 sm:px-6">
         {/* Logo */}
         <div 
@@ -57,11 +66,28 @@ export function Header() {
 
         {/* Icons */}
         <div className="flex items-center gap-4">
-          <button className="p-2 hover:bg-secondary rounded-lg transition">
+          <button 
+            onClick={() => setCurrentPage('messaging')}
+            className="p-2 hover:bg-secondary rounded-lg transition"
+          >
             <MessageCircle size={20} className="text-foreground" />
           </button>
-          <button className="p-2 hover:bg-secondary rounded-lg transition">
+          <button 
+            onClick={() => setCurrentPage('notifications')}
+            className="p-2 hover:bg-secondary rounded-lg transition"
+          >
             <Bell size={20} className="text-foreground" />
+          </button>
+          <button 
+            onClick={toggleDarkMode}
+            className="p-2 hover:bg-secondary rounded-lg transition"
+            title={darkMode ? 'Light mode' : 'Dark mode'}
+          >
+            {darkMode ? (
+              <Sun size={20} className="text-foreground" />
+            ) : (
+              <Moon size={20} className="text-foreground" />
+            )}
           </button>
           
           {/* Mobile Menu Toggle */}
@@ -122,6 +148,24 @@ export function Header() {
                 </button>
               </>
             )}
+            <button 
+              onClick={() => {
+                setCurrentPage('payments')
+                setIsMenuOpen(false)
+              }}
+              className="py-2 px-4 text-left hover:bg-secondary rounded transition"
+            >
+              {currentUser.role === 'worker' ? 'Earnings' : 'Payments'}
+            </button>
+            <button 
+              onClick={() => {
+                setCurrentPage('support')
+                setIsMenuOpen(false)
+              }}
+              className="py-2 px-4 text-left hover:bg-secondary rounded transition"
+            >
+              Support
+            </button>
             <button 
               onClick={() => {
                 setCurrentPage('settings')
