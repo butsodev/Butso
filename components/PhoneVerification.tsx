@@ -59,7 +59,7 @@ export function PhoneVerification() {
           </h1>
           <p className="text-muted-foreground">
             {step === 'phone' 
-              ? 'We&apos;ll use this to keep your account secure'
+              ? "We'll use this to keep your account secure"
               : 'Enter the 4-digit code sent to your number'}
           </p>
         </motion.div>

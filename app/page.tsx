@@ -27,23 +27,33 @@ import { Toast } from '@/components/Toast'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AdvancedSearch } from '@/components/AdvancedSearch'
 import { Sidebar } from '@/components/Sidebar'
+import { BottomNav } from '@/components/BottomNav'
+import { LandingPage } from '@/components/LandingPage'
+import { PrivacyPolicy } from '@/components/PrivacyPolicy'
+import { TermsOfService } from '@/components/TermsOfService'
+import { UserProfile } from '@/components/UserProfile'
+import { Suggestions } from '@/components/Suggestions'
 
 export default function Home() {
   const { currentPage, currentUser } = useAppStore()
 
-  // Render splash and onboarding screens without header
+  // Render unauthenticated pages
   if (!currentUser) {
     switch (currentPage) {
       case 'splash':
-        return <SplashScreen />
+        return <LandingPage />
       case 'role-select':
         return <RoleSelection />
       case 'phone-verification':
         return <PhoneVerification />
       case 'profile-setup':
         return <ProfileSetup />
+      case 'privacy':
+        return <PrivacyPolicy />
+      case 'terms':
+        return <TermsOfService />
       default:
-        return <SplashScreen />
+        return <LandingPage />
     }
   }
 
@@ -94,6 +104,14 @@ export default function Home() {
         
         {currentPage === 'advanced-search' && <AdvancedSearch />}
         
+        {currentPage === 'profile' && <UserProfile />}
+        
+        {currentPage === 'suggestions' && <Suggestions />}
+        
+        {currentPage === 'privacy' && <PrivacyPolicy />}
+        
+        {currentPage === 'terms' && <TermsOfService />}
+        
         {/* Fallback for unknown pages */}
         {currentPage !== 'dashboard' &&
           currentPage !== 'jobs' &&
@@ -111,7 +129,11 @@ export default function Home() {
           currentPage !== 'payments' &&
           currentPage !== 'booking-confirmation' &&
           currentPage !== 'ratings-reviews' &&
-          currentPage !== 'advanced-search' && (
+          currentPage !== 'advanced-search' &&
+          currentPage !== 'profile' &&
+          currentPage !== 'suggestions' &&
+          currentPage !== 'privacy' &&
+          currentPage !== 'terms' && (
             <div className="flex items-center justify-center min-h-screen">
               <div className="text-center">
                 <h1 className="text-3xl font-bold text-foreground mb-2">
@@ -124,6 +146,7 @@ export default function Home() {
             </div>
           )}
       </main>
+      <BottomNav />
       </div>
     </ErrorBoundary>
   )

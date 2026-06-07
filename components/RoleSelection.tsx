@@ -17,14 +17,14 @@ export function RoleSelection() {
     {
       role: 'worker' as UserRole,
       icon: Wrench,
-      title: 'I&apos;m a Worker',
+      title: "I'm a Worker",
       description: 'Find jobs in your area and earn money',
       color: 'from-primary to-primary/80',
     },
     {
       role: 'employer' as UserRole,
       icon: Briefcase,
-      title: 'I&apos;m an Employer',
+      title: "I'm an Employer",
       description: 'Hire skilled workers for your projects',
       color: 'from-accent to-accent/80',
     },
