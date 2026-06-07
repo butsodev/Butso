@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
 
@@ -69,6 +69,13 @@ export function PostJob() {
           transition={{ delay: 0.2 }}
           className="max-w-4xl mx-auto"
         >
+          <button
+            onClick={() => setCurrentPage('dashboard')}
+            className="mb-4 flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground transition font-semibold"
+          >
+            <ArrowLeft size={20} />
+            Back
+          </button>
           <h1 className="text-3xl font-bold mb-1">Post a New Job</h1>
           <p className="text-primary-foreground/80">Describe the work you need done</p>
         </motion.div>

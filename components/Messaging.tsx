@@ -115,10 +115,10 @@ export function Messaging() {
                 whileHover={{ x: -5 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setCurrentPage('dashboard')}
-                className="flex items-center gap-2 text-primary hover:text-primary/80 transition font-semibold md:hidden"
+                className="flex items-center gap-2 text-primary hover:text-primary/80 transition font-semibold"
               >
                 <ArrowLeft size={20} />
-                Back
+                <span className="hidden sm:inline">Back</span>
               </motion.button>
               <h1 className="text-2xl font-bold text-foreground">Messages</h1>
             </div>

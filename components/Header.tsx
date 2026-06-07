@@ -6,10 +6,11 @@ import { useAppStore } from '@/lib/store'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { currentUser, setCurrentPage, darkMode, toggleDarkMode, pageHistory, goBack, currentPage } = useAppStore()
-  const canGoBack = pageHistory.length > 0
+  const [isMounted, setIsMounted] = useState(false)
+  const { currentUser, setCurrentPage, darkMode, toggleDarkMode, currentPage } = useAppStore()
 
   useEffect(() => {
+    setIsMounted(true)
     const root = document.documentElement
     if (darkMode) {
       root.classList.add('dark')
@@ -23,11 +24,12 @@ export function Header() {
       <div className="flex items-center justify-between px-4 py-4 sm:px-6">
         {/* Back Button & Logo */}
         <div className="flex items-center gap-3">
-          {canGoBack && (
+          {isMounted && currentPage !== 'dashboard' && (
             <button
-              onClick={goBack}
-              className="p-2 hover:bg-secondary rounded-lg transition lg:hidden"
+              onClick={() => setCurrentPage('dashboard')}
+              className="p-2 hover:bg-secondary rounded-lg transition"
               title="Go back"
+              aria-label="Go back"
             >
               <ArrowLeft size={20} className="text-foreground" />
             </button>

@@ -26,7 +26,6 @@ import { RatingsReviews } from '@/components/RatingsReviews'
 import { Toast } from '@/components/Toast'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AdvancedSearch } from '@/components/AdvancedSearch'
-import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { Sidebar } from '@/components/Sidebar'
 
 export default function Home() {
@@ -55,7 +54,6 @@ export default function Home() {
         <Toast />
         <Header />
         <Sidebar />
-        <Breadcrumbs />
         <main className="lg:ml-64">
         {currentPage === 'dashboard' &&
           (currentUser.role === 'worker' ? (
