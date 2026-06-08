@@ -34,12 +34,13 @@ export function Header() {
               <ArrowLeft size={20} className="text-foreground" />
             </button>
           )}
-          <div 
-            className="text-2xl font-bold text-primary cursor-pointer"
+          <button 
             onClick={() => setCurrentPage('dashboard')}
+            className="text-2xl font-bold text-primary hover:text-primary/80 transition active:scale-95"
+            title="Go to Dashboard"
           >
             Butsó
-          </div>
+          </button>
         </div>
 
         {/* Desktop Navigation */}
