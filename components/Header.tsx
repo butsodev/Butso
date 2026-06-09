@@ -1,199 +1,84 @@
 'use client'
 
-import { Menu, X, MessageCircle, Bell, Moon, Sun, ArrowLeft } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { MessageCircle, Bell, Moon, Sun, ArrowLeft } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useAppStore } from '@/lib/store'
 
 export function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
-  const { currentUser, setCurrentPage, darkMode, toggleDarkMode, currentPage } = useAppStore()
+  const { currentUser, setCurrentPage, darkMode, toggleDarkMode, currentPage, notifications } = useAppStore()
 
   useEffect(() => {
     setIsMounted(true)
     const root = document.documentElement
-    if (darkMode) {
-      root.classList.add('dark')
-    } else {
-      root.classList.remove('dark')
-    }
+    if (darkMode) root.classList.add('dark')
+    else root.classList.remove('dark')
   }, [darkMode])
 
+  const unreadNotifs = notifications?.filter((n: import('@/lib/store').Notification) => !n.read).length ?? 0
+
+  const showBack = isMounted && currentPage !== 'dashboard'
+
   return (
-    <header className="sticky top-0 z-40 bg-background border-b border-border">
-      <div className="flex items-center justify-between px-4 py-4 sm:px-6">
-        {/* Back Button & Logo */}
-        <div className="flex items-center gap-3">
-          {isMounted && currentPage !== 'dashboard' && (
+    <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-sm border-b border-border">
+      <div className="flex items-center justify-between px-4 py-3 sm:px-6 h-14">
+        {/* Left — back or logo */}
+        <div className="flex items-center gap-2">
+          {showBack && (
             <button
               onClick={() => setCurrentPage('dashboard')}
-              className="p-2 hover:bg-secondary rounded-lg transition"
-              title="Go back"
-              aria-label="Go back"
+              className="p-2 -ml-1 hover:bg-secondary rounded-xl transition"
+              aria-label="Back to dashboard"
             >
               <ArrowLeft size={20} className="text-foreground" />
             </button>
           )}
-          <button 
+          <button
             onClick={() => setCurrentPage('dashboard')}
-            className="text-2xl font-bold text-primary hover:text-primary/80 transition active:scale-95"
-            title="Go to Dashboard"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
-            Butsó
+            <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-primary-foreground font-black text-xs">B</span>
+            </div>
+            <span className="text-lg font-black text-foreground tracking-tight">Butsó</span>
           </button>
         </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
-          {currentUser?.role === 'worker' && (
-            <>
-              <button 
-                onClick={() => setCurrentPage('jobs')}
-                className="text-foreground hover:text-primary transition"
-              >
-                Browse Jobs
-              </button>
-              <button 
-                onClick={() => setCurrentPage('dashboard')}
-                className="text-foreground hover:text-primary transition"
-              >
-                Dashboard
-              </button>
-            </>
-          )}
-          {currentUser?.role === 'employer' && (
-            <>
-              <button 
-                onClick={() => setCurrentPage('post-job')}
-                className="text-foreground hover:text-primary transition"
-              >
-                Post Job
-              </button>
-              <button 
-                onClick={() => setCurrentPage('dashboard')}
-                className="text-foreground hover:text-primary transition"
-              >
-                Dashboard
-              </button>
-            </>
-          )}
-        </nav>
-
-        {/* Icons & Navigation */}
-        <div className="flex items-center gap-2 sm:gap-4">
-          <button 
+        {/* Right — icons */}
+        <div className="flex items-center gap-1">
+          <button
             onClick={() => setCurrentPage('messaging')}
-            className="p-2 hover:bg-secondary rounded-lg transition"
+            className="p-2 hover:bg-secondary rounded-xl transition"
+            aria-label="Messages"
           >
             <MessageCircle size={20} className="text-foreground" />
           </button>
-          <button 
+
+          <button
             onClick={() => setCurrentPage('notifications')}
-            className="p-2 hover:bg-secondary rounded-lg transition"
+            className="relative p-2 hover:bg-secondary rounded-xl transition"
+            aria-label="Notifications"
           >
             <Bell size={20} className="text-foreground" />
-          </button>
-          <button 
-            onClick={toggleDarkMode}
-            className="p-2 hover:bg-secondary rounded-lg transition"
-            title={darkMode ? 'Light mode' : 'Dark mode'}
-          >
-            {darkMode ? (
-              <Sun size={20} className="text-foreground" />
-            ) : (
-              <Moon size={20} className="text-foreground" />
+            {unreadNotifs > 0 && (
+              <span className="absolute top-1 right-1 w-4 h-4 bg-accent text-accent-foreground text-[10px] font-black rounded-full flex items-center justify-center">
+                {unreadNotifs > 9 ? '9+' : unreadNotifs}
+              </span>
             )}
           </button>
-          
-          {/* Mobile Menu Toggle */}
+
           <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 hover:bg-secondary rounded-lg transition"
-            aria-label="Toggle menu"
+            onClick={toggleDarkMode}
+            className="p-2 hover:bg-secondary rounded-xl transition"
+            aria-label={darkMode ? 'Light mode' : 'Dark mode'}
           >
-            {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            {isMounted && darkMode
+              ? <Sun size={20} className="text-foreground" />
+              : <Moon size={20} className="text-foreground" />
+            }
           </button>
         </div>
       </div>
-
-      {/* Mobile Navigation */}
-      {isMenuOpen && currentUser && (
-        <div className="md:hidden border-t border-border bg-background">
-          <nav className="flex flex-col p-4 gap-2">
-            {currentUser.role === 'worker' && (
-              <>
-                <button 
-                  onClick={() => {
-                    setCurrentPage('jobs')
-                    setIsMenuOpen(false)
-                  }}
-                  className="py-2 px-4 text-left hover:bg-secondary rounded transition"
-                >
-                  Browse Jobs
-                </button>
-                <button 
-                  onClick={() => {
-                    setCurrentPage('dashboard')
-                    setIsMenuOpen(false)
-                  }}
-                  className="py-2 px-4 text-left hover:bg-secondary rounded transition"
-                >
-                  Dashboard
-                </button>
-              </>
-            )}
-            {currentUser.role === 'employer' && (
-              <>
-                <button 
-                  onClick={() => {
-                    setCurrentPage('post-job')
-                    setIsMenuOpen(false)
-                  }}
-                  className="py-2 px-4 text-left hover:bg-secondary rounded transition"
-                >
-                  Post Job
-                </button>
-                <button 
-                  onClick={() => {
-                    setCurrentPage('dashboard')
-                    setIsMenuOpen(false)
-                  }}
-                  className="py-2 px-4 text-left hover:bg-secondary rounded transition"
-                >
-                  Dashboard
-                </button>
-              </>
-            )}
-            <button 
-              onClick={() => {
-                setCurrentPage('payments')
-                setIsMenuOpen(false)
-              }}
-              className="py-2 px-4 text-left hover:bg-secondary rounded transition"
-            >
-              {currentUser.role === 'worker' ? 'Earnings' : 'Payments'}
-            </button>
-            <button 
-              onClick={() => {
-                setCurrentPage('support')
-                setIsMenuOpen(false)
-              }}
-              className="py-2 px-4 text-left hover:bg-secondary rounded transition"
-            >
-              Support
-            </button>
-            <button 
-              onClick={() => {
-                setCurrentPage('settings')
-                setIsMenuOpen(false)
-              }}
-              className="py-2 px-4 text-left hover:bg-secondary rounded transition"
-            >
-              Settings
-            </button>
-          </nav>
-        </div>
-      )}
     </header>
   )
 }

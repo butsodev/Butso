@@ -1,32 +1,32 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Plus_Jakarta_Sans, Fraunces } from 'next/font/google'
 import './globals.css'
 
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+// Body font — warm, friendly, highly legible on mobile
+const jakartaSans = Plus_Jakarta_Sans({
+  variable: '--font-body-var',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
+})
+
+// Display / heading font — has character, feels handcrafted not corporate
+const fraunces = Fraunces({
+  variable: '--font-heading-var',
+  subsets: ['latin'],
+  weight: 'variable',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
-  title: 'Butsó - Local Services Marketplace',
-  description: 'Connect with workers and employers in Wukari for jobs and bookings',
-  generator: 'v0.app',
+  title: 'Butsó — Your Local Work Network',
+  description: 'Butsó connects skilled workers and employers right here in Wukari, Taraba State. No CV needed. Just show up.',
   icons: {
     icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
+      { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
+      { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
     ],
     apple: '/apple-icon.png',
   },
@@ -43,7 +43,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} bg-background`}>
+    <html lang="en" className={`${jakartaSans.variable} ${fraunces.variable}`}>
       <body className="font-sans antialiased bg-background text-foreground">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

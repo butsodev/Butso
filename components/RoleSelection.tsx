@@ -1,32 +1,32 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Briefcase, Wrench } from 'lucide-react'
 import { useAppStore, type UserRole } from '@/lib/store'
 
 export function RoleSelection() {
   const { setCurrentPage } = useAppStore()
 
   const selectRole = (role: UserRole) => {
-    // Store selected role temporarily
     sessionStorage.setItem('selectedRole', role)
     setCurrentPage('phone-verification')
   }
 
-  const roleOptions = [
+  const options = [
     {
-      role: 'worker' as UserRole,
-      icon: Wrench,
-      title: "I'm a Worker",
-      description: 'Find jobs in your area and earn money',
-      color: 'from-primary to-primary/80',
+      role: 'find-work' as UserRole,
+      emoji: '🛠️',
+      title: "I'm looking for work",
+      description: 'Find jobs near you — plumbing, cleaning, electrical, carpentry, and more.',
+      gradient: 'from-primary to-primary/75',
+      examples: ['Plumber', 'Electrician', 'Cleaner', 'Carpenter', 'Cook'],
     },
     {
-      role: 'employer' as UserRole,
-      icon: Briefcase,
-      title: "I'm an Employer",
-      description: 'Hire skilled workers for your projects',
-      color: 'from-accent to-accent/80',
+      role: 'need-help' as UserRole,
+      emoji: '📋',
+      title: 'I need to hire someone',
+      description: 'Post a job and get reliable people to help you fast.',
+      gradient: 'from-emerald-600 to-emerald-500',
+      examples: ['Fix my pipe', 'Paint my house', 'Clean my office', 'Build furniture'],
     },
   ]
 
@@ -34,57 +34,83 @@ export function RoleSelection() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="min-h-screen bg-background flex flex-col items-center justify-center p-4"
+      transition={{ duration: 0.35 }}
+      className="min-h-screen bg-background flex flex-col items-center justify-center p-5"
     >
-      <div className="max-w-2xl w-full">
+      <div className="max-w-lg w-full">
+
+        {/* Logo */}
         <motion.div
-          initial={{ y: -20, opacity: 0 }}
+          initial={{ y: -16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="text-center mb-12"
+          transition={{ delay: 0.1 }}
+          className="text-center mb-10"
         >
-          <h1 className="text-4xl font-bold text-foreground mb-2">What brings you here?</h1>
-          <p className="text-muted-foreground text-lg">Choose your role to get started</p>
+          <button
+            onClick={() => setCurrentPage('splash')}
+            className="inline-flex items-center gap-2 mb-6 hover:opacity-70 transition-opacity"
+          >
+            <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center">
+              <span className="text-primary-foreground font-black text-base">B</span>
+            </div>
+            <span className="text-2xl font-black text-foreground">Butsó</span>
+          </button>
+
+          <h1 className="text-3xl font-black text-foreground mb-2">
+            What are you here for?
+          </h1>
+          <p className="text-muted-foreground">
+            Pick one — you can always do both later
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {roleOptions.map((option, index) => {
-            const Icon = option.icon
-            return (
-              <motion.button
-                key={option.role}
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 + index * 0.1 }}
-                whileHover={{ scale: 1.05, y: -5 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => selectRole(option.role)}
-                className={`bg-gradient-to-br ${option.color} p-8 rounded-2xl shadow-lg hover:shadow-xl transition text-primary-foreground group cursor-pointer`}
-              >
-                <div className="flex flex-col items-center text-center">
-                  <div className="p-4 bg-card/20 rounded-full mb-4 group-hover:bg-card/30 transition">
-                    <Icon size={48} className="text-primary-foreground" />
+        {/* Option cards */}
+        <div className="flex flex-col gap-4">
+          {options.map((opt, i) => (
+            <motion.button
+              key={opt.role}
+              initial={{ y: 24, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 + i * 0.1, type: 'spring', stiffness: 260, damping: 24 }}
+              whileHover={{ scale: 1.02, y: -3 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => selectRole(opt.role)}
+              className={`bg-gradient-to-br ${opt.gradient} p-6 rounded-2xl shadow-lg text-left group`}
+            >
+              <div className="flex items-start gap-4">
+                <span className="text-4xl leading-none mt-0.5">{opt.emoji}</span>
+                <div className="flex-1">
+                  <h2 className="text-xl font-black text-white mb-1">{opt.title}</h2>
+                  <p className="text-white/80 text-sm leading-relaxed mb-3">{opt.description}</p>
+                  {/* Example chips */}
+                  <div className="flex flex-wrap gap-2">
+                    {opt.examples.map(ex => (
+                      <span
+                        key={ex}
+                        className="text-xs bg-white/20 text-white px-2.5 py-1 rounded-full font-medium"
+                      >
+                        {ex}
+                      </span>
+                    ))}
                   </div>
-                  <h2 className="text-2xl font-bold mb-2">{option.title}</h2>
-                  <p className="text-primary-foreground/90">{option.description}</p>
                 </div>
-              </motion.button>
-            )
-          })}
+              </div>
+            </motion.button>
+          ))}
         </div>
 
+        {/* Back */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.45 }}
           className="mt-8 text-center"
         >
           <button
             onClick={() => setCurrentPage('splash')}
-            className="text-muted-foreground hover:text-foreground transition"
+            className="text-muted-foreground hover:text-foreground transition text-sm"
           >
-            ← Back
+            ← Back to home
           </button>
         </motion.div>
       </div>

@@ -67,7 +67,7 @@ export function UserProfile() {
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Star size={16} className="text-accent" fill="currentColor" />
-                <span className="font-semibold">{currentUser.rating.toFixed(1)}</span>
+                <span className="font-semibold">{((currentUser.rating ?? 5).toFixed(1))}</span>
                 <span>({currentUser.completedJobs} jobs completed)</span>
               </div>
             </div>
@@ -77,7 +77,7 @@ export function UserProfile() {
             <h3 className="text-lg font-bold text-foreground mb-4">About</h3>
             <p className="text-muted-foreground mb-6">{currentUser.bio || 'No bio added yet.'}</p>
 
-            {currentUser.role === 'worker' && currentUser.skills && (
+            {currentUser.skills && (
               <>
                 <h3 className="text-lg font-bold text-foreground mb-4">Skills</h3>
                 <div className="flex flex-wrap gap-2 mb-6">
@@ -99,11 +99,11 @@ export function UserProfile() {
                 <p className="text-muted-foreground text-sm">Jobs Completed</p>
               </div>
               <div className="bg-secondary rounded-lg p-4 text-center">
-                <p className="text-2xl font-bold text-foreground">{currentUser.rating.toFixed(1)}</p>
+                <p className="text-2xl font-bold text-foreground">{((currentUser.rating ?? 5).toFixed(1))}</p>
                 <p className="text-muted-foreground text-sm">Rating</p>
               </div>
               <div className="bg-secondary rounded-lg p-4 text-center">
-                <p className="text-2xl font-bold text-foreground">{currentUser.role === 'worker' ? 'Active' : 'Hiring'}</p>
+                <p className="text-2xl font-bold text-foreground">{(currentUser.role === 'worker' ? 'Available' : 'Hiring')}</p>
                 <p className="text-muted-foreground text-sm">Status</p>
               </div>
             </div>

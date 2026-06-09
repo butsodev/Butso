@@ -1,33 +1,81 @@
-# v0-butso-platform
+# Butsó — Your Local Work Network
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
+Butsó connects skilled workers and employers in Wukari, Taraba State. Find jobs, hire locally, and get paid — no CV, no agency, no stress.
 
-## Built with v0
+> *"Butsó" means "work" in Jukun — built for the people of Wukari.*
 
-This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
+---
 
-[Continue working on v0 →](https://v0.app/chat/projects/prj_8HnyXnyhxJdWtL6UoQPVXa3GuzGi)
+## What it does
+
+- **Workers** browse and apply for local jobs across any skill — plumbing, cleaning, electrical, carpentry, cooking, and more
+- **Employers** post jobs in seconds and get applications from verified locals fast
+- **Everyone** can explore the platform, pick their interests, and see personalised job feeds from the first visit
+- In-app messaging, booking slots, payment tracking, ratings and reviews — all in one place
+
+## Tech Stack
+
+- **Framework** — [Next.js 15](https://nextjs.org/) (App Router)
+- **Styling** — [Tailwind CSS v4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
+- **Animations** — [Framer Motion](https://www.framer.com/motion/)
+- **State** — [Zustand](https://zustand-demo.pmnd.rs/) with localStorage persistence
+- **Data fetching** — [SWR](https://swr.vercel.app/)
+- **Analytics** — [Vercel Analytics](https://vercel.com/analytics)
+- **Language** — TypeScript
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Clone
+git clone https://github.com/your-username/butso-platform.git
+cd butso-platform
+
+# Install
+pnpm install
+
+# Run dev server
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build for production
 
-## Learn More
+```bash
+pnpm build
+pnpm start
+```
 
-To learn more, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
+```
+butso-platform/
+├── app/                    # Next.js App Router — layout, page, global styles
+├── components/             # All UI components
+│   ├── LandingPage.tsx     # Landing page with situation picker
+│   ├── ExploreOnboarding.tsx  # Interest picker for explore users
+│   ├── UnifiedDashboard.tsx   # Worker + employer dashboard
+│   ├── JobsBrowsing.tsx    # Personalised job feed
+│   ├── ProfileSetup.tsx    # Onboarding flow
+│   └── ui/                 # Reusable primitives
+├── lib/
+│   ├── store.ts            # Zustand store + behaviour tracking
+│   ├── mockData.ts         # Seed data for testing
+│   └── utils.ts
+└── public/                 # Icons and static assets
+```
+
+## Branches
+
+| Branch | Purpose |
+|--------|---------|
+| `main` | Stable codebase |
+| `dev`  | Active development + testing |
+
+## Contributing
+
+This is a private project. If you've been given access for testing, please report bugs and feedback via the issues tab.
+
+## License
+
+Private — All rights reserved © 2026 Butsó, Wukari, Taraba State, Nigeria

@@ -1,13 +1,12 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 import { Header } from '@/components/Header'
-import { SplashScreen } from '@/components/SplashScreen'
 import { RoleSelection } from '@/components/RoleSelection'
 import { PhoneVerification } from '@/components/PhoneVerification'
 import { ProfileSetup } from '@/components/ProfileSetup'
-import { WorkerDashboard } from '@/components/WorkerDashboard'
-import { EmployerDashboard } from '@/components/EmployerDashboard'
+import { UnifiedDashboard } from '@/components/UnifiedDashboard'
 import { JobsBrowsing } from '@/components/JobsBrowsing'
 import { Bookings } from '@/components/Bookings'
 import { PostJob } from '@/components/PostJob'
@@ -33,31 +32,35 @@ import { PrivacyPolicy } from '@/components/PrivacyPolicy'
 import { TermsOfService } from '@/components/TermsOfService'
 import { UserProfile } from '@/components/UserProfile'
 import { Suggestions } from '@/components/Suggestions'
+import { PeopleSearch } from '@/components/PeopleSearch'
+import { LiveSupportChat } from '@/components/LiveSupportChat'
+
+const KNOWN_PAGES = [
+  'dashboard', 'jobs', 'people', 'bookings', 'post-job', 'job-details', 'apply-job',
+  'worker-profile', 'job-applicants', 'booking-slots', 'messaging', 'settings',
+  'support', 'notifications', 'payments', 'booking-confirmation', 'ratings-reviews',
+  'advanced-search', 'profile', 'suggestions', 'privacy', 'terms',
+]
 
 export default function Home() {
   const { currentPage, currentUser } = useAppStore()
 
-  // Render unauthenticated pages
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [currentPage])
+
+  // Unauthenticated
   if (!currentUser) {
     switch (currentPage) {
-      case 'splash':
-        return <LandingPage />
-      case 'role-select':
-        return <RoleSelection />
-      case 'phone-verification':
-        return <PhoneVerification />
-      case 'profile-setup':
-        return <ProfileSetup />
-      case 'privacy':
-        return <PrivacyPolicy />
-      case 'terms':
-        return <TermsOfService />
-      default:
-        return <LandingPage />
+      case 'role-select': return <RoleSelection />
+      case 'phone-verification': return <PhoneVerification />
+      case 'profile-setup': return <ProfileSetup />
+      case 'privacy': return <PrivacyPolicy />
+      case 'terms': return <TermsOfService />
+      default: return <LandingPage />
     }
   }
 
-  // Render authenticated pages with header
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-background">
@@ -65,88 +68,42 @@ export default function Home() {
         <Header />
         <Sidebar />
         <main className="lg:ml-64">
-        {currentPage === 'dashboard' &&
-          (currentUser.role === 'worker' ? (
-            <WorkerDashboard />
-          ) : (
-            <EmployerDashboard />
-          ))}
-        
-        {currentPage === 'jobs' && <JobsBrowsing />}
-        
-        {currentPage === 'bookings' && <Bookings />}
-        
-        {currentPage === 'post-job' && <PostJob />}
-        
-        {currentPage === 'job-details' && <JobDetails />}
-        
-        {currentPage === 'apply-job' && <ApplyJob />}
-        
-        {currentPage === 'worker-profile' && <WorkerProfile />}
-        
-        {currentPage === 'job-applicants' && <JobApplicants />}
-        
-        {currentPage === 'booking-slots' && <BookingSlots />}
-        
-        {currentPage === 'messaging' && <Messaging />}
-        
-        {currentPage === 'settings' && <Settings />}
-        
-        {currentPage === 'support' && <Support />}
-        
-        {currentPage === 'notifications' && <Notifications />}
-        
-        {currentPage === 'payments' && <PaymentsEarnings />}
-        
-        {currentPage === 'booking-confirmation' && <BookingConfirmation />}
-        
-        {currentPage === 'ratings-reviews' && <RatingsReviews />}
-        
-        {currentPage === 'advanced-search' && <AdvancedSearch />}
-        
-        {currentPage === 'profile' && <UserProfile />}
-        
-        {currentPage === 'suggestions' && <Suggestions />}
-        
-        {currentPage === 'privacy' && <PrivacyPolicy />}
-        
-        {currentPage === 'terms' && <TermsOfService />}
-        
-        {/* Fallback for unknown pages */}
-        {currentPage !== 'dashboard' &&
-          currentPage !== 'jobs' &&
-          currentPage !== 'bookings' &&
-          currentPage !== 'post-job' &&
-          currentPage !== 'job-details' &&
-          currentPage !== 'apply-job' &&
-          currentPage !== 'worker-profile' &&
-          currentPage !== 'job-applicants' &&
-          currentPage !== 'booking-slots' &&
-          currentPage !== 'messaging' &&
-          currentPage !== 'settings' &&
-          currentPage !== 'support' &&
-          currentPage !== 'notifications' &&
-          currentPage !== 'payments' &&
-          currentPage !== 'booking-confirmation' &&
-          currentPage !== 'ratings-reviews' &&
-          currentPage !== 'advanced-search' &&
-          currentPage !== 'profile' &&
-          currentPage !== 'suggestions' &&
-          currentPage !== 'privacy' &&
-          currentPage !== 'terms' && (
-            <div className="flex items-center justify-center min-h-screen">
+          {currentPage === 'dashboard' && <UnifiedDashboard />}
+          {currentPage === 'jobs' && <JobsBrowsing />}
+          {currentPage === 'people' && <PeopleSearch />}
+          {currentPage === 'bookings' && <Bookings />}
+          {currentPage === 'post-job' && <PostJob />}
+          {currentPage === 'job-details' && <JobDetails />}
+          {currentPage === 'apply-job' && <ApplyJob />}
+          {currentPage === 'worker-profile' && <WorkerProfile />}
+          {currentPage === 'job-applicants' && <JobApplicants />}
+          {currentPage === 'booking-slots' && <BookingSlots />}
+          {currentPage === 'messaging' && <Messaging />}
+          {currentPage === 'settings' && <Settings />}
+          {currentPage === 'support' && <Support />}
+          {currentPage === 'notifications' && <Notifications />}
+          {currentPage === 'payments' && <PaymentsEarnings />}
+          {currentPage === 'booking-confirmation' && <BookingConfirmation />}
+          {currentPage === 'ratings-reviews' && <RatingsReviews />}
+          {currentPage === 'advanced-search' && <AdvancedSearch />}
+          {currentPage === 'profile' && <UserProfile />}
+          {currentPage === 'suggestions' && <Suggestions />}
+          {currentPage === 'privacy' && <PrivacyPolicy />}
+          {currentPage === 'terms' && <TermsOfService />}
+
+          {!KNOWN_PAGES.includes(currentPage) && (
+            <div className="flex items-center justify-center min-h-[60vh]">
               <div className="text-center">
-                <h1 className="text-3xl font-bold text-foreground mb-2">
-                  Page Coming Soon
-                </h1>
-                <p className="text-muted-foreground">
-                  This page is under development
-                </p>
+                <p className="text-4xl mb-3">🚧</p>
+                <h1 className="text-2xl font-black text-foreground mb-2">Coming Soon</h1>
+                <p className="text-muted-foreground text-sm">This page is under development</p>
               </div>
             </div>
           )}
-      </main>
-      <BottomNav />
+        </main>
+
+        <BottomNav />
+        <LiveSupportChat />
       </div>
     </ErrorBoundary>
   )

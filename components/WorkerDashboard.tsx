@@ -1,138 +1,123 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Star, Briefcase, DollarSign, Clock } from 'lucide-react'
+import { Star, Briefcase, DollarSign, Clock, ArrowRight, Bell } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
+import { SkeletonDashboard } from '@/components/Skeleton'
+
+const containerVariants = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.07, delayChildren: 0.1 },
+  },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 18 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring' as const, stiffness: 280, damping: 24 },
+  },
+}
 
 export function WorkerDashboard() {
   const { currentUser, setCurrentPage } = useAppStore()
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 900)
+    return () => clearTimeout(t)
+  }, [])
+
+  if (loading) return <SkeletonDashboard />
 
   const stats = [
-    {
-      icon: Briefcase,
-      label: 'Completed Jobs',
-      value: currentUser?.completedJobs || 0,
-      color: 'text-primary',
-    },
-    {
-      icon: Star,
-      label: 'Rating',
-      value: currentUser?.rating || 5.0,
-      color: 'text-accent',
-    },
-    {
-      icon: DollarSign,
-      label: 'Total Earned',
-      value: '₦0',
-      color: 'text-primary',
-    },
-    {
-      icon: Clock,
-      label: 'Active',
-      value: 'Available',
-      color: 'text-primary',
-    },
+    { icon: Briefcase, label: 'Jobs Done', value: currentUser?.completedJobs || 0, color: 'text-primary', bg: 'bg-primary/10' },
+    { icon: Star, label: 'Rating', value: `${currentUser?.rating || '5.0'}★`, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    { icon: DollarSign, label: 'Earned', value: '₦0', color: 'text-emerald-600', bg: 'bg-emerald-500/10' },
+    { icon: Clock, label: 'Status', value: 'Active', color: 'text-primary', bg: 'bg-primary/10' },
+  ]
+
+  const quickActions = [
+    { label: 'Browse Jobs', sub: 'Find work near you', icon: '🔍', page: 'jobs', primary: true },
+    { label: 'My Bookings', sub: 'View scheduled work', icon: '📅', page: 'bookings', primary: false },
+    { label: 'Messages', sub: 'Chat with employers', icon: '💬', page: 'messaging', primary: false },
+    { label: 'Payments', sub: 'Track your earnings', icon: '💰', page: 'payments', primary: false },
   ]
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 260, damping: 26 }}
       className="min-h-screen bg-background pb-20"
     >
-      {/* Header Section */}
-      <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pt-8">
-        <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="max-w-4xl mx-auto"
-        >
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-1">Welcome, {currentUser?.name}</h1>
-              <p className="text-primary-foreground/80">Here&apos;s what&apos;s happening with your jobs</p>
-            </div>
-            <div className="text-right">
-              <div className="text-4xl font-bold">⭐ {currentUser?.rating}</div>
-              <p className="text-primary-foreground/80 text-sm">Your rating</p>
-            </div>
-          </div>
-        </motion.div>
+      <div className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground px-4 sm:px-6 pt-8 pb-12">
+        <div className="max-w-4xl mx-auto flex items-start justify-between gap-4">
+          <motion.div initial={{ x: -16, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1, type: 'spring', stiffness: 260 }}>
+            <p className="text-primary-foreground/70 text-sm font-medium mb-1">Good day 👋</p>
+            <h1 className="text-2xl sm:text-3xl font-black mb-1">{currentUser?.name}</h1>
+            <p className="text-primary-foreground/75 text-sm">Ready to find work today?</p>
+          </motion.div>
+          <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+            onClick={() => setCurrentPage('notifications')}
+            className="p-2.5 bg-white/15 rounded-xl hover:bg-white/25 transition shrink-0">
+            <Bell size={20} className="text-white" />
+          </motion.button>
+        </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 -mt-6 pb-8">
-        {/* Stats Cards */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
-        >
-          {stats.map((stat, index) => {
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 -mt-8 pb-8">
+        <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          {stats.map((stat) => {
             const Icon = stat.icon
             return (
-              <motion.div
-                key={index}
-                whileHover={{ y: -5 }}
-                className="bg-card border border-border rounded-lg p-4 shadow-sm hover:shadow-md transition"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-muted-foreground text-xs md:text-sm font-medium">
-                      {stat.label}
-                    </p>
-                    <p className="text-2xl md:text-3xl font-bold text-foreground mt-2">
-                      {stat.value}
-                    </p>
-                  </div>
-                  <Icon className={`${stat.color} opacity-70`} size={20} />
+              <motion.div key={stat.label} variants={itemVariants} whileHover={{ y: -4, transition: { type: 'spring', stiffness: 400 } }}
+                className="bg-card border border-border rounded-2xl p-4 shadow-sm">
+                <div className={`w-8 h-8 ${stat.bg} rounded-lg flex items-center justify-center mb-3`}>
+                  <Icon size={16} className={stat.color} />
                 </div>
+                <p className="text-xl sm:text-2xl font-black text-foreground">{stat.value}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 font-medium">{stat.label}</p>
               </motion.div>
             )
           })}
         </motion.div>
 
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="bg-card rounded-lg border border-border shadow-sm p-6 mb-8"
-        >
-          <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setCurrentPage('jobs')}
-              className="py-4 px-6 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition text-center"
-            >
-              Browse Available Jobs
+        <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-2 gap-3 mb-6">
+          {quickActions.map((action) => (
+            <motion.button key={action.label} variants={itemVariants} whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.97 }}
+              onClick={() => setCurrentPage(action.page)}
+              className={`flex items-center gap-3 p-4 rounded-2xl text-left transition ${
+                action.primary
+                  ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 col-span-2'
+                  : 'bg-card border border-border hover:border-primary/40'
+              }`}>
+              <span className="text-2xl">{action.icon}</span>
+              <div className="flex-1 min-w-0">
+                <p className={`font-bold text-sm ${action.primary ? 'text-primary-foreground' : 'text-foreground'}`}>{action.label}</p>
+                <p className={`text-xs truncate ${action.primary ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>{action.sub}</p>
+              </div>
+              <ArrowRight size={16} className={action.primary ? 'text-primary-foreground/70' : 'text-muted-foreground'} />
             </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setCurrentPage('bookings')}
-              className="py-4 px-6 border border-primary text-primary font-semibold rounded-lg hover:bg-primary/10 transition text-center"
-            >
-              View Bookings
-            </motion.button>
-          </div>
+          ))}
         </motion.div>
 
-        {/* Recent Activity */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="bg-card rounded-lg border border-border shadow-sm p-6"
-        >
-          <h2 className="text-xl font-bold text-foreground mb-4">Recent Activity</h2>
-          <div className="text-center py-8 text-muted-foreground">
-            <p>No recent activity. Browse jobs to get started!</p>
+        <motion.div variants={itemVariants} initial="hidden" animate="show" className="bg-card border border-border rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-black text-foreground text-lg">Recent Activity</h2>
+            <button onClick={() => setCurrentPage('bookings')} className="text-xs text-primary font-semibold hover:underline">See all</button>
+          </div>
+          <div className="text-center py-8">
+            <div className="text-4xl mb-3">🎯</div>
+            <p className="font-semibold text-foreground mb-1">No activity yet</p>
+            <p className="text-sm text-muted-foreground mb-4">Browse jobs and send your first application</p>
+            <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setCurrentPage('jobs')}
+              className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-primary/90 transition">
+              Browse Jobs
+            </motion.button>
           </div>
         </motion.div>
       </div>

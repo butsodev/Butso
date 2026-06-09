@@ -1,4 +1,4 @@
-import { Job } from './store'
+import type { Job, Booking, Notification, Transaction } from './store'
 
 export const mockJobs: Job[] = [
   {
@@ -28,7 +28,7 @@ export const mockJobs: Job[] = [
   {
     id: 'job3',
     title: 'House Cleaning',
-    description: '4-bedroom house cleaning, deep clean including windows, carpets, and all surfaces.',
+    description: '4-bedroom house deep clean including windows, carpets, and all surfaces.',
     category: 'Cleaning',
     budget: 35000,
     location: 'South Wukari',
@@ -51,8 +51,8 @@ export const mockJobs: Job[] = [
   },
   {
     id: 'job5',
-    title: 'Fence Repair',
-    description: 'Repair damaged fence sections and paint. About 50 meters of fencing.',
+    title: 'Fence Repair & Painting',
+    description: 'Repair damaged fence sections and repaint. About 50 meters of fencing.',
     category: 'Construction',
     budget: 75000,
     location: 'North Wukari',
@@ -63,7 +63,7 @@ export const mockJobs: Job[] = [
   },
   {
     id: 'job6',
-    title: 'Door Installation',
+    title: 'Security Door Installation',
     description: 'Install new security doors and locks on 3 entrances. Modern design preferred.',
     category: 'Construction',
     budget: 95000,
@@ -96,5 +96,258 @@ export const mockJobs: Job[] = [
     status: 'open',
     applicants: [],
     createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'job9',
+    title: 'Generator Repair',
+    description: 'Service and repair 10KVA generator. Not starting, possible fuel pump issue.',
+    category: 'Electrical',
+    budget: 28000,
+    location: 'South Wukari',
+    employerId: 'emp8',
+    status: 'open',
+    applicants: [],
+    createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'job10',
+    title: 'Office Painting',
+    description: 'Paint 5-room office space. Walls and ceiling. Client will supply paint.',
+    category: 'Repairs',
+    budget: 60000,
+    location: 'Central Wukari',
+    employerId: 'emp9',
+    status: 'open',
+    applicants: ['worker1'],
+    createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+  },
+]
+
+export const mockBookings: Booking[] = [
+  {
+    id: 'booking1',
+    jobId: 'job1',
+    jobTitle: 'Bathroom Renovation',
+    workerId: 'worker1',
+    workerName: 'Chukwu Okonkwo',
+    employerId: 'emp1',
+    employerName: 'Amaka Nwosu',
+    status: 'confirmed',
+    date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    slots: ['9:00 AM', '10:00 AM', '11:00 AM'],
+    totalPrice: 250000,
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'booking2',
+    jobId: 'job3',
+    jobTitle: 'House Cleaning',
+    workerId: 'worker2',
+    workerName: 'Fatima Abdullahi',
+    employerId: 'emp3',
+    employerName: 'Tunde Oluwaseun',
+    status: 'pending',
+    date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+    slots: ['8:00 AM', '9:00 AM'],
+    totalPrice: 35000,
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'booking3',
+    jobId: 'job2',
+    jobTitle: 'Plumbing Repair',
+    workerId: 'worker3',
+    workerName: 'Ibrahim Musa',
+    employerId: 'emp2',
+    employerName: 'Grace Adeyemi',
+    status: 'completed',
+    date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    slots: ['10:00 AM', '11:00 AM', '12:00 PM'],
+    totalPrice: 45000,
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+]
+
+export const mockNotifications: Notification[] = [
+  {
+    id: 'notif1',
+    type: 'application',
+    title: 'New Application Received',
+    body: 'Chukwu Okonkwo applied for your Bathroom Renovation job.',
+    read: false,
+    createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'notif2',
+    type: 'booking',
+    title: 'Booking Confirmed',
+    body: 'Your booking for House Cleaning on Friday has been confirmed.',
+    read: false,
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'notif3',
+    type: 'message',
+    title: 'New Message',
+    body: 'Fatima sent you a message: "I can start on Monday, is that okay?"',
+    read: true,
+    createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'notif4',
+    type: 'payment',
+    title: 'Payment Released',
+    body: '₦45,000 has been released to your wallet for Plumbing Repair.',
+    read: true,
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'notif5',
+    type: 'review',
+    title: 'New Review',
+    body: 'Tunde left you a 5-star review: "Very professional and fast!"',
+    read: true,
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+]
+
+export const mockTransactions: Transaction[] = [
+  {
+    id: 'tx1',
+    type: 'earned',
+    amount: 45000,
+    jobTitle: 'Plumbing Repair',
+    counterpartyName: 'Grace Adeyemi',
+    status: 'completed',
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'tx2',
+    type: 'escrow',
+    amount: 250000,
+    jobTitle: 'Bathroom Renovation',
+    counterpartyName: 'Amaka Nwosu',
+    status: 'held',
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'tx3',
+    type: 'earned',
+    amount: 60000,
+    jobTitle: 'Office Painting',
+    counterpartyName: 'Daniel Obi',
+    status: 'completed',
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+]
+export interface Worker {
+  id: string
+  name: string
+  role: 'worker'
+  bio: string
+  skills: string[]
+  rating: number
+  completedJobs: number
+  location: string
+  available: boolean
+  hourlyRate: number
+}
+
+export const mockWorkers: Worker[] = [
+  {
+    id: 'worker1',
+    name: 'Chukwu Okonkwo',
+    role: 'worker',
+    bio: '8 years plumbing experience, residential and commercial. Based in Central Wukari. Fast, clean work.',
+    skills: ['Plumbing', 'Pipe Fitting', 'Tiling'],
+    rating: 4.9,
+    completedJobs: 34,
+    location: 'Central Wukari',
+    available: true,
+    hourlyRate: 3500,
+  },
+  {
+    id: 'worker2',
+    name: 'Fatima Abdullahi',
+    role: 'worker',
+    bio: 'Professional cleaner, 5 years experience. Deep clean specialist. Trusted by over 20 families in Wukari.',
+    skills: ['Cleaning', 'Laundry', 'Cooking'],
+    rating: 4.8,
+    completedJobs: 62,
+    location: 'North Wukari',
+    available: true,
+    hourlyRate: 2000,
+  },
+  {
+    id: 'worker3',
+    name: 'Ibrahim Musa',
+    role: 'worker',
+    bio: 'Certified electrician. Solar installation, wiring, generator repairs. 10 years in the trade.',
+    skills: ['Electrical', 'Generator Repair', 'Solar'],
+    rating: 4.7,
+    completedJobs: 28,
+    location: 'South Wukari',
+    available: false,
+    hourlyRate: 4000,
+  },
+  {
+    id: 'worker4',
+    name: 'Emeka Eze',
+    role: 'worker',
+    bio: 'Carpenter and furniture maker. Custom builds, repairs, installations. Quality craftsmanship guaranteed.',
+    skills: ['Carpentry', 'Furniture', 'Roofing'],
+    rating: 4.6,
+    completedJobs: 19,
+    location: 'Central Wukari',
+    available: true,
+    hourlyRate: 3000,
+  },
+  {
+    id: 'worker5',
+    name: 'Grace Adeyemi',
+    role: 'worker',
+    bio: 'Construction and renovation specialist. Tiling, plastering, painting. Over 15 years on site.',
+    skills: ['Construction', 'Tiling', 'Painting'],
+    rating: 4.9,
+    completedJobs: 47,
+    location: 'North Wukari',
+    available: true,
+    hourlyRate: 3800,
+  },
+  {
+    id: 'worker6',
+    name: 'Yusuf Garba',
+    role: 'worker',
+    bio: 'Welder and fabricator. Gates, grills, structural steel. Mobile workshop, come to you.',
+    skills: ['Welding', 'Fabrication', 'Security'],
+    rating: 4.5,
+    completedJobs: 23,
+    location: 'South Wukari',
+    available: true,
+    hourlyRate: 4500,
+  },
+  {
+    id: 'worker7',
+    name: 'Ngozi Obi',
+    role: 'worker',
+    bio: 'Cook and caterer. Can prepare for events, daily home cooking, or office catering. Hygiene-certified.',
+    skills: ['Cooking', 'Catering', 'Cleaning'],
+    rating: 5.0,
+    completedJobs: 81,
+    location: 'Central Wukari',
+    available: false,
+    hourlyRate: 2500,
+  },
+  {
+    id: 'worker8',
+    name: 'Bello Abubakar',
+    role: 'worker',
+    bio: 'Auto mechanic and generator technician. Diagnose, repair, maintain. 12 years hands-on experience.',
+    skills: ['Auto Repair', 'Generator Repair', 'AC Repair'],
+    rating: 4.7,
+    completedJobs: 55,
+    location: 'North Wukari',
+    available: true,
+    hourlyRate: 3200,
   },
 ]
