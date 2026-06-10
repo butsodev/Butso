@@ -162,16 +162,16 @@ export function JobsBrowsing() {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-4 mb-4 text-xs">
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                  <div className="flex items-center gap-x-4 gap-y-1.5 mb-4 text-xs flex-wrap">
+                    <div className="flex items-center gap-1.5 text-muted-foreground shrink-0">
                       <DollarSign size={13} className="text-emerald-600" />
                       <span className="font-semibold text-foreground">₦{job.budget.toLocaleString()}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                      <MapPin size={13} className="text-primary" />
-                      <span>{job.location}</span>
+                    <div className="flex items-center gap-1.5 text-muted-foreground min-w-0">
+                      <MapPin size={13} className="text-primary shrink-0" />
+                      <span className="truncate max-w-[120px]">{job.location}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <div className="flex items-center gap-1.5 text-muted-foreground shrink-0">
                       <Clock size={13} />
                       <span>{job.applicants.length} applied</span>
                     </div>

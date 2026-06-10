@@ -211,7 +211,7 @@ export function PeopleSearch() {
             className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition border ${availableOnly
               ? 'bg-green-500/15 text-green-700 border-green-400/40 dark:text-green-400'
               : 'bg-card border-border text-muted-foreground'
-            }`}
+              }`}
           >
             <Zap size={12} />
             Available now
@@ -228,7 +228,7 @@ export function PeopleSearch() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full whitespace-nowrap font-semibold text-sm transition-colors shrink-0 ${selectedSkill === f.id
                 ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
                 : 'bg-card border border-border text-foreground hover:border-primary/50'
-              }`}
+                }`}
             >
               <span>{f.emoji}</span>
               {f.label}
@@ -297,13 +297,13 @@ export function PeopleSearch() {
                   </div>
 
                   {/* Footer */}
-                  <div className="flex items-center justify-between text-xs pt-3 border-t border-border">
-                    <span className="flex items-center gap-1 font-bold text-foreground">
-                      <Star size={12} fill="currentColor" className="text-yellow-500" />
+                  <div className="flex items-center justify-between gap-2 text-xs pt-3 border-t border-border flex-wrap">
+                    <span className="flex items-center gap-1 font-bold text-foreground min-w-0">
+                      <Star size={12} fill="currentColor" className="text-yellow-500 shrink-0" />
                       {worker.rating.toFixed(1)}
-                      <span className="text-muted-foreground font-normal ml-0.5">({worker.completedJobs} jobs)</span>
+                      <span className="text-muted-foreground font-normal ml-0.5 truncate">({worker.completedJobs} jobs)</span>
                     </span>
-                    <span className="font-bold text-primary">₦{worker.hourlyRate.toLocaleString()}/hr</span>
+                    <span className="font-bold text-primary shrink-0">₦{worker.hourlyRate.toLocaleString()}/hr</span>
                   </div>
                 </motion.div>
               ))}

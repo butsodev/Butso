@@ -297,8 +297,10 @@ export function ShopPage() {
                     <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}
                         onClick={() => handleBook(shop.services[0] ?? { id: '', name: '', price: 0, pricingType: 'fixed' })}
                         disabled={shop.services.length === 0}
-                        className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-black text-base shadow-lg shadow-primary/20 disabled:opacity-40">
-                        {shop.isOpen ? 'Book Now' : 'Book Ahead'} · from ₦{Math.min(...shop.services.map(s => s.price)).toLocaleString()}
+                        className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-black text-base shadow-lg shadow-primary/20 disabled:opacity-40 flex items-center justify-center gap-2">
+                        <span>{shop.isOpen ? 'Book Now' : 'Book Ahead'}</span>
+                        <span className="opacity-70">·</span>
+                        <span>from ₦{Math.min(...shop.services.map(s => s.price)).toLocaleString()}</span>
                     </motion.button>
                 </div>
             </div>
