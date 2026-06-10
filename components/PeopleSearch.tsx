@@ -8,15 +8,18 @@ import { mockWorkers } from '@/lib/mockData'
 
 const skillFilters = [
   { id: 'all', label: 'Everyone', emoji: '👥' },
+  { id: 'Barbing', label: 'Barbing', emoji: '✂️' },
   { id: 'Plumbing', label: 'Plumbing', emoji: '🔧' },
-  { id: 'Electrical', label: 'Electrical', emoji: '⚡' },
+  { id: 'Tailoring', label: 'Tailoring', emoji: '👗' },
   { id: 'Cleaning', label: 'Cleaning', emoji: '🧹' },
-  { id: 'Construction', label: 'Construction', emoji: '🏗️' },
-  { id: 'Carpentry', label: 'Carpentry', emoji: '🪵' },
+  { id: 'Electrical', label: 'Electrical', emoji: '⚡' },
   { id: 'Cooking', label: 'Cooking', emoji: '🍳' },
-  { id: 'Auto Repair', label: 'Auto Repair', emoji: '🔩' },
-  { id: 'Welding', label: 'Welding', emoji: '🔥' },
+  { id: 'Auto Repair', label: 'Auto Repair', emoji: '🚗' },
+  { id: 'Carpentry', label: 'Carpentry', emoji: '🪵' },
 ]
+
+// How many filter pills to show before "more" nudge
+const VISIBLE_FILTERS = 5
 
 const container = {
   hidden: {},
@@ -28,18 +31,34 @@ const card = {
 }
 
 export function PeopleSearch() {
-  const { setCurrentPage } = useAppStore()
+  const { setCurrentPage, preferences, trackSearch } = useAppStore()
   const [query, setQuery] = useState('')
   const [selectedSkill, setSelectedSkill] = useState('all')
   const [availableOnly, setAvailableOnly] = useState(false)
+  const [showAllFilters, setShowAllFilters] = useState(false)
   const [selectedWorker, setSelectedWorker] = useState<typeof mockWorkers[0] | null>(null)
+
+  // Recent searches — top 4 by frequency, min 1 search
+  const recentSearches = Object.entries(preferences.searched ?? {})
+    .filter(([, count]) => count >= 1)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([term]) => term)
+
+  const handleSearch = (val: string) => {
+    setQuery(val)
+    if (val.trim().length >= 2) trackSearch(val.trim().toLowerCase())
+  }
+
+  const visibleFilters = showAllFilters ? skillFilters : skillFilters.slice(0, VISIBLE_FILTERS + 1)
 
   const filtered = mockWorkers.filter(w => {
     const matchesQuery =
       w.name.toLowerCase().includes(query.toLowerCase()) ||
       w.bio.toLowerCase().includes(query.toLowerCase()) ||
       w.skills.some(s => s.toLowerCase().includes(query.toLowerCase())) ||
-      w.location.toLowerCase().includes(query.toLowerCase())
+      w.location.toLowerCase().includes(query.toLowerCase()) ||
+      w.username.toLowerCase().includes(query.toLowerCase())
     const matchesSkill = selectedSkill === 'all' || w.skills.includes(selectedSkill)
     const matchesAvailable = !availableOnly || w.available
     return matchesQuery && matchesSkill && matchesAvailable
@@ -194,12 +213,28 @@ export function PeopleSearch() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
           <input
             type="text"
-            placeholder="Search by name, skill, or area..."
+            placeholder="Search by name, skill, or @username..."
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={e => handleSearch(e.target.value)}
             className="w-full pl-11 pr-4 py-3.5 border border-border rounded-2xl focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/60 bg-card shadow-sm transition text-sm"
           />
         </div>
+
+        {/* Recent searches */}
+        {recentSearches.length > 0 && !query && (
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <span className="text-xs text-muted-foreground shrink-0">Recent:</span>
+            {recentSearches.map(term => (
+              <button
+                key={term}
+                onClick={() => setQuery(term)}
+                className="text-xs px-3 py-1 rounded-full bg-secondary border border-border text-muted-foreground hover:text-foreground hover:border-primary/40 transition capitalize"
+              >
+                {term}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Available toggle */}
         <div className="flex items-center justify-between mb-4">
@@ -219,8 +254,8 @@ export function PeopleSearch() {
         </div>
 
         {/* Skill pills */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-hide">
-          {skillFilters.map(f => (
+        <div className="flex gap-2 mb-3 overflow-x-auto pb-1 scrollbar-hide">
+          {visibleFilters.map(f => (
             <motion.button
               key={f.id}
               whileTap={{ scale: 0.93 }}
@@ -235,6 +270,29 @@ export function PeopleSearch() {
             </motion.button>
           ))}
         </div>
+
+        {/* More categories nudge */}
+        {!showAllFilters ? (
+          <p className="text-xs text-muted-foreground mb-5">
+            Don't see your category?{' '}
+            <button
+              onClick={() => setShowAllFilters(true)}
+              className="text-primary font-semibold hover:underline"
+            >
+              See all categories
+            </button>
+            {' '}or search above.
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground mb-5">
+            <button
+              onClick={() => setShowAllFilters(false)}
+              className="text-primary font-semibold hover:underline"
+            >
+              Show less
+            </button>
+          </p>
+        )}
 
         {/* Results */}
         {filtered.length === 0 ? (
