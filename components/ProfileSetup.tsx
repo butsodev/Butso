@@ -44,7 +44,7 @@ function UsernameField({
         <AtSign size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <input
           type="text"
-          placeholder="e.g. chukwu_plumbing"
+          placeholder="e.g. wunuken_pipes"
           value={value}
           maxLength={24}
           onChange={e => {
@@ -329,7 +329,7 @@ export function ProfileSetup() {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Chukwu Okonkwo"
+                  placeholder="e.g. Wunuken Danladi"
                   value={name}
                   onChange={e => setName(e.target.value)}
                   autoFocus

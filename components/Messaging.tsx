@@ -12,10 +12,10 @@ type Conversation = {
 }
 
 const conversations: Conversation[] = [
-  { id: 'conv1', name: 'Chukwu Okonkwo', avatar: '👷', lastMessage: 'Can you start on Monday?', timestamp: '2h ago', unread: 2, isOnline: true, job: 'Bathroom Renovation' },
-  { id: 'conv2', name: 'Amara Adebayo', avatar: '👩‍🔧', lastMessage: 'I can do that!', timestamp: '4h ago', unread: 0, isOnline: true, job: 'Electrical Work' },
-  { id: 'conv3', name: 'Tunde Oluwaseun', avatar: '👨‍💼', lastMessage: 'What time works best for you?', timestamp: '1d ago', unread: 0, isOnline: false, job: 'Plumbing Repair' },
-  { id: 'conv4', name: 'Blessing Ezeoke', avatar: '👩‍💼', lastMessage: 'Thank you for the opportunity', timestamp: '2d ago', unread: 0, isOnline: false, job: 'House Cleaning' },
+  { id: 'conv1', name: 'Wunuken Danladi', avatar: '👷', lastMessage: 'Can you start on Monday?', timestamp: '2h ago', unread: 2, isOnline: true, job: 'Bathroom Renovation' },
+  { id: 'conv2', name: 'Zando Ishaku', avatar: '👩‍🔧', lastMessage: 'I can do that!', timestamp: '4h ago', unread: 0, isOnline: true, job: 'Electrical Work' },
+  { id: 'conv3', name: 'Chidonku Agbu', avatar: '👨‍💼', lastMessage: 'What time works best for you?', timestamp: '1d ago', unread: 0, isOnline: false, job: 'Plumbing Repair' },
+  { id: 'conv4', name: 'Fatima Abdullahi', avatar: '👩‍💼', lastMessage: 'Thank you for the opportunity', timestamp: '2d ago', unread: 0, isOnline: false, job: 'House Cleaning' },
 ]
 
 const allMessages: Record<string, Message[]> = {

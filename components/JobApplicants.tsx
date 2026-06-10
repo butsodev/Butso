@@ -14,7 +14,7 @@ export function JobApplicants() {
   const applicants = [
     {
       id: '1',
-      name: 'Chukwu Okonkwo',
+      name: 'Wunuken Danladi',
       rating: 4.9,
       completedJobs: 23,
       bio: 'Professional carpenter with 5+ years experience',
@@ -25,7 +25,7 @@ export function JobApplicants() {
     },
     {
       id: '2',
-      name: 'Amara Adebayo',
+      name: 'Wapuken Amos',
       rating: 4.7,
       completedJobs: 15,
       bio: 'Experienced in construction and renovation',
@@ -36,7 +36,7 @@ export function JobApplicants() {
     },
     {
       id: '3',
-      name: 'Tunde Oluwaseun',
+      name: 'Emeka Eze',
       rating: 4.5,
       completedJobs: 8,
       bio: 'Growing professional, eager to learn',
@@ -47,7 +47,7 @@ export function JobApplicants() {
     },
     {
       id: '4',
-      name: 'Blessing Ezeoke',
+      name: 'Asogya Kefas',
       rating: 3.2,
       completedJobs: 2,
       bio: 'Trainee professional',
@@ -58,11 +58,11 @@ export function JobApplicants() {
     },
   ]
 
-  const filteredApplicants = appliedFilter === 'all' 
-    ? applicants 
+  const filteredApplicants = appliedFilter === 'all'
+    ? applicants
     : applicants.filter(a => a.status === appliedFilter.slice(0, -1))
 
-  const selectedData = selectedApplicant 
+  const selectedData = selectedApplicant
     ? applicants.find(a => a.id === selectedApplicant)
     : null
 
@@ -114,16 +114,15 @@ export function JobApplicants() {
                   <button
                     key={filter}
                     onClick={() => setAppliedFilter(filter)}
-                    className={`flex-1 py-3 px-4 text-sm font-semibold transition border-b-2 ${
-                      appliedFilter === filter
-                        ? 'border-accent text-accent bg-accent/5'
-                        : 'border-transparent text-muted-foreground hover:text-foreground'
-                    }`}
+                    className={`flex-1 py-3 px-4 text-sm font-semibold transition border-b-2 ${appliedFilter === filter
+                      ? 'border-accent text-accent bg-accent/5'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                      }`}
                   >
                     {filter === 'all' ? 'All' : filter === 'accepted' ? 'Accepted' : 'Rejected'}
                     {filter === 'all' && ` (${applicants.length})`}
-                    {filter === 'accepted' && ` (${applicants.filter(a => a.status === 'accept').length})`}
-                    {filter === 'rejected' && ` (${applicants.filter(a => a.status === 'reject').length})`}
+                    {filter === 'accepted' && ` (${applicants.filter(a => a.status === 'accepted').length})`}
+                    {filter === 'rejected' && ` (${applicants.filter(a => a.status === 'rejected').length})`}
                   </button>
                 ))}
               </div>
@@ -137,9 +136,8 @@ export function JobApplicants() {
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ delay: 0.3 + index * 0.05 }}
                     onClick={() => setSelectedApplicant(applicant.id)}
-                    className={`w-full text-left p-4 hover:bg-secondary/50 transition ${
-                      selectedApplicant === applicant.id ? 'bg-primary/5 border-r-4 border-accent' : ''
-                    }`}
+                    className={`w-full text-left p-4 hover:bg-secondary/50 transition ${selectedApplicant === applicant.id ? 'bg-primary/5 border-r-4 border-accent' : ''
+                      }`}
                   >
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="font-bold text-foreground text-sm">{applicant.name}</h3>

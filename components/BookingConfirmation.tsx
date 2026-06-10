@@ -13,13 +13,13 @@ export function BookingConfirmation() {
     id: 'BK-2024-001',
     jobTitle: 'Wooden Door Installation',
     worker: {
-      name: 'Chukwu Obi',
+      name: 'Jinatswen Daka',
       rating: 4.8,
       reviews: 127,
       avatar: '🧑‍🔧'
     },
     employer: {
-      name: 'Sarah Johnson',
+      name: 'Amaka Nwosu',
       avatar: '👩‍💼'
     },
     date: 'March 15, 2024',
@@ -80,11 +80,10 @@ export function BookingConfirmation() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-3 font-medium capitalize transition border-b-2 ${
-                activeTab === tab
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
+              className={`px-4 py-3 font-medium capitalize transition border-b-2 ${activeTab === tab
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
             >
               {tab}
             </button>
@@ -170,13 +169,13 @@ export function BookingConfirmation() {
 
             {/* Action Buttons */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <button 
+              <button
                 onClick={() => setCurrentPage('messaging')}
                 className="bg-primary text-primary-foreground py-3 rounded-lg hover:opacity-90 transition font-medium"
               >
                 Message Worker
               </button>
-              <button 
+              <button
                 onClick={() => setCurrentPage('dashboard')}
                 className="bg-card text-foreground py-3 rounded-lg hover:bg-opacity-80 transition font-medium"
               >
