@@ -55,6 +55,7 @@ export function ExploreOnboarding() {
                 id: 'guest-' + Date.now(),
                 phone: '',
                 name: 'Guest',
+                username: 'guest',
                 role: 'exploring',
             })
         }

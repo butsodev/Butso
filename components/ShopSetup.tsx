@@ -118,6 +118,8 @@ export function ShopSetup() {
                     rating: 0, reviewCount: 0, reviews: [],
                     isOpen: isShopOpenNow(hours),
                     verified: false,
+                    portfolio: [],
+                    defaultTab: 'services',
                     createdAt: new Date().toISOString(),
                 }
                 addShop(shop)

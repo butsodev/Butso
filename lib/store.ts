@@ -218,7 +218,7 @@ export function isShopOpenNow(hours: OpeningHours): boolean {
 }
 
 /* ─── Store interface ─────────────────────────────────────────────────────── */
-interface AppStore {
+export interface AppStore {
   // Auth
   currentUser: User | null
   setCurrentUser: (user: User | null) => void

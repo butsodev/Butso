@@ -34,12 +34,17 @@ import { UserProfile } from '@/components/UserProfile'
 import { Suggestions } from '@/components/Suggestions'
 import { PeopleSearch } from '@/components/PeopleSearch'
 import { LiveSupportChat } from '@/components/LiveSupportChat'
+import { ExploreOnboarding } from '@/components/ExploreOnboarding'
+import { ShopsBrowsing } from '@/components/ShopsBrowsing'
+import { ShopPage } from '@/components/ShopPage'
+import { ShopSetup } from '@/components/ShopSetup'
 
 const KNOWN_PAGES = [
   'dashboard', 'jobs', 'people', 'bookings', 'post-job', 'job-details', 'apply-job',
   'worker-profile', 'job-applicants', 'booking-slots', 'messaging', 'settings',
   'support', 'notifications', 'payments', 'booking-confirmation', 'ratings-reviews',
   'advanced-search', 'profile', 'suggestions', 'privacy', 'terms',
+  'shops', 'shop', 'shop-setup', 'explore-onboarding',
 ]
 
 export default function Home() {
@@ -55,6 +60,7 @@ export default function Home() {
       case 'role-select': return <RoleSelection />
       case 'phone-verification': return <PhoneVerification />
       case 'profile-setup': return <ProfileSetup />
+      case 'explore-onboarding': return <ExploreOnboarding />
       case 'privacy': return <PrivacyPolicy />
       case 'terms': return <TermsOfService />
       default: return <LandingPage />
@@ -90,6 +96,9 @@ export default function Home() {
           {currentPage === 'suggestions' && <Suggestions />}
           {currentPage === 'privacy' && <PrivacyPolicy />}
           {currentPage === 'terms' && <TermsOfService />}
+          {currentPage === 'shops' && <ShopsBrowsing />}
+          {currentPage === 'shop' && <ShopPage />}
+          {currentPage === 'shop-setup' && <ShopSetup />}
 
           {!KNOWN_PAGES.includes(currentPage) && (
             <div className="flex items-center justify-center min-h-[60vh]">

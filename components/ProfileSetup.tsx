@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronRight, Briefcase, HardHat, Search, X, Check, AtSign } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
-import { useAppStore, generateUsernameFromName, isUsernameAvailable, type UserRole } from '@/lib/store'
+import { useAppStore, generateUsernameFromName, isUsernameAvailable, type UserRole, type AppStore } from '@/lib/store'
 import { mockJobs, mockBookings, mockNotifications, mockTransactions, mockShops } from '@/lib/mockData'
 
 /* ─── Master skills list — searchable ───────────────────────────────────── */
@@ -24,7 +24,7 @@ function UsernameField({
 }: {
   value: string
   onChange: (v: string, valid: boolean) => void
-  allUsers: ReturnType<typeof useAppStore>['allUsers']
+  allUsers: AppStore['allUsers']
   excludeId?: string
 }) {
   const [touched, setTouched] = useState(false)

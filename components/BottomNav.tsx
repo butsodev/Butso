@@ -1,13 +1,13 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Home, Search, Users, MessageCircle, User } from 'lucide-react'
+import { Home, Search, Store, MessageCircle, User } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 
 const navItems = [
   { id: 'dashboard', icon: Home, label: 'Home' },
   { id: 'jobs', icon: Search, label: 'Jobs' },
-  { id: 'people', icon: Users, label: 'People' },
+  { id: 'shops', icon: Store, label: 'Shops' },
   { id: 'messaging', icon: MessageCircle, label: 'Messages' },
   { id: 'profile', icon: User, label: 'Profile' },
 ]

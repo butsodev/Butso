@@ -281,6 +281,8 @@ export const mockShops: Shop[] = [
     ],
     isOpen: true,
     verified: true,
+    portfolio: [],
+    defaultTab: 'services' as const,
     createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -313,6 +315,8 @@ export const mockShops: Shop[] = [
     ],
     isOpen: true,
     verified: true,
+    portfolio: [],
+    defaultTab: 'services' as const,
     createdAt: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -344,6 +348,8 @@ export const mockShops: Shop[] = [
     ],
     isOpen: true,
     verified: false,
+    portfolio: [],
+    defaultTab: 'portfolio' as const,
     createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -374,6 +380,8 @@ export const mockShops: Shop[] = [
     ],
     isOpen: true,
     verified: true,
+    portfolio: [],
+    defaultTab: 'services' as const,
     createdAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -405,6 +413,8 @@ export const mockShops: Shop[] = [
     ],
     isOpen: false,
     verified: true,
+    portfolio: [],
+    defaultTab: 'services' as const,
     createdAt: new Date(Date.now() - 200 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ]

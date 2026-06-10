@@ -135,7 +135,7 @@ export function UnifiedDashboard() {
           { label: 'My Bookings', sub: 'Scheduled work', icon: '📅', page: 'bookings' },
           { label: 'Messages', sub: 'Chat with hirers', icon: '💬', page: 'messaging' },
           { label: 'My Earnings', sub: 'Track payments', icon: '💰', page: 'payments' },
-          { label: 'My Profile', sub: 'Edit your skills', icon: '👤', page: 'profile' },
+          { label: 'My Shop', sub: 'Manage your services', icon: '🏪', page: 'shop-setup' },
         ].map(action => (
           <motion.button key={action.label} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}
             onClick={() => setCurrentPage(action.page)}
@@ -211,7 +211,7 @@ export function UnifiedDashboard() {
         {[
           { label: 'My Jobs', sub: 'View posted jobs', icon: '📌', page: 'bookings' },
           { label: 'Messages', sub: 'Chat with workers', icon: '💬', page: 'messaging' },
-          { label: 'Payments', sub: 'Track spending', icon: '💳', page: 'payments' },
+          { label: 'Browse Shops', sub: 'Book a service', icon: '🏪', page: 'shops' },
           { label: 'My Profile', sub: 'Edit your info', icon: '👤', page: 'profile' },
         ].map(action => (
           <motion.button key={action.label} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}
