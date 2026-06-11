@@ -1,7 +1,10 @@
 'use client'
 
 import { useEffect } from 'react'
+import { Sun, Moon } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
+import { ThemeProvider } from '@/components/ThemeProvider'
+import { AuthShell } from '@/components/AuthShell'
 import { Header } from '@/components/Header'
 import { RoleSelection } from '@/components/RoleSelection'
 import { PhoneVerification } from '@/components/PhoneVerification'
@@ -47,6 +50,21 @@ const KNOWN_PAGES = [
   'shops', 'shop', 'shop-setup', 'explore-onboarding',
 ]
 
+const AUTH_PAGES = ['role-select', 'phone-verification', 'profile-setup', 'explore-onboarding', 'privacy', 'terms']
+
+function ThemeToggleFloat() {
+  const { darkMode, toggleDarkMode } = useAppStore()
+  return (
+    <button
+      onClick={toggleDarkMode}
+      className="fixed top-4 right-4 z-50 p-2.5 rounded-xl bg-card border border-border shadow-md hover:bg-secondary transition"
+      aria-label="Toggle theme"
+    >
+      {darkMode ? <Sun size={18} className="text-foreground" /> : <Moon size={18} className="text-foreground" />}
+    </button>
+  )
+}
+
 export default function Home() {
   const { currentPage, currentUser } = useAppStore()
 
@@ -54,66 +72,94 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [currentPage])
 
-  // Unauthenticated
+  // ── Unauthenticated ───────────────────────────────────────────────────────
   if (!currentUser) {
-    switch (currentPage) {
-      case 'role-select': return <RoleSelection />
-      case 'phone-verification': return <PhoneVerification />
-      case 'profile-setup': return <ProfileSetup />
-      case 'explore-onboarding': return <ExploreOnboarding />
-      case 'privacy': return <PrivacyPolicy />
-      case 'terms': return <TermsOfService />
-      default: return <LandingPage />
+    // Landing page — theme toggle visible but no back button, no logo (has its own)
+    if (!AUTH_PAGES.includes(currentPage)) {
+      return (
+        <ThemeProvider>
+          <div className="relative">
+            {/* Floating theme toggle on landing */}
+            <ThemeToggleFloat />
+            <LandingPage />
+          </div>
+        </ThemeProvider>
+      )
     }
-  }
 
-  return (
-    <ErrorBoundary>
-      <div className="min-h-screen bg-background">
-        <Toast />
-        <Header />
-        <Sidebar />
-        <main className="lg:ml-64">
-          {currentPage === 'dashboard' && <UnifiedDashboard />}
-          {currentPage === 'jobs' && <JobsBrowsing />}
-          {currentPage === 'people' && <PeopleSearch />}
-          {currentPage === 'bookings' && <Bookings />}
-          {currentPage === 'post-job' && <PostJob />}
-          {currentPage === 'job-details' && <JobDetails />}
-          {currentPage === 'apply-job' && <ApplyJob />}
-          {currentPage === 'worker-profile' && <WorkerProfile />}
-          {currentPage === 'job-applicants' && <JobApplicants />}
-          {currentPage === 'booking-slots' && <BookingSlots />}
-          {currentPage === 'messaging' && <Messaging />}
-          {currentPage === 'settings' && <Settings />}
-          {currentPage === 'support' && <Support />}
-          {currentPage === 'notifications' && <Notifications />}
-          {currentPage === 'payments' && <PaymentsEarnings />}
-          {currentPage === 'booking-confirmation' && <BookingConfirmation />}
-          {currentPage === 'ratings-reviews' && <RatingsReviews />}
-          {currentPage === 'advanced-search' && <AdvancedSearch />}
-          {currentPage === 'profile' && <UserProfile />}
-          {currentPage === 'suggestions' && <Suggestions />}
+    const backMap: Record<string, string> = {
+      'role-select': 'splash',
+      'phone-verification': 'role-select',
+      'profile-setup': 'phone-verification',
+      'explore-onboarding': 'splash',
+      'privacy': 'splash',
+      'terms': 'splash',
+    }
+
+    return (
+      <ThemeProvider>
+        <AuthShell back={backMap[currentPage]}>
+          {currentPage === 'role-select' && <RoleSelection />}
+          {currentPage === 'phone-verification' && <PhoneVerification />}
+          {currentPage === 'profile-setup' && <ProfileSetup />}
+          {currentPage === 'explore-onboarding' && <ExploreOnboarding />}
           {currentPage === 'privacy' && <PrivacyPolicy />}
           {currentPage === 'terms' && <TermsOfService />}
-          {currentPage === 'shops' && <ShopsBrowsing />}
-          {currentPage === 'shop' && <ShopPage />}
-          {currentPage === 'shop-setup' && <ShopSetup />}
+        </AuthShell>
+      </ThemeProvider>
+    )
+  }
 
-          {!KNOWN_PAGES.includes(currentPage) && (
-            <div className="flex items-center justify-center min-h-[60vh]">
-              <div className="text-center">
-                <p className="text-4xl mb-3">🚧</p>
-                <h1 className="text-2xl font-black text-foreground mb-2">Coming Soon</h1>
-                <p className="text-muted-foreground text-sm">This page is under development</p>
+  // ── Authenticated ─────────────────────────────────────────────────────────
+  return (
+    <ThemeProvider>
+      <ErrorBoundary>
+        <div className="min-h-screen bg-background">
+          <Toast />
+          <Header />
+          <Sidebar />
+          <main className="lg:ml-64">
+            {currentPage === 'dashboard' && <UnifiedDashboard />}
+            {currentPage === 'jobs' && <JobsBrowsing />}
+            {currentPage === 'people' && <PeopleSearch />}
+            {currentPage === 'bookings' && <Bookings />}
+            {currentPage === 'post-job' && <PostJob />}
+            {currentPage === 'job-details' && <JobDetails />}
+            {currentPage === 'apply-job' && <ApplyJob />}
+            {currentPage === 'worker-profile' && <WorkerProfile />}
+            {currentPage === 'job-applicants' && <JobApplicants />}
+            {currentPage === 'booking-slots' && <BookingSlots />}
+            {currentPage === 'messaging' && <Messaging />}
+            {currentPage === 'settings' && <Settings />}
+            {currentPage === 'support' && <Support />}
+            {currentPage === 'notifications' && <Notifications />}
+            {currentPage === 'payments' && <PaymentsEarnings />}
+            {currentPage === 'booking-confirmation' && <BookingConfirmation />}
+            {currentPage === 'ratings-reviews' && <RatingsReviews />}
+            {currentPage === 'advanced-search' && <AdvancedSearch />}
+            {currentPage === 'profile' && <UserProfile />}
+            {currentPage === 'suggestions' && <Suggestions />}
+            {currentPage === 'privacy' && <PrivacyPolicy />}
+            {currentPage === 'terms' && <TermsOfService />}
+            {currentPage === 'shops' && <ShopsBrowsing />}
+            {currentPage === 'shop' && <ShopPage />}
+            {currentPage === 'shop-setup' && <ShopSetup />}
+
+            {!KNOWN_PAGES.includes(currentPage) && (
+              <div className="flex items-center justify-center min-h-[60vh]">
+                <div className="text-center">
+                  <p className="text-4xl mb-3">🚧</p>
+                  <h1 className="text-2xl font-black text-foreground mb-2">Coming Soon</h1>
+                  <p className="text-muted-foreground text-sm">This page is under development</p>
+                </div>
               </div>
-            </div>
-          )}
-        </main>
+            )}
+          </main>
 
-        <BottomNav />
-        <LiveSupportChat />
-      </div>
-    </ErrorBoundary>
+          <BottomNav />
+          <LiveSupportChat />
+        </div>
+      </ErrorBoundary>
+    </ThemeProvider>
   )
 }
