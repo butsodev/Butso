@@ -27,7 +27,7 @@ export function UnifiedDashboard() {
 
   if (loading) return <SkeletonDashboard />
 
-  const isLooking = dashboardMode === 'worker'
+  const isLooking = dashboardMode === 'find-work'
   const myPostedJobs = jobs.filter(j => j.employerId === currentUser?.id)
 
   const switchMode = (mode: DashboardMode) => {
@@ -43,7 +43,7 @@ export function UnifiedDashboard() {
       {/* Find Work tab */}
       <motion.button
         whileTap={{ scale: 0.96 }}
-        onClick={() => switchMode('worker')}
+        onClick={() => switchMode('find-work')}
         className={`relative overflow-hidden rounded-2xl p-4 text-left transition-all duration-300 ${isLooking
           ? 'bg-primary shadow-lg shadow-primary/25 scale-[1.02]'
           : 'bg-card border-2 border-border hover:border-primary/40'
@@ -67,7 +67,7 @@ export function UnifiedDashboard() {
       {/* Hire tab */}
       <motion.button
         whileTap={{ scale: 0.96 }}
-        onClick={() => switchMode('employer')}
+        onClick={() => switchMode('need-help')}
         className={`relative overflow-hidden rounded-2xl p-4 text-left transition-all duration-300 ${!isLooking
           ? 'bg-emerald-600 shadow-lg shadow-emerald-500/25 scale-[1.02]'
           : 'bg-card border-2 border-border hover:border-emerald-500/40'
@@ -94,7 +94,7 @@ export function UnifiedDashboard() {
   // FIND WORK CONTENT
   // ─────────────────────────────────────────────────────────────────────────
   const FindWorkView = (
-    <motion.div key="worker" variants={container} initial="hidden" animate="show" className="space-y-4">
+    <motion.div key="find-work" variants={container} initial="hidden" animate="show" className="space-y-4">
       {/* Stats */}
       <motion.div variants={item} className="grid grid-cols-2 gap-3">
         {[
@@ -172,7 +172,7 @@ export function UnifiedDashboard() {
   // HIRE SOMEONE CONTENT
   // ─────────────────────────────────────────────────────────────────────────
   const HireView = (
-    <motion.div key="employer" variants={container} initial="hidden" animate="show" className="space-y-4">
+    <motion.div key="need-help" variants={container} initial="hidden" animate="show" className="space-y-4">
       {/* Stats */}
       <motion.div variants={item} className="grid grid-cols-3 gap-3">
         {[

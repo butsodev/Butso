@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 export type UserRole = 'worker' | 'employer' | 'exploring'
-export type DashboardMode = 'worker' | 'employer'
+export type DashboardMode = 'find-work' | 'need-help'
 
 export interface User {
   id: string
@@ -11,6 +11,7 @@ export interface User {
   username: string          // unique, chosen at signup
   role: UserRole
   avatar?: string
+  gender?: 'male' | 'female' | 'other'
   bio?: string
   skills?: string[]
   rating?: number
@@ -328,7 +329,7 @@ export const useAppStore = create<AppStore>()(
       setDarkMode: (isDark) => set({ darkMode: isDark }),
       toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
 
-      dashboardMode: 'worker',
+      dashboardMode: 'find-work',
       setDashboardMode: (mode) => set({ dashboardMode: mode }),
 
       jobs: [],
