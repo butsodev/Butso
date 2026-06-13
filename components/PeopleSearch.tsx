@@ -30,7 +30,7 @@ const card = {
   show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 280, damping: 24 } },
 }
 
-export function PeopleSearch() {
+export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
   const { setCurrentPage, preferences, trackSearch } = useAppStore()
   const [query, setQuery] = useState('')
   const [selectedSkill, setSelectedSkill] = useState('all')
@@ -192,6 +192,90 @@ export function PeopleSearch() {
   }
 
   // ── Search list ───────────────────────────────────────────────────────────
+  // When embedded inside ShopsBrowsing, render without the full page shell
+  if (embedded) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 pb-8 pt-3">
+        {/* Search bar */}
+        <div className="relative mb-3">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+          <input
+            type="text"
+            placeholder="Search by name, skill, or @username..."
+            value={query}
+            onChange={e => handleSearch(e.target.value)}
+            className="w-full pl-11 pr-4 py-3.5 border border-border rounded-2xl focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/60 bg-card shadow-sm transition text-sm"
+          />
+        </div>
+        {recentSearches.length > 0 && !query && (
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <span className="text-xs text-muted-foreground shrink-0">Recent:</span>
+            {recentSearches.map(term => (
+              <button key={term} onClick={() => setQuery(term)}
+                className="text-xs px-3 py-1 rounded-full bg-secondary border border-border text-muted-foreground hover:text-foreground hover:border-primary/40 transition capitalize">
+                {term}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm text-muted-foreground">{filtered.length} {filtered.length === 1 ? 'person' : 'people'} found</p>
+          <button onClick={() => setAvailableOnly(!availableOnly)}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition border ${availableOnly ? 'bg-green-500/15 text-green-700 border-green-400/40 dark:text-green-400' : 'bg-card border-border text-muted-foreground'}`}>
+            <Zap size={12} /> Available now
+          </button>
+        </div>
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-1 scrollbar-hide">
+          {visibleFilters.map(f => (
+            <motion.button key={f.id} whileTap={{ scale: 0.93 }} onClick={() => setSelectedSkill(f.id)}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full whitespace-nowrap font-semibold text-sm transition-colors shrink-0 ${selectedSkill === f.id ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20' : 'bg-card border border-border text-foreground hover:border-primary/50'}`}>
+              <span>{f.emoji}</span>{f.label}
+            </motion.button>
+          ))}
+        </div>
+        {filtered.length === 0 ? (
+          <div className="bg-card border border-border rounded-2xl p-12 text-center">
+            <div className="text-4xl mb-3">🔍</div>
+            <p className="font-bold text-foreground mb-1">Nobody found</p>
+            <p className="text-sm text-muted-foreground">Try a different skill or remove the filter</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {filtered.map(worker => (
+              <motion.div key={worker.id} whileHover={{ y: -3 }} onClick={() => setSelectedWorker(worker)}
+                className="bg-card border border-border rounded-2xl p-4 cursor-pointer hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                    <span className="text-lg font-black text-primary">{worker.name[0]}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-black text-foreground text-sm truncate">{worker.name}</h3>
+                      {worker.available ? <span className="shrink-0 w-2 h-2 rounded-full bg-green-500" /> : <span className="shrink-0 w-2 h-2 rounded-full bg-muted-foreground/30" />}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{worker.location}</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {worker.skills.slice(0, 3).map(s => (
+                    <span key={s} className="text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-full font-semibold">{s}</span>
+                  ))}
+                </div>
+                <div className="flex items-center justify-between text-xs pt-2 border-t border-border">
+                  <span className="flex items-center gap-1 font-bold text-foreground">
+                    <Star size={11} fill="currentColor" className="text-yellow-500" />{worker.rating.toFixed(1)}
+                    <span className="text-muted-foreground font-normal">({worker.completedJobs})</span>
+                  </span>
+                  <span className="font-bold text-primary">₦{worker.hourlyRate.toLocaleString()}/hr</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}

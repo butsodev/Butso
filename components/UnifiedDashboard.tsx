@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { Star, Briefcase, DollarSign, Clock, ArrowRight, Bell, Plus, Users } from 'lucide-react'
+import { Star, Briefcase, DollarSign, Clock, ArrowRight, Bell, Plus, Users, Sparkles } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useAppStore, type DashboardMode } from '@/lib/store'
 import { SkeletonDashboard } from '@/components/Skeleton'
@@ -34,6 +34,48 @@ export function UnifiedDashboard() {
     setPrevMode(dashboardMode)
     setDashboardMode(mode)
   }
+
+
+  // ── Contextual suggestions ────────────────────────────────────────────────
+  const hour = new Date().getHours()
+  const isWeekend = [0, 6].includes(new Date().getDay())
+
+  const suggestions = [
+    { emoji: '✂️', text: 'Barbing shops', page: 'shops', show: true },
+    { emoji: '💇', text: 'Hair salons near you', page: 'shops', show: true },
+    { emoji: '🧹', text: 'Cleaners available', page: 'shops', show: hour >= 7 && hour <= 20 },
+    { emoji: '🔧', text: 'Plumbers ready now', page: 'people', show: true },
+    { emoji: '⚡', text: 'Electricians nearby', page: 'people', show: true },
+    { emoji: '🍳', text: 'Caterers & cooks', page: 'people', show: isWeekend },
+    { emoji: '🚗', text: 'Auto repair workshops', page: 'shops', show: true },
+    { emoji: '👗', text: 'Tailors taking orders', page: 'shops', show: true },
+    { emoji: '📸', text: 'Event photographers', page: 'people', show: isWeekend },
+    { emoji: '🏗️', text: 'Construction workers', page: 'people', show: !isWeekend },
+  ].filter(s => s.show).slice(0, 6)
+
+  const SuggestionStrip = (
+    <motion.div variants={item} className="mb-2">
+      <div className="flex items-center gap-1.5 mb-2.5">
+        <Sparkles size={13} className="text-primary" />
+        <p className="text-xs font-black text-muted-foreground uppercase tracking-wide">
+          {hour < 12 ? 'Good morning — try these' : hour < 17 ? 'Available near you' : 'Evening picks'}
+        </p>
+      </div>
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
+        {suggestions.map((s, i) => (
+          <motion.button
+            key={i}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setCurrentPage(s.page)}
+            className="flex items-center gap-2 shrink-0 px-3 py-2 bg-card border border-border rounded-2xl hover:border-primary/40 hover:bg-primary/5 transition-all"
+          >
+            <span className="text-base leading-none">{s.emoji}</span>
+            <span className="text-xs font-semibold text-foreground whitespace-nowrap">{s.text}</span>
+          </motion.button>
+        ))}
+      </div>
+    </motion.div>
+  )
 
   // ─────────────────────────────────────────────────────────────────────────
   // BIG MODE SWITCHER — two full cards, very obvious, impossible to miss
@@ -116,6 +158,8 @@ export function UnifiedDashboard() {
           )
         })}
       </motion.div>
+
+      {SuggestionStrip}
 
       {/* Primary CTA */}
       <motion.button variants={item} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}

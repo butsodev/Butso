@@ -37,6 +37,7 @@ import { UserProfile } from '@/components/UserProfile'
 import { Suggestions } from '@/components/Suggestions'
 import { PeopleSearch } from '@/components/PeopleSearch'
 import { LiveSupportChat } from '@/components/LiveSupportChat'
+import { FeedbackWidget } from '@/components/FeedbackWidget'
 import { ExploreOnboarding } from '@/components/ExploreOnboarding'
 import { ShopsBrowsing } from '@/components/ShopsBrowsing'
 import { ShopPage } from '@/components/ShopPage'
@@ -158,6 +159,7 @@ export default function Home() {
 
           <BottomNav />
           <LiveSupportChat />
+          <FeedbackWidget />
         </div>
       </ErrorBoundary>
     </ThemeProvider>
