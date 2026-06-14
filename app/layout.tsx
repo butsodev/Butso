@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans, Fraunces } from 'next/font/google'
 import './globals.css'
 
-// Body font — warm, friendly, highly legible on mobile
 const jakartaSans = Plus_Jakarta_Sans({
   variable: '--font-body-var',
   subsets: ['latin'],
@@ -11,7 +10,6 @@ const jakartaSans = Plus_Jakarta_Sans({
   display: 'swap',
 })
 
-// Display / heading font — has character, feels handcrafted not corporate
 const fraunces = Fraunces({
   variable: '--font-heading-var',
   subsets: ['latin'],
@@ -44,6 +42,25 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${jakartaSans.variable} ${fraunces.variable}`}>
+      <head>
+        {/*
+          Dark mode sync script — runs BEFORE React hydrates so there's
+          zero flash of wrong theme on any page including landing, auth screens,
+          and post-login pages. Reads from Zustand's persisted localStorage key.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var s = JSON.parse(localStorage.getItem('butso-store') || '{}')
+                if (s && s.state && s.state.darkMode === true) {
+                  document.documentElement.classList.add('dark')
+                }
+              } catch(e) {}
+            `,
+          }}
+        />
+      </head>
       <body className="font-sans antialiased bg-background text-foreground">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

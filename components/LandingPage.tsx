@@ -1,8 +1,8 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, MapPin } from 'lucide-react'
-import { useState } from 'react'
+import { ArrowRight, MapPin, Sun, Moon } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 
 const tickerItems = [
@@ -45,13 +45,21 @@ const situations: { id: Situation; emoji: string; headline: string; sub: string;
 ]
 
 export function LandingPage() {
-  const { setCurrentPage, setCurrentUser } = useAppStore()
+  const { setCurrentPage, setCurrentUser, darkMode, toggleDarkMode } = useAppStore()
   const [hovered, setHovered] = useState<Situation | null>(null)
   const [pressed, setPressed] = useState<Situation | null>(null)
   const [tickerPaused, setTickerPaused] = useState(false)
+  const [showHint, setShowHint] = useState(false)
+
+  // Show the animated hand hint after 1.2s — gives cards time to load in first
+  useEffect(() => {
+    const t = setTimeout(() => setShowHint(true), 1200)
+    return () => clearTimeout(t)
+  }, [])
 
   const choose = (situation: Situation) => {
     setPressed(situation)
+    setShowHint(false)
     sessionStorage.setItem('selectedSituation', situation)
 
     if (situation === 'exploring') {
@@ -157,6 +165,50 @@ export function LandingPage() {
           position: relative;
           overflow: hidden;
         }
+        /* Pulsing glow on cards — subtle breathing to show they're alive */
+        @keyframes card-breathe {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(27,158,110,0); transform: translateY(0px); }
+          50% { box-shadow: 0 8px 30px rgba(27,158,110,0.12); transform: translateY(-2px); }
+        }
+        .sit-card-need-breathe {
+          animation: card-breathe-need 3.5s ease-in-out infinite;
+        }
+        .sit-card-skill-breathe {
+          animation: card-breathe-skill 3.5s ease-in-out infinite 0.4s;
+        }
+        .sit-card-explore-breathe {
+          animation: card-breathe-explore 3.5s ease-in-out infinite 0.8s;
+        }
+        @keyframes card-breathe-need {
+          0%, 100% { box-shadow: 0 2px 12px rgba(245,93,30,0); }
+          50% { box-shadow: 0 6px 28px rgba(245,93,30,0.15); }
+        }
+        @keyframes card-breathe-skill {
+          0%, 100% { box-shadow: 0 2px 12px rgba(27,158,110,0); }
+          50% { box-shadow: 0 6px 28px rgba(27,158,110,0.18); }
+        }
+        @keyframes card-breathe-explore {
+          0%, 100% { box-shadow: 0 2px 12px rgba(255,255,255,0); }
+          50% { box-shadow: 0 6px 28px rgba(255,255,255,0.06); }
+        }
+
+        /* Bouncing hand pointer */
+        @keyframes hand-bounce {
+          0%, 100% { transform: translateY(0px); }
+          40% { transform: translateY(-10px); }
+          60% { transform: translateY(-6px); }
+        }
+        .hand-bounce {
+          animation: hand-bounce 1.4s ease-in-out infinite;
+          display: inline-block;
+        }
+
+        /* Ripple on card press */
+        @keyframes ripple-out {
+          0% { transform: scale(0.95); opacity: 1; }
+          100% { transform: scale(1.03); opacity: 0; }
+        }
+
         .step-n {
           font-family: var(--font-heading), serif;
           font-size: 3.5rem;
@@ -183,9 +235,18 @@ export function LandingPage() {
             </div>
             <span style={{ fontSize: '1.15rem', fontWeight: 900, color: '#F0EFEB', letterSpacing: '-0.03em', fontFamily: 'var(--font-heading), serif' }}>Butsó</span>
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.73rem', color: '#8A8980', background: 'rgba(255,255,255,0.05)', padding: '0.3rem 0.8rem', borderRadius: 99 }}>
-            <MapPin size={10} style={{ color: '#1B9E6E' }} />
-            Wukari, Taraba State
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.73rem', color: '#8A8980', background: 'rgba(255,255,255,0.05)', padding: '0.3rem 0.8rem', borderRadius: 99 }}>
+              <MapPin size={10} style={{ color: '#1B9E6E' }} />
+              Wukari, Taraba State
+            </div>
+            <button
+              onClick={toggleDarkMode}
+              aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#8A8980', flexShrink: 0 }}
+            >
+              {darkMode ? <Sun size={14} /> : <Moon size={14} />}
+            </button>
           </div>
         </div>
       </header>
@@ -248,13 +309,14 @@ export function LandingPage() {
           >
             {situations.map((sit) => {
               const colorKey = sit.id === 'need-done' ? 'need' : sit.id === 'have-skill' ? 'skill' : 'explore'
+              const breatheClass = pressed ? '' : (sit.id === 'need-done' ? 'sit-card-need-breathe' : sit.id === 'have-skill' ? 'sit-card-skill-breathe' : 'sit-card-explore-breathe')
               const accentColor = sit.id === 'need-done' ? '#F55D1E' : sit.id === 'have-skill' ? '#1B9E6E' : '#F0EFEB'
               const isPressed = pressed === sit.id
 
               return (
                 <button
                   key={sit.id}
-                  className={`sit-card card-${colorKey}${isPressed ? ` active-${colorKey === 'need' ? 'need' : colorKey === 'skill' ? 'skill' : 'explore'}` : ''}`}
+                  className={`sit-card card-${colorKey} ${breatheClass}${isPressed ? ` active-${colorKey === 'need' ? 'need' : colorKey === 'skill' ? 'skill' : 'explore'}` : ''}`}
                   onClick={() => choose(sit.id)}
                   onMouseEnter={() => setHovered(sit.id)}
                   onMouseLeave={() => setHovered(null)}
@@ -285,6 +347,26 @@ export function LandingPage() {
               )
             })}
           </motion.div>
+
+          {/* Animated hand hint — shows after 1.2s, hides on first tap */}
+          <AnimatePresence>
+            {showHint && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8, scale: 0.9 }}
+                transition={{ duration: 0.35 }}
+                style={{ textAlign: 'center', marginBottom: '1.5rem', marginTop: '-0.5rem' }}
+              >
+                <span className="hand-bounce" style={{ fontSize: '1.6rem', display: 'block', marginBottom: '0.3rem' }}>
+                  👆
+                </span>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#8A8980', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                  Tap to get started
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Social proof */}
           <motion.div
