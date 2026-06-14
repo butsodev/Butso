@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, MapPin, Sun, Moon } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAppStore } from '@/lib/store'
 
 const tickerItems = [
@@ -50,16 +50,34 @@ export function LandingPage() {
   const [pressed, setPressed] = useState<Situation | null>(null)
   const [tickerPaused, setTickerPaused] = useState(false)
   const [showHint, setShowHint] = useState(false)
+  // Which card is currently "speaking" — cycles 0→1→2→0 on a timer
+  const [activeCard, setActiveCard] = useState<number>(-1)
+  const cycleRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Show the animated hand hint after 1.2s — gives cards time to load in first
   useEffect(() => {
-    const t = setTimeout(() => setShowHint(true), 1200)
-    return () => clearTimeout(t)
+    // Start hint + cycling after cards load
+    const hint = setTimeout(() => setShowHint(true), 1200)
+
+    // Begin cycle after 1.5s — card 0 first
+    const start = setTimeout(() => {
+      setActiveCard(0)
+      cycleRef.current = setInterval(() => {
+        setActiveCard(prev => (prev + 1) % 3)
+      }, 1600) // each card gets 1.6s of attention
+    }, 1500)
+
+    return () => {
+      clearTimeout(hint)
+      clearTimeout(start)
+      if (cycleRef.current) clearInterval(cycleRef.current)
+    }
   }, [])
 
   const choose = (situation: Situation) => {
     setPressed(situation)
     setShowHint(false)
+    setActiveCard(-1)
+    if (cycleRef.current) clearInterval(cycleRef.current)
     sessionStorage.setItem('selectedSituation', situation)
 
     if (situation === 'exploring') {
@@ -164,39 +182,6 @@ export function LandingPage() {
           padding: 1.5rem;
           position: relative;
           overflow: hidden;
-        }
-        /* Pulsing glow on cards — subtle breathing to show they're alive */
-        @keyframes card-breathe {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(27,158,110,0); transform: translateY(0px); }
-          50% { box-shadow: 0 8px 30px rgba(27,158,110,0.12); transform: translateY(-2px); }
-        }
-        .sit-card-need-breathe {
-          animation: card-breathe-need 3.5s ease-in-out infinite;
-        }
-        .sit-card-skill-breathe {
-          animation: card-breathe-skill 3.5s ease-in-out infinite 0.4s;
-        }
-        .sit-card-explore-breathe {
-          animation: card-breathe-explore 3.5s ease-in-out infinite 0.8s;
-        }
-        @keyframes card-breathe-need {
-          0%, 100% { box-shadow: 0 2px 12px rgba(245,93,30,0); }
-          50% { box-shadow: 0 6px 28px rgba(245,93,30,0.15); }
-        }
-        @keyframes card-breathe-skill {
-          0%, 100% { box-shadow: 0 2px 12px rgba(27,158,110,0); }
-          50% { box-shadow: 0 6px 28px rgba(27,158,110,0.18); }
-        }
-        @keyframes card-breathe-explore {
-          0%, 100% { box-shadow: 0 2px 12px rgba(255,255,255,0); }
-          50% { box-shadow: 0 6px 28px rgba(255,255,255,0.06); }
-        }
-
-        /* Bouncing hand pointer */
-        @keyframes hand-bounce {
-          0%, 100% { transform: translateY(0px); }
-          40% { transform: translateY(-10px); }
-          60% { transform: translateY(-6px); }
         }
         .hand-bounce {
           animation: hand-bounce 1.4s ease-in-out infinite;
@@ -307,19 +292,35 @@ export function LandingPage() {
             transition={{ delay: 0.2, duration: 0.5, ease: 'easeOut' }}
             style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2rem' }}
           >
-            {situations.map((sit) => {
+            {situations.map((sit, idx) => {
               const colorKey = sit.id === 'need-done' ? 'need' : sit.id === 'have-skill' ? 'skill' : 'explore'
-              const breatheClass = pressed ? '' : (sit.id === 'need-done' ? 'sit-card-need-breathe' : sit.id === 'have-skill' ? 'sit-card-skill-breathe' : 'sit-card-explore-breathe')
               const accentColor = sit.id === 'need-done' ? '#F55D1E' : sit.id === 'have-skill' ? '#1B9E6E' : '#F0EFEB'
               const isPressed = pressed === sit.id
+              const isActive = !pressed && activeCard === idx
 
               return (
-                <button
+                <motion.button
                   key={sit.id}
-                  className={`sit-card card-${colorKey} ${breatheClass}${isPressed ? ` active-${colorKey === 'need' ? 'need' : colorKey === 'skill' ? 'skill' : 'explore'}` : ''}`}
+                  className={`sit-card card-${colorKey}${isPressed ? ` active-${colorKey === 'need' ? 'need' : colorKey === 'skill' ? 'skill' : 'explore'}` : ''}`}
                   onClick={() => choose(sit.id)}
                   onMouseEnter={() => setHovered(sit.id)}
                   onMouseLeave={() => setHovered(null)}
+                  // Each card takes a turn lifting up — like tapping you on the shoulder
+                  animate={
+                    isPressed ? { scale: 0.97, y: 0 } :
+                      isActive ? {
+                        y: [-2, -14, -10, -13, 0], scale: [1, 1.025, 1.015, 1.02, 1],
+                        borderColor: accentColor,
+                        boxShadow: [`0 2px 8px rgba(0,0,0,0)`, `0 16px 40px ${accentColor}30`, `0 12px 32px ${accentColor}25`, `0 14px 36px ${accentColor}28`, `0 2px 8px rgba(0,0,0,0)`]
+                      }
+                        : { y: 0, scale: 1 }
+                  }
+                  transition={
+                    isActive
+                      ? { duration: 1.4, times: [0, 0.25, 0.55, 0.7, 1], ease: 'easeInOut' }
+                      : { duration: 0.35, ease: 'easeOut' }
+                  }
+                  whileTap={{ scale: 0.97 }}
                 >
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
                     {/* Emoji */}
@@ -331,19 +332,30 @@ export function LandingPage() {
                         <h2 style={{ fontFamily: 'var(--font-heading), serif', fontSize: '1.1rem', fontWeight: 800, color: '#F0EFEB', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
                           {sit.headline}
                         </h2>
-                        <ArrowRight size={15} style={{ color: accentColor, flexShrink: 0, opacity: hovered === sit.id || isPressed ? 1 : 0.4, transition: 'opacity 0.15s, transform 0.15s', transform: hovered === sit.id ? 'translateX(3px)' : 'none' }} />
+                        <ArrowRight size={15} style={{ color: accentColor, flexShrink: 0, opacity: hovered === sit.id || isPressed || isActive ? 1 : 0.35, transition: 'opacity 0.2s, transform 0.2s', transform: hovered === sit.id || isActive ? 'translateX(4px)' : 'none' }} />
                       </div>
                       <p style={{ fontSize: '0.8rem', color: '#8A8980', lineHeight: 1.55, marginBottom: '0.75rem' }}>
                         {sit.sub}
                       </p>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.85rem' }}>
                         {sit.pills.map(p => (
                           <span key={p} className={`pill-small ${colorKey}`}>{p}</span>
                         ))}
                       </div>
+                      {/* CTA label — always visible, glows when this card is active */}
+                      <div style={{
+                        display: 'flex', alignItems: 'center', gap: 5,
+                        fontSize: '0.75rem', fontWeight: 800,
+                        color: isActive || isPressed ? accentColor : 'rgba(240,239,235,0.35)',
+                        transition: 'color 0.3s',
+                        letterSpacing: '0.01em',
+                      }}>
+                        <span>Get started</span>
+                        <ArrowRight size={12} style={{ transition: 'transform 0.3s', transform: isActive ? 'translateX(3px)' : 'none' }} />
+                      </div>
                     </div>
                   </div>
-                </button>
+                </motion.button>
               )
             })}
           </motion.div>

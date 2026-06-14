@@ -1,15 +1,20 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowLeft, Star, MapPin, Copy, Check } from 'lucide-react'
+import { ArrowLeft, Star, MapPin, Copy, Check, LogOut } from 'lucide-react'
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
 
 export function UserProfile() {
-  const { setCurrentPage, currentUser } = useAppStore()
+  const { setCurrentPage, currentUser, setCurrentUser } = useAppStore()
   const [copied, setCopied] = useState(false)
 
   if (!currentUser) return null
+
+  const handleLogout = () => {
+    setCurrentUser(null)
+    setCurrentPage('splash')
+  }
 
   const generateUsername = (name: string, id: string) => {
     return `${name.toLowerCase().replace(/\s+/g, '')}_${id.slice(0, 6)}`
@@ -128,6 +133,29 @@ export function UserProfile() {
           className="w-full bg-secondary text-foreground px-6 py-3 rounded-lg font-semibold hover:bg-secondary/80 transition"
         >
           Edit Profile
+        </motion.button>
+
+        {/* Logout — visible on mobile where sidebar isn't shown */}
+        <motion.button
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.25 }}
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2 mt-3 px-6 py-3 rounded-lg font-semibold text-destructive border-2 border-destructive/30 hover:bg-destructive/10 transition lg:hidden"
+        >
+          <LogOut size={18} />
+          Log Out
+        </motion.button>
+
+        {/* Settings link on mobile */}
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          onClick={() => setCurrentPage('settings')}
+          className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition py-2 lg:hidden"
+        >
+          ⚙️ Settings
         </motion.button>
       </div>
     </motion.div>
