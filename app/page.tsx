@@ -90,7 +90,7 @@ export default function Home() {
 
     const backMap: Record<string, string> = {
       'role-select': 'splash',
-      'phone-verification': 'role-select',
+      'phone-verification': 'splash',        // LandingPage handles role — skip role-select
       'profile-setup': 'phone-verification',
       'explore-onboarding': 'splash',
       'privacy': 'splash',

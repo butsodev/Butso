@@ -234,9 +234,11 @@ export function ProfileSetup() {
   const [step, setStep] = useState<Step>('basic')
   const [pressedNext, setPressedNext] = useState<string | null>(null)
 
-  const role = (sessionStorage.getItem('selectedRole') === 'find-work'
-    ? 'worker'
-    : 'employer') as UserRole
+  // Robust role reading — handles both 'find-work' (from LandingPage) and legacy values
+  const rawRole = sessionStorage.getItem('selectedRole') ?? ''
+  const role = (rawRole === 'find-work' || rawRole === 'worker')
+    ? ('worker' as UserRole)
+    : ('employer' as UserRole)
   const phone = sessionStorage.getItem('userPhone') || ''
   const isWorker = role === 'worker'
 
@@ -362,8 +364,8 @@ export function ProfileSetup() {
           <motion.button key={opt.value} whileTap={{ scale: 0.97 }}
             onClick={() => setGender(opt.value)}
             className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all ${gender === opt.value
-                ? 'border-primary bg-primary/8'
-                : 'border-border hover:border-primary/40'
+              ? 'border-primary bg-primary/8'
+              : 'border-border hover:border-primary/40'
               }`}>
             <span className="text-3xl">{opt.emoji}</span>
             <span className="font-bold text-foreground">{opt.label}</span>
