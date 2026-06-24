@@ -77,7 +77,7 @@ export function Bookings() {
           className="bg-card rounded-lg border border-border shadow-sm p-6"
         >
           <h2 className="text-xl font-bold text-foreground mb-4">Active & Upcoming Bookings</h2>
-          
+
           {bookings.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground mb-4">No bookings yet</p>
@@ -105,7 +105,7 @@ export function Bookings() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-foreground">Job #{booking.jobId}</h3>
+                        <h3 className="font-semibold text-foreground">{booking.jobTitle || `Job #${booking.jobId}`}</h3>
                         <span className={`px-2 py-1 rounded text-xs font-semibold ${getStatusColor(booking.status)}`}>
                           {booking.status}
                         </span>
@@ -121,7 +121,7 @@ export function Bookings() {
                         </div>
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <User size={16} />
-                          <span className="text-xs">{booking.slots.length} slot(s)</span>
+                          <span className="text-xs">{booking.workerName || booking.slots.length + ' slot(s)'}</span>
                         </div>
                       </div>
                     </div>

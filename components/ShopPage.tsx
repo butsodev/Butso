@@ -53,7 +53,7 @@ function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
 }
 
 export function ShopPage() {
-    const { selectedShopId, shops, setCurrentPage, currentUser, goBack } = useAppStore()
+    const { selectedShopId, shops, setCurrentPage, currentUser, goBack, setPendingBooking } = useAppStore()
     const shop = shops.find(s => s.id === selectedShopId)
     const [activeTab, setActiveTab] = useState<'services' | 'reviews' | 'hours'>('services')
     const [bookingService, setBookingService] = useState<ShopService | null>(null)

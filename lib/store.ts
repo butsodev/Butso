@@ -133,6 +133,15 @@ export interface PortfolioItem {
 
 export type ShopDefaultTab = 'services' | 'portfolio' | 'reviews'
 
+export interface PendingBooking {
+  shopId: string
+  shopName: string
+  serviceId: string
+  serviceName: string
+  servicePrice: number
+  durationMinutes?: number
+}
+
 export interface Shop {
   id: string
   ownerId: string
@@ -233,6 +242,8 @@ export interface AppStore {
   setSelectedJobId: (id: string | null) => void
   viewedWorkerId: string | null
   viewWorkerProfile: (id: string) => void
+  pendingBooking: PendingBooking | null
+  setPendingBooking: (b: PendingBooking | null) => void
   pageHistory: string[]
   goBack: () => void
 
@@ -315,6 +326,8 @@ export const useAppStore = create<AppStore>()(
         const newHistory = state.pageHistory.slice(-9)
         set({ viewedWorkerId: id, currentPage: 'people', pageHistory: [...newHistory, state.currentPage].filter(p => p !== 'splash') })
       },
+      pendingBooking: null,
+      setPendingBooking: (b) => set({ pendingBooking: b }),
 
       setCurrentPage: (page) => {
         const state = get()
