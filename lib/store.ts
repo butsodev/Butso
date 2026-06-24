@@ -231,6 +231,8 @@ export interface AppStore {
   setSelectedShopId: (id: string | null) => void
   selectedJobId: string | null
   setSelectedJobId: (id: string | null) => void
+  viewedWorkerId: string | null
+  viewWorkerProfile: (id: string) => void
   pageHistory: string[]
   goBack: () => void
 
@@ -307,6 +309,12 @@ export const useAppStore = create<AppStore>()(
       setSelectedShopId: (id) => set({ selectedShopId: id }),
       selectedJobId: null,
       setSelectedJobId: (id) => set({ selectedJobId: id }),
+      viewedWorkerId: null,
+      viewWorkerProfile: (id) => {
+        const state = get()
+        const newHistory = state.pageHistory.slice(-9)
+        set({ viewedWorkerId: id, currentPage: 'people', pageHistory: [...newHistory, state.currentPage].filter(p => p !== 'splash') })
+      },
 
       setCurrentPage: (page) => {
         const state = get()

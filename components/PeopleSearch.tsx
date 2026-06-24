@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Star, MapPin, Zap, SlidersHorizontal, X } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 import { mockWorkers } from '@/lib/mockData'
 
@@ -31,12 +31,20 @@ const card = {
 }
 
 export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
-  const { setCurrentPage, preferences, trackSearch } = useAppStore()
+  const { setCurrentPage, preferences, trackSearch, viewedWorkerId } = useAppStore()
   const [query, setQuery] = useState('')
   const [selectedSkill, setSelectedSkill] = useState('all')
   const [availableOnly, setAvailableOnly] = useState(false)
   const [showAllFilters, setShowAllFilters] = useState(false)
   const [selectedWorker, setSelectedWorker] = useState<typeof mockWorkers[0] | null>(null)
+
+  useEffect(() => {
+    if (viewedWorkerId) {
+      const worker = mockWorkers.find(w => w.id === viewedWorkerId)
+      if (worker) setSelectedWorker(worker)
+      useAppStore.setState({ viewedWorkerId: null })
+    }
+  }, [viewedWorkerId])
 
   // Recent searches — top 4 by frequency, min 1 search
   const recentSearches = Object.entries(preferences.searched ?? {})
