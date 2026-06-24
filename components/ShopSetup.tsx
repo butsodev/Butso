@@ -140,7 +140,7 @@ export function ShopSetup() {
     }
 
     return (
-        <div className="min-h-screen bg-background pb-24">
+        <div className="min-h-screen bg-background pb-36 lg:pb-24">
             {/* Header */}
             <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-sm border-b border-border">
                 <div className="max-w-xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -445,7 +445,7 @@ export function ShopSetup() {
                 </AnimatePresence>
 
                 {/* Bottom nav */}
-                <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4">
+                <div className="fixed bottom-16 left-0 right-0 bg-background border-t border-border p-4 z-40 lg:bottom-0">
                     <div className="max-w-xl mx-auto flex gap-3">
                         {stepIdx > 0 && (
                             <button onClick={() => setStep(steps[stepIdx - 1])}

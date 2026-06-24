@@ -53,7 +53,7 @@ function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
 }
 
 export function ShopPage() {
-    const { selectedShopId, shops, setCurrentPage, currentUser, goBack, setPendingBooking } = useAppStore()
+    const { selectedShopId, shops, setCurrentPage, currentUser, goBack } = useAppStore()
     const shop = shops.find(s => s.id === selectedShopId)
     const [activeTab, setActiveTab] = useState<'services' | 'reviews' | 'hours'>('services')
     const [bookingService, setBookingService] = useState<ShopService | null>(null)
@@ -292,7 +292,7 @@ export function ShopPage() {
             </div>
 
             {/* Sticky book button */}
-            <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border p-4">
+            <div className="fixed bottom-16 left-0 right-0 lg:bottom-0 bg-background/95 backdrop-blur-sm border-t border-border p-4">
                 <div className="max-w-2xl mx-auto">
                     <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}
                         onClick={() => handleBook(shop.services[0] ?? { id: '', name: '', price: 0, pricingType: 'fixed' })}
