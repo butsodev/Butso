@@ -8,6 +8,7 @@ import { AuthShell } from '@/components/AuthShell'
 import { Header } from '@/components/Header'
 import { RoleSelection } from '@/components/RoleSelection'
 import { PhoneVerification } from '@/components/PhoneVerification'
+import { AuthPage } from '@/components/AuthPage'
 import { ProfileSetup } from '@/components/ProfileSetup'
 import { UnifiedDashboard } from '@/components/UnifiedDashboard'
 import { JobsBrowsing } from '@/components/JobsBrowsing'
@@ -51,7 +52,7 @@ const KNOWN_PAGES = [
   'shops', 'shop', 'shop-setup', 'explore-onboarding',
 ]
 
-const AUTH_PAGES = ['role-select', 'phone-verification', 'profile-setup', 'explore-onboarding', 'privacy', 'terms']
+const AUTH_PAGES = ['role-select', 'phone-verification', 'auth', 'profile-setup', 'explore-onboarding', 'privacy', 'terms']
 
 function ThemeToggleFloat() {
   const { darkMode, toggleDarkMode } = useAppStore()
@@ -102,6 +103,7 @@ export default function Home() {
         <AuthShell back={backMap[currentPage]}>
           {currentPage === 'role-select' && <RoleSelection />}
           {currentPage === 'phone-verification' && <PhoneVerification />}
+          {currentPage === 'auth' && <AuthPage />}
           {currentPage === 'profile-setup' && <ProfileSetup />}
           {currentPage === 'explore-onboarding' && <ExploreOnboarding />}
           {currentPage === 'privacy' && <PrivacyPolicy />}
