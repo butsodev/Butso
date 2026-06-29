@@ -2,33 +2,45 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect, useRef } from 'react'
-import { Star, ChevronRight, MapPin, ArrowRight, CheckCircle, Play } from 'lucide-react'
+import { Star, ChevronRight, MapPin, ArrowRight, CheckCircle } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
+import { HeroSlideshow } from '@/components/HeroSlideshow'
 
 // ─── MEDIA SLOTS ──────────────────────────────────────────────────────────────
 // Drop files in /public/ — paths below wire up automatically.
 // Everything shows a clean placeholder until real media arrives.
 const MEDIA = {
-  heroVideo: '/videos/hero-loop.mp4',         // 5–15s silent loop, MP4
-  workers: [                                   // portrait headshots, any ratio
-    '/images/workers/wunuken.jpg',
-    '/images/workers/fatima.jpg',
-    '/images/workers/zando.jpg',
-    '/images/workers/emeka.jpg',
-    '/images/workers/wapuken.jpg',
-    '/images/workers/yusuf.jpg',
+  // ── All images already in /public/ ───────────────────────────────
+  // Hero slideshow handled by HeroSlideshow component (uses same images)
+
+  // Worker avatars — using your real worker images as stand-ins
+  // Replace with actual headshots when you have them
+  workers: [
+    '/plumberman.png',       // Wunuken Danladi — Plumber
+    '/cleanerwoman.png',     // Fatima Abdullahi — Cleaner
+    '/electricianman.png',   // Zando Ishaku — Electrician
+    '/barberman.png',        // Emeka Eze — Carpenter (closest available)
+    '/constructionworkerpointing.png', // Wapuken Amos — Painter
+    '/farmerwoman.png',      // Yusuf Garba — Welder (closest available)
   ],
-  // Carousel slide images — 450px circle-cropped (like LinkedIn)
-  slideWorkerPhone: '/images/slides/worker-phone.jpg',    // worker on phone, smiling
-  slideHandshake: '/images/slides/handshake.jpg',       // two people connecting
-  slideShop: '/images/slides/shop-booking.jpg',    // barber/shop scene
-  // Tile illustrations — 128×128 (like LinkedIn's SVG tiles)
-  tileHire: '/images/tiles/hire.jpg',
-  tileWork: '/images/tiles/work.jpg',
-  // "Who is Butsó for?" — tall square ~600×720 (like LinkedIn's 840×840)
-  whoFor: '/images/who-for.jpg',
-  // Bottom CTA background — wide, will be dimmed
-  bottomBg: '/images/bottom-bg.jpg',
+
+  // Feature carousel slides (LinkedIn-style, text left + image right)
+  slideWorkerPhone: '/mancalling.png',         // "Direct contact" slide
+  slideHandshake: '/workershandshake.png',   // "Get hired" slide
+  slideShop: '/barberman.png',          // "Book a shop" slide
+
+  // Two-column tiles
+  tileHire: '/constructionworkerpointing.png', // "Find a worker" tile
+  tileWork: '/plumberman.png',                 // "Offer your skills" tile
+
+  // "Who is Butsó for?" section — tall portrait
+  whoFor: '/constructionworkerpointing.png',
+
+  // Bottom CTA section — wide scene behind text
+  bottomBg: '/busyafricanstreet.png',
+
+  // Success story section
+  successStory: '/workershandshake.png',
 }
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
@@ -173,8 +185,6 @@ export function LandingPage() {
   const { setCurrentPage, darkMode, toggleDarkMode } = useAppStore()
   const [tickerPaused, setTickerPaused] = useState(false)
   const [slideIdx, setSlideIdx] = useState(0)
-  const [videoLoaded, setVideoLoaded] = useState(false)
-  const [videoErr, setVideoErr] = useState(false)
   const slideTimer = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Auto-advance carousel (LinkedIn pattern)
@@ -271,45 +281,11 @@ export function LandingPage() {
       {/* ── HERO — Fiverr video left + LinkedIn live-content right ───── */}
       <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 'calc(100vh - 96px)', overflow: 'hidden' }} className="ld-hero-grid">
 
-        {/* LEFT — video hero (Fiverr style) */}
+        {/* LEFT — animated image slideshow */}
         <div style={{ position: 'relative', overflow: 'hidden', minHeight: 520 }}>
 
-          {/* Silent looping video */}
-          {!videoErr && (
-            <video autoPlay muted loop playsInline
-              onCanPlay={() => setVideoLoaded(true)}
-              onError={() => setVideoErr(true)}
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: videoLoaded ? 1 : 0, transition: 'opacity 1s' }}
-              src={MEDIA.heroVideo}
-            />
-          )}
-
-          {/* Gradient placeholder when no video yet */}
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'linear-gradient(135deg, #0a1f16 0%, #0d2b1f 40%, #111110 100%)',
-            opacity: videoLoaded && !videoErr ? 0 : 1, transition: 'opacity 1s',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <div style={{ background: 'rgba(27,158,110,0.1)', border: '1px dashed rgba(27,158,110,0.3)', borderRadius: 14, padding: '1.5rem 2rem', textAlign: 'center', maxWidth: 260 }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: 10 }}>🎬</div>
-              <p style={{ fontSize: '0.75rem', fontWeight: 700, color: C.green, marginBottom: 4 }}>VIDEO PLACEHOLDER</p>
-              <p style={{ fontSize: '0.65rem', color: C.muted, lineHeight: 1.6 }}>Drop your looping video at:<br /><code style={{ color: C.faint }}>public/videos/hero-loop.mp4</code><br />5–15s silent MP4</p>
-            </div>
-          </div>
-
-          {/* Overlay — readable text on any video */}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(10,10,10,0.82) 0%, rgba(10,10,10,0.35) 100%)' }} />
-
-          {/* Play badge — only shown when video is playing */}
-          {videoLoaded && !videoErr && (
-            <div style={{ position: 'absolute', bottom: '1.5rem', left: '1.5rem', display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)', border: `1px solid ${C.border}`, borderRadius: 99, padding: '0.35rem 0.8rem 0.35rem 0.4rem' }}>
-              <div style={{ width: 20, height: 20, background: C.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Play size={9} fill="#fff" color="#fff" />
-              </div>
-              <span style={{ fontSize: '0.65rem', color: 'rgba(240,239,235,0.65)', fontWeight: 600 }}>Real workers · Wukari</span>
-            </div>
-          )}
+          {/* Slideshow sits behind the text overlay */}
+          <HeroSlideshow style={{ position: 'absolute', inset: 0 }} />
 
           {/* Hero text overlay */}
           <div style={{ position: 'relative', zIndex: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 'clamp(2rem,5vw,3.5rem) clamp(1.5rem,4vw,3rem)' }}>
@@ -643,7 +619,7 @@ export function LandingPage() {
         <div style={{ maxWidth: 1160, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'center' }} className="ld-story-grid">
           {/* Photo */}
           <div style={{ borderRadius: 20, overflow: 'hidden', aspectRatio: '4/3', background: C.card, border: `1px solid ${C.border}`, position: 'relative' }}>
-            <Img src="/images/success-story.jpg" alt="Success story" emoji="📸" label={'Worker + client · success-story.jpg'} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <Img src={MEDIA.successStory} alt="Success story" emoji="📸" label={'Worker + client · success-story.jpg'} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </div>
           {/* Story text */}
           <div>
@@ -699,7 +675,7 @@ export function LandingPage() {
         {/* Background image — LinkedIn's after: pseudo approach */}
         <Img src={MEDIA.bottomBg} alt="" emoji="🏙️" label="bottom-bg.jpg" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
         {/* Dark overlay — text floats on top */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(10,10,10,0.96) 55%, rgba(10,10,10,0.6) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(10,10,10,0.72) 0%, rgba(10,10,10,0.55) 50%, rgba(10,10,10,0.2) 100%)' }} />
 
         <div style={{ position: 'relative', maxWidth: 1160, margin: '0 auto', padding: 'clamp(3.5rem,7vw,5.5rem) 1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'center' }} className="ld-two-col">
           <div>
