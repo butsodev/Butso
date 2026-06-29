@@ -8,12 +8,20 @@ import { useEffect, useState, useRef } from 'react'
 const SLIDES = [
     { src: '/barberman.png', caption: 'Barbers', accent: '#1B9E6E' },
     { src: '/plumberman.png', caption: 'Plumbers', accent: '#3B82F6' },
-    { src: '/workershandshake.png', caption: 'Get connected', accent: '#1B9E6E' },
     { src: '/electricianman.png', caption: 'Electricians', accent: '#F59E0B' },
     { src: '/cleanerwoman.png', caption: 'Cleaners', accent: '#EC4899' },
-    { src: '/constructionworkerpointing.png', caption: 'Builders', accent: '#F55D1E' },
+    { src: '/carpenterman.png', caption: 'Carpenters', accent: '#D97706' },
+    { src: '/painterman.png', caption: 'Painters', accent: '#8B5CF6' },
+    { src: '/tailorgirl.png', caption: 'Tailors', accent: '#F55D1E' },
+    { src: '/cheflady.png', caption: 'Cooks & chefs', accent: '#EF4444' },
+    { src: '/mechanicman.png', caption: 'Mechanics', accent: '#6366F1' },
+    { src: '/bricklayer.png', caption: 'Bricklayers', accent: '#F55D1E' },
+    { src: '/securityman.png', caption: 'Security', accent: '#0EA5E9' },
+    { src: '/braidergirl.png', caption: 'Hair braiders', accent: '#EC4899' },
+    { src: '/laundryladies.png', caption: 'Laundry services', accent: '#14B8A6' },
     { src: '/farmerwoman.png', caption: 'Farm work', accent: '#10B981' },
-    { src: '/mancalling.png', caption: 'Direct contact', accent: '#8B5CF6' },
+    { src: '/constructionworkerpointing.png', caption: 'Builders', accent: '#F55D1E' },
+    { src: '/workershandshake.png', caption: 'Get connected', accent: '#1B9E6E' },
 ]
 
 const INTERVAL = 6000   // 6s per slide — slow, unhurried
@@ -64,6 +72,8 @@ export function HeroSlideshow({ style, className }: { style?: React.CSSPropertie
                         initial={{ scale: i === idx ? 1 : ZOOM_SCALE }}
                         animate={{ scale: i === idx ? ZOOM_SCALE : ZOOM_SCALE }}
                         transition={i === idx ? { duration: INTERVAL / 1000 + TRANS_DUR, ease: 'linear' } : { duration: 0 }}
+                        loading={i === 0 ? 'eager' : 'lazy'}
+                        fetchPriority={i === 0 ? 'high' : 'low'}
                         style={{
                             width: '100%', height: '100%',
                             objectFit: 'cover', objectPosition: 'center top',

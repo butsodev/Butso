@@ -10,37 +10,36 @@ import { HeroSlideshow } from '@/components/HeroSlideshow'
 // Drop files in /public/ — paths below wire up automatically.
 // Everything shows a clean placeholder until real media arrives.
 const MEDIA = {
-  // ── All images already in /public/ ───────────────────────────────
-  // Hero slideshow handled by HeroSlideshow component (uses same images)
-
-  // Worker avatars — using your real worker images as stand-ins
-  // Replace with actual headshots when you have them
+  // Worker avatars — real worker images mapped by trade
   workers: [
-    '/plumberman.png',       // Wunuken Danladi — Plumber
-    '/cleanerwoman.png',     // Fatima Abdullahi — Cleaner
-    '/electricianman.png',   // Zando Ishaku — Electrician
-    '/barberman.png',        // Emeka Eze — Carpenter (closest available)
-    '/constructionworkerpointing.png', // Wapuken Amos — Painter
-    '/farmerwoman.png',      // Yusuf Garba — Welder (closest available)
+    '/plumberman.png',          // Wunuken Danladi — Plumber
+    '/cleanerwoman.png',        // Fatima Abdullahi — Cleaner
+    '/electricianman.png',      // Zando Ishaku — Electrician
+    '/carpenterman.png',        // Emeka Eze — Carpenter
+    '/painterman.png',          // Wapuken Amos — Painter
+    '/mechanicman.png',         // Yusuf Garba — Mechanic/Welder
   ],
 
-  // Feature carousel slides (LinkedIn-style, text left + image right)
-  slideWorkerPhone: '/mancalling.png',         // "Direct contact" slide
-  slideHandshake: '/workershandshake.png',   // "Get hired" slide
-  slideShop: '/barberman.png',          // "Book a shop" slide
+  // Feature carousel slides
+  slideWorkerPhone: '/mancalling.png',
+  slideHandshake: '/workershandshake.png',
+  slideShop: '/barberman.png',
 
   // Two-column tiles
-  tileHire: '/constructionworkerpointing.png', // "Find a worker" tile
-  tileWork: '/plumberman.png',                 // "Offer your skills" tile
+  tileHire: '/happyman.png',
+  tileWork: '/tailorgirl.png',
 
-  // "Who is Butsó for?" section — tall portrait
+  // "Who is Butsó for?" section
   whoFor: '/constructionworkerpointing.png',
 
-  // Bottom CTA section — wide scene behind text
+  // Bottom CTA section — wide street scene
   bottomBg: '/busyafricanstreet.png',
 
   // Success story section
   successStory: '/workershandshake.png',
+
+  // Success story tile extras
+  successExtra: '/familyinparlor.png',
 }
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
@@ -58,12 +57,12 @@ const TICKER = [
 ]
 
 const WORKERS = [
-  { name: 'Wunuken Danladi', skill: 'Plumber', rating: 4.9, jobs: 34, location: 'Central Wukari', available: true, rate: '₦3,500/hr', initials: 'WD', color: '#1B9E6E' },
-  { name: 'Fatima Abdullahi', skill: 'Cleaner', rating: 4.8, jobs: 62, location: 'North Wukari', available: true, rate: '₦2,000/hr', initials: 'FA', color: '#F55D1E' },
-  { name: 'Zando Ishaku', skill: 'Electrician', rating: 4.7, jobs: 28, location: 'South Wukari', available: false, rate: '₦4,000/hr', initials: 'ZI', color: '#8B5CF6' },
-  { name: 'Emeka Eze', skill: 'Carpenter', rating: 4.6, jobs: 19, location: 'Central Wukari', available: true, rate: '₦3,000/hr', initials: 'EE', color: '#F59E0B' },
-  { name: 'Wapuken Amos', skill: 'Painter', rating: 4.9, jobs: 47, location: 'North Wukari', available: true, rate: '₦3,800/hr', initials: 'WA', color: '#EC4899' },
-  { name: 'Yusuf Garba', skill: 'Welder', rating: 4.5, jobs: 23, location: 'South Wukari', available: true, rate: '₦4,500/hr', initials: 'YG', color: '#06B6D4' },
+  { name: 'Wunuken Danladi', skill: 'Plumber', rating: 4.9, jobs: 34, location: 'Central Wukari', available: true, rate: '₦3,500/hr', initials: 'WD', color: '#1B9E6E', img: '/plumberman.png' },
+  { name: 'Fatima Abdullahi', skill: 'Cleaner', rating: 4.8, jobs: 62, location: 'North Wukari', available: true, rate: '₦2,000/hr', initials: 'FA', color: '#F55D1E', img: '/cleanerwoman.png' },
+  { name: 'Zando Ishaku', skill: 'Electrician', rating: 4.7, jobs: 28, location: 'South Wukari', available: false, rate: '₦4,000/hr', initials: 'ZI', color: '#8B5CF6', img: '/electricianman.png' },
+  { name: 'Emeka Eze', skill: 'Carpenter', rating: 4.6, jobs: 19, location: 'Central Wukari', available: true, rate: '₦3,000/hr', initials: 'EE', color: '#F59E0B', img: '/carpenterman.png' },
+  { name: 'Wapuken Amos', skill: 'Painter', rating: 4.9, jobs: 47, location: 'North Wukari', available: true, rate: '₦3,800/hr', initials: 'WA', color: '#EC4899', img: '/painterman.png' },
+  { name: 'Yusuf Garba', skill: 'Mechanic', rating: 4.5, jobs: 23, location: 'South Wukari', available: true, rate: '₦4,500/hr', initials: 'YG', color: '#06B6D4', img: '/mechanicman.png' },
 ]
 
 const LIVE_JOBS = [
@@ -75,16 +74,20 @@ const LIVE_JOBS = [
 ]
 
 const CATEGORIES = [
-  { emoji: '🔧', label: 'Plumbing', workers: 48 },
-  { emoji: '⚡', label: 'Electrical', workers: 32 },
-  { emoji: '🪵', label: 'Carpentry', workers: 27 },
-  { emoji: '🧹', label: 'Cleaning', workers: 91 },
-  { emoji: '🎨', label: 'Painting', workers: 35 },
-  { emoji: '🍳', label: 'Cooking', workers: 22 },
-  { emoji: '🚗', label: 'Driving', workers: 18 },
-  { emoji: '🧵', label: 'Tailoring', workers: 14 },
-  { emoji: '🏗️', label: 'Construction', workers: 56 },
-  { emoji: '🌿', label: 'Gardening', workers: 11 },
+  { emoji: '🔧', label: 'Plumbing', workers: 48, img: '/plumberman.png' },
+  { emoji: '⚡', label: 'Electrical', workers: 32, img: '/electricianman.png' },
+  { emoji: '🪵', label: 'Carpentry', workers: 27, img: '/carpenterman.png' },
+  { emoji: '🧹', label: 'Cleaning', workers: 91, img: '/cleanerwoman.png' },
+  { emoji: '🎨', label: 'Painting', workers: 35, img: '/painterman.png' },
+  { emoji: '🍳', label: 'Cooking', workers: 22, img: '/cheflady.png' },
+  { emoji: '🚗', label: 'Mechanics', workers: 18, img: '/mechanicman.png' },
+  { emoji: '🧵', label: 'Tailoring', workers: 14, img: '/tailorgirl.png' },
+  { emoji: '🏗️', label: 'Construction', workers: 56, img: '/bricklayer.png' },
+  { emoji: '🌿', label: 'Farming', workers: 11, img: '/farmerwoman.png' },
+  { emoji: '💇', label: 'Hair & Beauty', workers: 29, img: '/braidergirl.png' },
+  { emoji: '👕', label: 'Laundry', workers: 19, img: '/laundryladies.png' },
+  { emoji: '🔒', label: 'Security', workers: 8, img: '/securityman.png' },
+  { emoji: '🏠', label: 'Repairs', workers: 44, img: '/barberman.png' },
 ]
 
 // LinkedIn-style carousel slides: text left, circle-cropped image right
@@ -129,9 +132,9 @@ const WHO_FOR = [
 type Situation = 'need-done' | 'have-skill' | 'exploring'
 
 // ─── SMART IMAGE — shows placeholder when file isn't there yet ─────────────
-function Img({ src, alt, emoji, label, style, className }: {
+function Img({ src, alt, emoji, label, style, className, eager }: {
   src: string; alt: string; emoji: string; label: string
-  style?: React.CSSProperties; className?: string
+  style?: React.CSSProperties; className?: string; eager?: boolean
 }) {
   const [err, setErr] = useState(false)
   if (err) return (
@@ -144,19 +147,23 @@ function Img({ src, alt, emoji, label, style, className }: {
       <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.7 }}>{label}</span>
     </div>
   )
-  return <img src={src} alt={alt} style={style} className={className} onError={() => setErr(true)} />
+  return <img src={src} alt={alt} style={style} className={className} onError={() => setErr(true)}
+    loading={eager ? 'eager' : 'lazy'}
+    fetchPriority={eager ? 'high' : 'low'}
+  />
 }
 
 // ─── WORKER AVATAR — image with initials fallback (Upwork-style) ─────────
-function WorkerAvatar({ worker, index, size = 40 }: { worker: typeof WORKERS[0]; index: number; size?: number }) {
+function WorkerAvatar({ worker, size = 40 }: { worker: typeof WORKERS[0]; size?: number }) {
   const [imgErr, setImgErr] = useState(false)
   return (
     <div style={{ position: 'relative', width: size, height: size, borderRadius: '50%', flexShrink: 0 }}>
       {!imgErr && (
         <img
-          src={MEDIA.workers[index]}
+          src={worker.img}
           alt={worker.name}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', position: 'absolute', inset: 0 }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', borderRadius: '50%', position: 'absolute', inset: 0 }}
+          loading="lazy"
           onError={() => setImgErr(true)}
         />
       )}
@@ -335,8 +342,8 @@ export function LandingPage() {
               style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ display: 'flex' }}>
                 {WORKERS.slice(0, 5).map((w, i) => (
-                  <div key={i} style={{ width: 28, height: 28, borderRadius: '50%', background: w.color, border: '2px solid #111110', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.52rem', fontWeight: 800, color: '#fff', marginLeft: i > 0 ? -8 : 0, zIndex: 5 - i }}>
-                    {w.initials}
+                  <div key={i} style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', border: '2px solid #111110', marginLeft: i > 0 ? -8 : 0, zIndex: 5 - i, flexShrink: 0, background: w.color }}>
+                    <img src={w.img} alt={w.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
                   </div>
                 ))}
               </div>
@@ -368,7 +375,7 @@ export function LandingPage() {
                   onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = '#222220'; el.style.borderColor = 'rgba(27,158,110,0.3)' }}
                   onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = C.card; el.style.borderColor = C.border }}
                 >
-                  <WorkerAvatar worker={w} index={i} size={38} />
+                  <WorkerAvatar worker={w} size={38} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 2 }}>
                       <span style={{ fontSize: '0.8rem', fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{w.name}</span>
@@ -449,11 +456,14 @@ export function LandingPage() {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', paddingTop: '0.25rem' }}>
               {CATEGORIES.map(cat => (
                 <button key={cat.label} onClick={() => go('need-done')}
-                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.5rem 0.95rem', background: C.card, border: `1px solid ${C.border}`, borderRadius: 99, fontSize: '0.8rem', fontWeight: 600, color: C.mid, cursor: 'pointer', transition: 'border-color 0.15s, color 0.15s, background 0.15s' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.4rem 0.9rem 0.4rem 0.4rem', background: C.card, border: `1px solid ${C.border}`, borderRadius: 99, fontSize: '0.8rem', fontWeight: 600, color: C.mid, cursor: 'pointer', transition: 'border-color 0.15s, color 0.15s, background 0.15s' }}
                   onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = C.green; el.style.color = C.green; el.style.background = C.greenBg }}
                   onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = C.border; el.style.color = C.mid; el.style.background = C.card }}
                 >
-                  <span>{cat.emoji}</span>{cat.label}
+                  <div style={{ width: 26, height: 26, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, background: C.faint }}>
+                    <img src={cat.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
+                  </div>
+                  {cat.label}
                   <span style={{ fontSize: '0.65rem', color: C.faint }}>{cat.workers}</span>
                 </button>
               ))}
@@ -519,7 +529,7 @@ export function LandingPage() {
 
               {/* Circle-cropped image — LinkedIn's rounded-[50%] pattern */}
               <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <div style={{ width: 360, height: 360, borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
+                <div style={{ width: 'min(360px, 80vw)', height: 'min(360px, 80vw)', borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
                   <Img
                     src={SLIDES[slideIdx].img}
                     alt={SLIDES[slideIdx].headline}
@@ -604,7 +614,7 @@ export function LandingPage() {
 
       {/* ── STATS BAR ────────────────────────────────────────────────────── */}
       <div style={{ background: C.green, padding: '1.5rem' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '1rem', textAlign: 'center' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem', textAlign: 'center' }}>
           {[['500+', 'Skilled workers'], ['1,200+', 'Jobs completed'], ['4.8★', 'Average rating'], ['₦0', 'To sign up']].map(([v, l], i) => (
             <div key={i}>
               <div style={{ fontSize: 'clamp(1.3rem,2.5vw,1.8rem)', fontWeight: 900, letterSpacing: '-0.03em', color: '#fff', lineHeight: 1 }}>{v}</div>
@@ -706,7 +716,7 @@ export function LandingPage() {
 
       {/* ── FOOTER ───────────────────────────────────────────────────────── */}
       <footer style={{ background: C.surface, borderTop: `1px solid ${C.border}`, padding: '1.5rem' }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+        <div style={{ maxWidth: 1160, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }} className="ld-footer-row">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 22, height: 22, background: C.green, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ color: '#fff', fontWeight: 900, fontSize: 10 }}>B</span>
@@ -743,6 +753,10 @@ export function LandingPage() {
           .ld-story-grid  { grid-template-columns: 1fr !important; }
           .ld-nav         { display: none !important; }
           .ld-location    { display: none !important; }
+        }
+        @media (max-width: 480px) {
+          .ld-hero-min    { min-height: 92dvh !important; }
+          .ld-footer-row  { flex-direction: column !important; align-items: flex-start !important; }
         }
         @media (prefers-reduced-motion: reduce) {
           * { animation: none !important; transition: none !important; }
