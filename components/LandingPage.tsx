@@ -5,41 +5,42 @@ import { useState, useEffect, useRef } from 'react'
 import { Star, ChevronRight, MapPin, ArrowRight, CheckCircle } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 import { HeroSlideshow } from '@/components/HeroSlideshow'
+import { IMAGES } from '@/lib/cloudinary'
 
 // ─── MEDIA SLOTS ──────────────────────────────────────────────────────────────
-// Drop files in /public/ — paths below wire up automatically.
+// All images now served from Cloudinary — see lib/cloudinary.ts.
 // Everything shows a clean placeholder until real media arrives.
 const MEDIA = {
   // Worker avatars — real worker images mapped by trade
   workers: [
-    '/plumberman.png',          // Wunuken Danladi — Plumber
-    '/cleanerwoman.png',        // Fatima Abdullahi — Cleaner
-    '/electricianman.png',      // Zando Ishaku — Electrician
-    '/carpenterman.png',        // Emeka Eze — Carpenter
-    '/painterman.png',          // Wapuken Amos — Painter
-    '/mechanicman.png',         // Yusuf Garba — Mechanic/Welder
+    IMAGES.plumberman,          // Wunuken Danladi — Plumber
+    IMAGES.cleanerwoman,        // Fatima Abdullahi — Cleaner
+    IMAGES.electricianman,      // Zando Ishaku — Electrician
+    IMAGES.carpenterman,        // Emeka Eze — Carpenter
+    IMAGES.painterman,          // Wapuken Amos — Painter
+    IMAGES.mechanicman,         // Yusuf Garba — Mechanic/Welder
   ],
 
   // Feature carousel slides
-  slideWorkerPhone: '/mancalling.png',
-  slideHandshake: '/workershandshake.png',
-  slideShop: '/barberman.png',
+  slideWorkerPhone: IMAGES.mancalling,
+  slideHandshake: IMAGES.workershandshake,
+  slideShop: IMAGES.barberman,
 
   // Two-column tiles
-  tileHire: '/happyman.png',
-  tileWork: '/tailorgirl.png',
+  tileHire: IMAGES.happyman,
+  tileWork: IMAGES.tailorgirl,
 
   // "Who is Butsó for?" section
-  whoFor: '/constructionworkerpointing.png',
+  whoFor: IMAGES.constructionworkerpointing,
 
   // Bottom CTA section — wide street scene
-  bottomBg: '/busyafricanstreet.png',
+  bottomBg: IMAGES.busyafricanstreet,
 
   // Success story section
-  successStory: '/workershandshake.png',
+  successStory: IMAGES.workershandshake,
 
   // Success story tile extras
-  successExtra: '/familyinparlor.png',
+  successExtra: IMAGES.familyinparlor,
 }
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
@@ -57,12 +58,12 @@ const TICKER = [
 ]
 
 const WORKERS = [
-  { name: 'Wunuken Danladi', skill: 'Plumber', rating: 4.9, jobs: 34, location: 'Central Wukari', available: true, rate: '₦3,500/hr', initials: 'WD', color: '#1B9E6E', img: '/plumberman.png' },
-  { name: 'Fatima Abdullahi', skill: 'Cleaner', rating: 4.8, jobs: 62, location: 'North Wukari', available: true, rate: '₦2,000/hr', initials: 'FA', color: '#F55D1E', img: '/cleanerwoman.png' },
-  { name: 'Zando Ishaku', skill: 'Electrician', rating: 4.7, jobs: 28, location: 'South Wukari', available: false, rate: '₦4,000/hr', initials: 'ZI', color: '#8B5CF6', img: '/electricianman.png' },
-  { name: 'Emeka Eze', skill: 'Carpenter', rating: 4.6, jobs: 19, location: 'Central Wukari', available: true, rate: '₦3,000/hr', initials: 'EE', color: '#F59E0B', img: '/carpenterman.png' },
-  { name: 'Wapuken Amos', skill: 'Painter', rating: 4.9, jobs: 47, location: 'North Wukari', available: true, rate: '₦3,800/hr', initials: 'WA', color: '#EC4899', img: '/painterman.png' },
-  { name: 'Yusuf Garba', skill: 'Mechanic', rating: 4.5, jobs: 23, location: 'South Wukari', available: true, rate: '₦4,500/hr', initials: 'YG', color: '#06B6D4', img: '/mechanicman.png' },
+  { name: 'Wunuken Danladi', skill: 'Plumber', rating: 4.9, jobs: 34, location: 'Central Wukari', available: true, rate: '₦3,500/hr', initials: 'WD', color: '#1B9E6E', img: IMAGES.plumberman },
+  { name: 'Fatima Abdullahi', skill: 'Cleaner', rating: 4.8, jobs: 62, location: 'North Wukari', available: true, rate: '₦2,000/hr', initials: 'FA', color: '#F55D1E', img: IMAGES.cleanerwoman },
+  { name: 'Zando Ishaku', skill: 'Electrician', rating: 4.7, jobs: 28, location: 'South Wukari', available: false, rate: '₦4,000/hr', initials: 'ZI', color: '#8B5CF6', img: IMAGES.electricianman },
+  { name: 'Emeka Eze', skill: 'Carpenter', rating: 4.6, jobs: 19, location: 'Central Wukari', available: true, rate: '₦3,000/hr', initials: 'EE', color: '#F59E0B', img: IMAGES.carpenterman },
+  { name: 'Wapuken Amos', skill: 'Painter', rating: 4.9, jobs: 47, location: 'North Wukari', available: true, rate: '₦3,800/hr', initials: 'WA', color: '#EC4899', img: IMAGES.painterman },
+  { name: 'Yusuf Garba', skill: 'Mechanic', rating: 4.5, jobs: 23, location: 'South Wukari', available: true, rate: '₦4,500/hr', initials: 'YG', color: '#06B6D4', img: IMAGES.mechanicman },
 ]
 
 const LIVE_JOBS = [
@@ -74,20 +75,20 @@ const LIVE_JOBS = [
 ]
 
 const CATEGORIES = [
-  { emoji: '🔧', label: 'Plumbing', workers: 48, img: '/plumberman.png' },
-  { emoji: '⚡', label: 'Electrical', workers: 32, img: '/electricianman.png' },
-  { emoji: '🪵', label: 'Carpentry', workers: 27, img: '/carpenterman.png' },
-  { emoji: '🧹', label: 'Cleaning', workers: 91, img: '/cleanerwoman.png' },
-  { emoji: '🎨', label: 'Painting', workers: 35, img: '/painterman.png' },
-  { emoji: '🍳', label: 'Cooking', workers: 22, img: '/cheflady.png' },
-  { emoji: '🚗', label: 'Mechanics', workers: 18, img: '/mechanicman.png' },
-  { emoji: '🧵', label: 'Tailoring', workers: 14, img: '/tailorgirl.png' },
-  { emoji: '🏗️', label: 'Construction', workers: 56, img: '/bricklayer.png' },
-  { emoji: '🌿', label: 'Farming', workers: 11, img: '/farmerwoman.png' },
-  { emoji: '💇', label: 'Hair & Beauty', workers: 29, img: '/braidergirl.png' },
-  { emoji: '👕', label: 'Laundry', workers: 19, img: '/laundryladies.png' },
-  { emoji: '🔒', label: 'Security', workers: 8, img: '/securityman.png' },
-  { emoji: '🏠', label: 'Repairs', workers: 44, img: '/barberman.png' },
+  { emoji: '🔧', label: 'Plumbing', workers: 48, img: IMAGES.plumberman },
+  { emoji: '⚡', label: 'Electrical', workers: 32, img: IMAGES.electricianman },
+  { emoji: '🪵', label: 'Carpentry', workers: 27, img: IMAGES.carpenterman },
+  { emoji: '🧹', label: 'Cleaning', workers: 91, img: IMAGES.cleanerwoman },
+  { emoji: '🎨', label: 'Painting', workers: 35, img: IMAGES.painterman },
+  { emoji: '🍳', label: 'Cooking', workers: 22, img: IMAGES.cheflady },
+  { emoji: '🚗', label: 'Mechanics', workers: 18, img: IMAGES.mechanicman },
+  { emoji: '🧵', label: 'Tailoring', workers: 14, img: IMAGES.tailorgirl },
+  { emoji: '🏗️', label: 'Construction', workers: 56, img: IMAGES.bricklayer },
+  { emoji: '🌿', label: 'Farming', workers: 11, img: IMAGES.farmerwoman },
+  { emoji: '💇', label: 'Hair & Beauty', workers: 29, img: IMAGES.braidergirl },
+  { emoji: '👕', label: 'Laundry', workers: 19, img: IMAGES.laundryladies },
+  { emoji: '🔒', label: 'Security', workers: 8, img: IMAGES.securityman },
+  { emoji: '🏠', label: 'Repairs', workers: 44, img: IMAGES.barberman },
 ]
 
 // LinkedIn-style carousel slides: text left, circle-cropped image right
@@ -154,7 +155,7 @@ function Img({ src, alt, emoji, label, style, className, eager }: {
 }
 
 // ─── WORKER AVATAR — image with initials fallback (Upwork-style) ─────────
-function WorkerAvatar({ worker, size = 40 }: { worker: typeof WORKERS[0]; size?: number }) {
+function WorkerAvatar({ worker, size = 40, ringColor = '#111110' }: { worker: typeof WORKERS[0]; size?: number; ringColor?: string }) {
   const [imgErr, setImgErr] = useState(false)
   return (
     <div style={{ position: 'relative', width: size, height: size, borderRadius: '50%', flexShrink: 0 }}>
@@ -181,7 +182,7 @@ function WorkerAvatar({ worker, size = 40 }: { worker: typeof WORKERS[0]; size?:
         position: 'absolute', bottom: 0, right: 0,
         width: size * 0.28, height: size * 0.28, borderRadius: '50%',
         background: worker.available ? '#1B9E6E' : '#888',
-        border: `${size * 0.05}px solid var(--bg-canvas, #111110)`,
+        border: `${size * 0.05}px solid ${ringColor}`,
       }} />
     </div>
   )
@@ -210,11 +211,12 @@ export function LandingPage() {
     }
   }
 
-  // Palette — dark like the app itself, Butsó's own identity
-  const C = {
+  // Palette — Butsó's own identity, switches with darkMode
+  const C = darkMode ? {
     canvas: '#111110',
     surface: '#161614',
     card: '#1C1C1A',
+    cardHover: '#222220',
     border: 'rgba(255,255,255,0.07)',
     text: '#F0EFEB',
     mid: '#C0BFB8',
@@ -223,13 +225,36 @@ export function LandingPage() {
     green: '#1B9E6E',
     orange: '#F55D1E',
     greenBg: 'rgba(27,158,110,0.12)',
+    headerBg: 'rgba(17,17,16,0.92)',
+    pillBg: 'rgba(255,255,255,0.04)',
+    pillBorder: 'rgba(255,255,255,0.14)',
+    faqHover: 'rgba(255,255,255,0.05)',
+    faqBase: 'rgba(255,255,255,0.02)',
+  } : {
+    canvas: '#FAFAF8',
+    surface: '#FFFFFF',
+    card: '#F2F1EC',
+    cardHover: '#E8E7E0',
+    border: 'rgba(17,17,16,0.08)',
+    text: '#171715',
+    mid: '#45443E',
+    muted: '#6B6A61',
+    faint: '#9A988D',
+    green: '#1B9E6E',
+    orange: '#F55D1E',
+    greenBg: 'rgba(27,158,110,0.10)',
+    headerBg: 'rgba(255,255,255,0.92)',
+    pillBg: 'rgba(17,17,16,0.03)',
+    pillBorder: 'rgba(17,17,16,0.12)',
+    faqHover: 'rgba(17,17,16,0.05)',
+    faqBase: 'rgba(17,17,16,0.02)',
   }
 
   return (
     <div style={{ minHeight: '100dvh', background: C.canvas, color: C.text, fontFamily: 'var(--font-sans), system-ui, sans-serif', overflowX: 'hidden' }}>
 
       {/* ── NAV ─────────────────────────────────────────────────────────── */}
-      <header style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(17,17,16,0.92)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${C.border}` }}>
+      <header style={{ position: 'sticky', top: 0, zIndex: 50, background: C.headerBg, backdropFilter: 'blur(16px)', borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: 1160, margin: '0 auto', padding: '0 1.5rem', height: 58, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
 
           {/* Logo */}
@@ -257,14 +282,15 @@ export function LandingPage() {
 
           {/* Right */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.7rem', color: C.faint, background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`, padding: '0.25rem 0.65rem', borderRadius: 99, flexShrink: 0 }} className="ld-location">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.7rem', color: C.faint, background: C.pillBg, border: `1px solid ${C.border}`, padding: '0.25rem 0.65rem', borderRadius: 99, flexShrink: 0 }} className="ld-location">
               <MapPin size={9} style={{ color: C.green }} />Wukari
             </div>
-            <button onClick={toggleDarkMode} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, padding: '0.4rem', borderRadius: 6, fontSize: '0.9rem' }}>
+            <button onClick={toggleDarkMode} aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, padding: '0.4rem', borderRadius: 6, fontSize: '0.9rem', display: 'flex', alignItems: 'center' }}>
               {darkMode ? '☀️' : '🌙'}
             </button>
             <button onClick={() => setCurrentPage('auth')}
-              style={{ background: 'none', border: `1px solid rgba(255,255,255,0.14)`, borderRadius: 8, padding: '0.42rem 1rem', fontSize: '0.82rem', color: C.mid, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ background: 'none', border: `1px solid ${C.pillBorder}`, borderRadius: 8, padding: '0.42rem 1rem', fontSize: '0.82rem', color: C.mid, fontWeight: 600, cursor: 'pointer' }}>
               Sign in
             </button>
             <button onClick={() => go('have-skill')}
@@ -308,7 +334,7 @@ export function LandingPage() {
             <motion.h1
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.07, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              style={{ fontSize: 'clamp(1.9rem,3.8vw,3rem)', fontWeight: 900, lineHeight: 1.08, letterSpacing: '-0.035em', marginBottom: '1rem', maxWidth: 460 }}
+              style={{ fontSize: 'clamp(1.9rem,3.8vw,3rem)', fontWeight: 900, lineHeight: 1.08, letterSpacing: '-0.035em', marginBottom: '1rem', maxWidth: 460, color: '#F5F4F0' }}
             >
               Skilled workers.<br />
               <span style={{ color: C.green }}>Real jobs.</span><br />
@@ -332,7 +358,7 @@ export function LandingPage() {
                 Hire someone <ArrowRight size={14} />
               </button>
               <button onClick={() => go('have-skill')}
-                style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', color: C.text, border: `1px solid rgba(255,255,255,0.14)`, borderRadius: 10, padding: '0.82rem 1.5rem', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer' }}>
+                style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', color: '#F5F4F0', border: `1px solid rgba(255,255,255,0.14)`, borderRadius: 10, padding: '0.82rem 1.5rem', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer' }}>
                 Find work →
               </button>
             </motion.div>
@@ -348,7 +374,7 @@ export function LandingPage() {
                 ))}
               </div>
               <span style={{ fontSize: '0.75rem', color: 'rgba(240,239,235,0.5)' }}>
-                <strong style={{ color: C.mid }}>500+ workers</strong> · Free to join
+                <strong style={{ color: '#F5F4F0' }}>500+ workers</strong> · Free to join
               </span>
             </motion.div>
           </div>
@@ -372,10 +398,10 @@ export function LandingPage() {
                   transition={{ delay: 0.1 + i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                   onClick={() => go('exploring')}
                   style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.7rem', borderRadius: 10, background: C.card, border: `1px solid ${C.border}`, cursor: 'pointer', transition: 'background 0.15s, border-color 0.15s' }}
-                  onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = '#222220'; el.style.borderColor = 'rgba(27,158,110,0.3)' }}
+                  onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = C.cardHover; el.style.borderColor = 'rgba(27,158,110,0.3)' }}
                   onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = C.card; el.style.borderColor = C.border }}
                 >
-                  <WorkerAvatar worker={w} size={38} />
+                  <WorkerAvatar worker={w} size={38} ringColor={C.card} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 2 }}>
                       <span style={{ fontSize: '0.8rem', fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{w.name}</span>
@@ -416,7 +442,7 @@ export function LandingPage() {
                   transition={{ delay: 0.35 + i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                   onClick={() => go('have-skill')}
                   style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, padding: '0.65rem', borderRadius: 10, background: C.card, border: `1px solid ${C.border}`, cursor: 'pointer', transition: 'background 0.15s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#222220' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.cardHover }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.card }}
                 >
                   <div>
@@ -588,9 +614,9 @@ export function LandingPage() {
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {WHO_FOR.map((item, i) => (
                 <button key={i} onClick={() => go(item.situation)}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.9rem 0.75rem', background: 'rgba(255,255,255,0.02)', border: 'none', borderBottom: `1px solid ${C.border}`, cursor: 'pointer', fontSize: '0.88rem', fontWeight: 600, color: C.mid, textAlign: 'left', transition: 'background 0.15s, color 0.15s' }}
-                  onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(255,255,255,0.05)'; el.style.color = C.text }}
-                  onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(255,255,255,0.02)'; el.style.color = C.mid }}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.9rem 0.75rem', background: C.faqBase, border: 'none', borderBottom: `1px solid ${C.border}`, cursor: 'pointer', fontSize: '0.88rem', fontWeight: 600, color: C.mid, textAlign: 'left', transition: 'background 0.15s, color 0.15s' }}
+                  onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = C.faqHover; el.style.color = C.text }}
+                  onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = C.faqBase; el.style.color = C.mid }}
                 >
                   <span>{item.icon}&nbsp;&nbsp;{item.label}</span>
                   <ChevronRight size={15} style={{ color: C.faint, flexShrink: 0 }} />
@@ -689,17 +715,17 @@ export function LandingPage() {
 
         <div style={{ position: 'relative', maxWidth: 1160, margin: '0 auto', padding: 'clamp(3.5rem,7vw,5.5rem) 1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'center' }} className="ld-two-col">
           <div>
-            <h2 style={{ fontSize: 'clamp(1.6rem,3.5vw,2.5rem)', fontWeight: 900, color: C.text, letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: 'clamp(1.6rem,3.5vw,2.5rem)', fontWeight: 900, color: '#F5F4F0', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '1rem' }}>
               Join workers, employers, and shops already on Butsó
             </h2>
-            <p style={{ fontSize: '0.88rem', color: C.muted, lineHeight: 1.7, marginBottom: '1.75rem' }}>
+            <p style={{ fontSize: '0.88rem', color: 'rgba(245,244,240,0.75)', lineHeight: 1.7, marginBottom: '1.75rem' }}>
               Wukari's first real work marketplace. Free to join, free to post, free to apply.
             </p>
             <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
               {['No CV needed', 'No fees ever', 'Direct payments'].map(l => (
                 <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <CheckCircle size={13} style={{ color: C.green, flexShrink: 0 }} />
-                  <span style={{ fontSize: '0.8rem', color: C.mid, fontWeight: 600 }}>{l}</span>
+                  <span style={{ fontSize: '0.8rem', color: 'rgba(245,244,240,0.88)', fontWeight: 600 }}>{l}</span>
                 </div>
               ))}
             </div>

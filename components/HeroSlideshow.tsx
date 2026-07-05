@@ -2,30 +2,31 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useState, useRef } from 'react'
+import { IMAGES } from '@/lib/cloudinary'
 
 // Only the best worker shots for the hero — action/portrait images
 // busyafricanstreet is saved for the bottom CTA section
 const SLIDES = [
-    { src: '/barberman.png', caption: 'Barbers', accent: '#1B9E6E' },
-    { src: '/plumberman.png', caption: 'Plumbers', accent: '#3B82F6' },
-    { src: '/electricianman.png', caption: 'Electricians', accent: '#F59E0B' },
-    { src: '/cleanerwoman.png', caption: 'Cleaners', accent: '#EC4899' },
-    { src: '/carpenterman.png', caption: 'Carpenters', accent: '#D97706' },
-    { src: '/painterman.png', caption: 'Painters', accent: '#8B5CF6' },
-    { src: '/tailorgirl.png', caption: 'Tailors', accent: '#F55D1E' },
-    { src: '/cheflady.png', caption: 'Cooks & chefs', accent: '#EF4444' },
-    { src: '/mechanicman.png', caption: 'Mechanics', accent: '#6366F1' },
-    { src: '/bricklayer.png', caption: 'Bricklayers', accent: '#F55D1E' },
-    { src: '/securityman.png', caption: 'Security', accent: '#0EA5E9' },
-    { src: '/braidergirl.png', caption: 'Hair braiders', accent: '#EC4899' },
-    { src: '/laundryladies.png', caption: 'Laundry services', accent: '#14B8A6' },
-    { src: '/farmerwoman.png', caption: 'Farm work', accent: '#10B981' },
-    { src: '/constructionworkerpointing.png', caption: 'Builders', accent: '#F55D1E' },
-    { src: '/workershandshake.png', caption: 'Get connected', accent: '#1B9E6E' },
+    { src: IMAGES.barberman, caption: 'Barbers', accent: '#1B9E6E' },
+    { src: IMAGES.plumberman, caption: 'Plumbers', accent: '#3B82F6' },
+    { src: IMAGES.electricianman, caption: 'Electricians', accent: '#F59E0B' },
+    { src: IMAGES.cleanerwoman, caption: 'Cleaners', accent: '#EC4899' },
+    { src: IMAGES.carpenterman, caption: 'Carpenters', accent: '#D97706' },
+    { src: IMAGES.painterman, caption: 'Painters', accent: '#8B5CF6' },
+    { src: IMAGES.tailorgirl, caption: 'Tailors', accent: '#F55D1E' },
+    { src: IMAGES.cheflady, caption: 'Cooks & chefs', accent: '#EF4444' },
+    { src: IMAGES.mechanicman, caption: 'Mechanics', accent: '#6366F1' },
+    { src: IMAGES.bricklayer, caption: 'Bricklayers', accent: '#F55D1E' },
+    { src: IMAGES.securityman, caption: 'Security', accent: '#0EA5E9' },
+    { src: IMAGES.braidergirl, caption: 'Hair braiders', accent: '#EC4899' },
+    { src: IMAGES.laundryladies, caption: 'Laundry services', accent: '#14B8A6' },
+    { src: IMAGES.farmerwoman, caption: 'Farm work', accent: '#10B981' },
+    { src: IMAGES.constructionworkerpointing, caption: 'Builders', accent: '#F55D1E' },
+    { src: IMAGES.workershandshake, caption: 'Get connected', accent: '#1B9E6E' },
 ]
 
-const INTERVAL = 6000   // 6s per slide — slow, unhurried
-const TRANS_DUR = 1.2    // 1.2s crossfade — silky smooth
+const INTERVAL = 9000   // 9s per slide — slower, more time to register each worker
+const TRANS_DUR = 2      // 2s crossfade — noticeably smoother, less jarring
 const ZOOM_SCALE = 1.05   // very subtle Ken Burns — barely perceptible
 
 export function HeroSlideshow({ style, className }: { style?: React.CSSProperties; className?: string }) {

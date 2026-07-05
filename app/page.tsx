@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Sun, Moon } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { AuthShell } from '@/components/AuthShell'
@@ -54,19 +53,6 @@ const KNOWN_PAGES = [
 
 const AUTH_PAGES = ['role-select', 'phone-verification', 'auth', 'profile-setup', 'explore-onboarding', 'privacy', 'terms']
 
-function ThemeToggleFloat() {
-  const { darkMode, toggleDarkMode } = useAppStore()
-  return (
-    <button
-      onClick={toggleDarkMode}
-      className="fixed top-4 right-4 z-50 p-2.5 rounded-xl bg-card border border-border shadow-md hover:bg-secondary transition"
-      aria-label="Toggle theme"
-    >
-      {darkMode ? <Sun size={18} className="text-foreground" /> : <Moon size={18} className="text-foreground" />}
-    </button>
-  )
-}
-
 export default function Home() {
   const { currentPage, currentUser } = useAppStore()
 
@@ -80,11 +66,7 @@ export default function Home() {
     if (!AUTH_PAGES.includes(currentPage)) {
       return (
         <ThemeProvider>
-          <div className="relative">
-            {/* Floating theme toggle on landing */}
-            <ThemeToggleFloat />
-            <LandingPage />
-          </div>
+          <LandingPage />
         </ThemeProvider>
       )
     }
