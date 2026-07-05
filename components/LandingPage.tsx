@@ -91,6 +91,29 @@ const CATEGORIES = [
   { emoji: '🏠', label: 'Repairs', workers: 44, img: IMAGES.barberman },
 ]
 
+// Quick-tap trending searches — what people in Wukari are actually asking for this week
+const TRENDING: { emoji: string; label: string; situation: Situation }[] = [
+  { emoji: '🔧', label: 'Emergency plumber', situation: 'need-done' },
+  { emoji: '🧹', label: 'Weekend cleaner', situation: 'need-done' },
+  { emoji: '💇', label: 'Hair braiding appointment', situation: 'exploring' },
+  { emoji: '🔌', label: 'Generator repair', situation: 'need-done' },
+  { emoji: '🎨', label: 'House painter', situation: 'need-done' },
+  { emoji: '🚗', label: 'Daily school run driver', situation: 'need-done' },
+  { emoji: '🍽️', label: 'Event caterer', situation: 'need-done' },
+  { emoji: '🏗️', label: 'Bricklayer for extension', situation: 'need-done' },
+  { emoji: '🧵', label: 'Aso-ebi tailor', situation: 'need-done' },
+  { emoji: '🔒', label: 'Event security', situation: 'need-done' },
+  { emoji: '🌿', label: 'Farm hand', situation: 'need-done' },
+  { emoji: '🚗', label: 'Mechanic near me', situation: 'need-done' },
+]
+
+// Practical know-how — not fluff, just what actually moves the needle for workers and employers
+const GUIDES = [
+  { emoji: '🚀', tag: 'For workers', title: 'Get hired faster on Butsó', body: 'The small profile details that make employers pick you over the next person.', situation: 'have-skill' as Situation },
+  { emoji: '💰', tag: 'For workers', title: 'Price your work the right way', body: "Charge fairly and still win the job — how skilled workers in Wukari set their rates.", situation: 'have-skill' as Situation },
+  { emoji: '📋', tag: 'For employers', title: 'Write a job post that gets fast replies', body: 'The details that get workers applying in minutes instead of days.', situation: 'need-done' as Situation },
+]
+
 // LinkedIn-style carousel slides: text left, circle-cropped image right
 const SLIDES = [
   {
@@ -465,6 +488,27 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* ── TRENDING — quick-tap popular searches, Fiverr-style pill row ── */}
+      <section style={{ padding: 'clamp(2.5rem,5vw,3.5rem) 1.5rem', background: C.surface, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: 1160, margin: '0 auto' }}>
+          <p style={{ fontSize: '0.68rem', fontWeight: 700, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Popular right now</p>
+          <h2 style={{ fontSize: 'clamp(1.2rem,2.4vw,1.6rem)', fontWeight: 800, letterSpacing: '-0.02em', color: C.text, marginBottom: '1.5rem' }}>
+            What Wukari is searching for this week
+          </h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
+            {TRENDING.map(item => (
+              <button key={item.label} onClick={() => go(item.situation)}
+                style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '0.55rem 1rem', background: C.card, border: `1px solid ${C.border}`, borderRadius: 99, fontSize: '0.82rem', fontWeight: 600, color: C.mid, cursor: 'pointer', transition: 'border-color 0.15s, color 0.15s, background 0.15s' }}
+                onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = C.green; el.style.color = C.green; el.style.background = C.greenBg }}
+                onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = C.border; el.style.color = C.mid; el.style.background = C.card }}
+              >
+                <span>{item.emoji}</span>{item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── CATEGORIES — Fiverr style ────────────────────────────────────── */}
       <section style={{ padding: 'clamp(3rem,6vw,5rem) 1.5rem', background: C.canvas, borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
@@ -701,6 +745,30 @@ export function LandingPage() {
                 <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: C.text, marginBottom: '0.5rem', lineHeight: 1.3 }}>{s.t}</h3>
                 <p style={{ fontSize: '0.78rem', color: C.muted, lineHeight: 1.65 }}>{s.b}</p>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── GUIDES — practical tips for workers and employers ────────────── */}
+      <section style={{ padding: 'clamp(3rem,6vw,5rem) 1.5rem', background: C.surface, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: 1160, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <p style={{ fontSize: '0.68rem', fontWeight: 700, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Guides that actually help</p>
+            <h2 style={{ fontSize: 'clamp(1.4rem,3vw,2rem)', fontWeight: 900, letterSpacing: '-0.03em', color: C.text, lineHeight: 1.1 }}>Get more out of Butsó</h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
+            {GUIDES.map((g, i) => (
+              <button key={i} onClick={() => go(g.situation)}
+                style={{ textAlign: 'left', background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '1.6rem', cursor: 'pointer', transition: 'border-color 0.15s' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = C.green }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = C.border }}
+              >
+                <div style={{ fontSize: '1.9rem', marginBottom: '1rem' }}>{g.emoji}</div>
+                <span style={{ fontSize: '0.65rem', fontWeight: 700, color: C.green, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{g.tag}</span>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: C.text, margin: '0.5rem 0', lineHeight: 1.3 }}>{g.title}</h3>
+                <p style={{ fontSize: '0.8rem', color: C.muted, lineHeight: 1.65 }}>{g.body}</p>
+              </button>
             ))}
           </div>
         </div>
