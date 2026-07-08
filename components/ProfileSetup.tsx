@@ -216,7 +216,7 @@ function SkillsPicker({ selected, onChange }: { selected: string[]; onChange: (s
 }
 
 /* ─── Main ───────────────────────────────────────────────────────────────── */
-type Step = 'basic' | 'gender' | 'skills' | 'next'
+type Step = 'role' | 'basic' | 'gender' | 'skills' | 'next'
 
 export function ProfileSetup() {
   const {
@@ -231,21 +231,20 @@ export function ProfileSetup() {
   const [gender, setGender] = useState<Gender | null>(null)
   const [skills, setSkills] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [step, setStep] = useState<Step>('basic')
+  const [step, setStep] = useState<Step>('role')
   const [pressedNext, setPressedNext] = useState<string | null>(null)
 
-  // Robust role reading — handles both 'find-work' (from LandingPage) and legacy values
-  const rawRole = sessionStorage.getItem('selectedRole') ?? ''
-  const role = (rawRole === 'find-work' || rawRole === 'worker')
-    ? ('worker' as UserRole)
-    : ('employer' as UserRole)
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null)
   const phone = sessionStorage.getItem('userPhone') || ''
+  const role: UserRole = selectedRole ?? 'worker'
   const isWorker = role === 'worker'
 
-  // Steps: basic → gender → skills (workers) → next
-  const allSteps: Step[] = isWorker
-    ? ['basic', 'gender', 'skills', 'next']
-    : ['basic', 'gender', 'next']
+  // Steps: role → basic → gender → skills (workers) → next
+  const allSteps: Step[] = selectedRole === null
+    ? ['role']
+    : isWorker
+      ? ['role', 'basic', 'gender', 'skills', 'next']
+      : ['role', 'basic', 'gender', 'next']
   const stepIndex = allSteps.indexOf(step)
 
   useEffect(() => {
@@ -295,6 +294,40 @@ export function ProfileSetup() {
   }
 
   // ── Step renderers ───────────────────────────────────────────────────────
+
+  const StepRole = (
+    <motion.div key="role" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} className="space-y-4">
+      <div className="mb-4">
+        <h1 className="text-2xl font-black text-foreground mb-1 tracking-tight">What are you here for?</h1>
+        <p className="text-muted-foreground text-sm">Pick one — you can always do both later</p>
+      </div>
+      {([
+        { role: 'worker' as UserRole, emoji: '🛠️', title: 'I have a skill to offer', sub: 'Plumbing, cleaning, electrical, carpentry and more' },
+        { role: 'employer' as UserRole, emoji: '📋', title: 'I need to hire someone', sub: 'Post a job and find reliable help fast' },
+      ] as { role: UserRole; emoji: string; title: string; sub: string }[]).map(opt => (
+        <motion.button
+          key={opt.role}
+          whileHover={{ scale: 1.015, y: -2 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => {
+            setSelectedRole(opt.role)
+            sessionStorage.setItem('selectedRole', opt.role)
+            setStep('basic')
+          }}
+          className="w-full p-4 rounded-2xl border-2 border-border hover:border-primary bg-card text-left transition-all group"
+        >
+          <div className="flex items-center gap-4">
+            <span className="text-2xl">{opt.emoji}</span>
+            <div className="flex-1">
+              <p className="font-black text-foreground text-sm">{opt.title}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{opt.sub}</p>
+            </div>
+            <span className="text-muted-foreground group-hover:text-primary transition text-lg">→</span>
+          </div>
+        </motion.button>
+      ))}
+    </motion.div>
+  )
 
   const StepBasic = (
     <motion.div key="basic" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
@@ -493,6 +526,7 @@ export function ProfileSetup() {
         </div>
 
         <AnimatePresence mode="wait">
+          {step === 'role' && StepRole}
           {step === 'basic' && StepBasic}
           {step === 'gender' && StepGender}
           {step === 'skills' && StepSkills}
