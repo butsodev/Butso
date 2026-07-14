@@ -110,7 +110,7 @@ const TRENDING: { emoji: string; label: string; situation: Situation }[] = [
 // Practical know-how — not fluff, just what actually moves the needle for workers and employers
 const GUIDES = [
   { emoji: '🚀', tag: 'For workers', title: 'Get hired faster on Butsó', body: 'The small profile details that make employers pick you over the next person.', situation: 'have-skill' as Situation },
-  { emoji: '💰', tag: 'For workers', title: 'Price your work the right way', body: "Charge fairly and still win the job — how skilled workers in Wukari set their rates.", situation: 'have-skill' as Situation },
+  { emoji: '💰', tag: 'For workers', title: 'Price your work the right way', body: "Charge fairly and still win the job. Here's how skilled workers in Taraba set their rates.", situation: 'have-skill' as Situation },
   { emoji: '📋', tag: 'For employers', title: 'Write a job post that gets fast replies', body: 'The details that get workers applying in minutes instead of days.', situation: 'need-done' as Situation },
 ]
 
@@ -119,7 +119,7 @@ const SLIDES = [
   {
     tag: 'For employers',
     headline: 'Let workers know you have a job',
-    body: 'Post any job in under 2 minutes. Plumbing, cleaning, carpentry — whatever you need. Workers near you apply instantly.',
+    body: 'Need a plumber, cleaner or carpenter? Post your job in under 2 minutes and start getting applications from nearby workers.',
     cta: 'Post a job',
     img: MEDIA.slideWorkerPhone,
     emoji: '📱',
@@ -137,7 +137,7 @@ const SLIDES = [
   {
     tag: 'Book services',
     headline: 'Book a shop slot instantly',
-    body: 'Barbers, tailors, mechanics — browse their open slots and book straight from the app. No calls, no waiting.',
+    body: 'Book barbers, tailors and mechanics straight from the app. See who\'s available now. No calls. No waiting.',
     cta: 'Browse shops',
     img: MEDIA.slideShop,
     emoji: '🏪',
@@ -361,7 +361,7 @@ export function LandingPage() {
             {/* Eyebrow */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.68rem', fontWeight: 700, color: C.green, background: C.greenBg, border: `1px solid rgba(27,158,110,0.25)`, padding: '0.25rem 0.8rem', borderRadius: 99, marginBottom: '1.25rem' }}>
-                🇳🇬 "Butsó" means work in Jukun · Built for Wukari
+                🇳🇬 "Butsó" means work in Jukun · Starting in Wukari, built for Taraba
               </span>
             </motion.div>
 
@@ -382,7 +382,7 @@ export function LandingPage() {
               transition={{ delay: 0.14, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               style={{ fontSize: '0.92rem', color: 'rgba(240,239,235,0.62)', lineHeight: 1.7, marginBottom: '2rem', maxWidth: 380 }}
             >
-              Find a plumber, book a barber, hire a cleaner — or list your own skills and get hired. No agency. No CV. No wahala.
+              Need work done? Find trusted workers nearby. Looking for work? List your skills and get hired. No agency. No CV. No wahala.
             </motion.p>
 
             {/* CTAs */}
@@ -531,7 +531,7 @@ export function LandingPage() {
                 What do you need done?
               </h2>
               <p style={{ fontSize: '0.82rem', color: C.muted, lineHeight: 1.65 }}>
-                Skilled workers across every trade in Wukari, ready to be hired.
+                Skilled workers across every trade in Taraba, ready to be hired.
               </p>
             </div>
             {/* Pill tags — LinkedIn pattern */}
@@ -562,7 +562,7 @@ export function LandingPage() {
         <div style={{ maxWidth: 1160, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
           <div>
             <h2 style={{ fontSize: 'clamp(1rem,1.8vw,1.25rem)', fontWeight: 800, color: '#F97341', marginBottom: '0.2rem' }}>Need someone fast? Post a job for free.</h2>
-            <p style={{ fontSize: '0.78rem', color: C.muted }}>500+ skilled workers in Wukari will see it instantly.</p>
+            <p style={{ fontSize: '0.78rem', color: C.muted }}>500+ skilled workers in Taraba will see it instantly.</p>
           </div>
           <button onClick={() => go('need-done')}
             style={{ background: C.orange, color: '#fff', border: 'none', borderRadius: 10, padding: '0.72rem 1.5rem', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer', boxShadow: '0 4px 16px rgba(245,93,30,0.25)', flexShrink: 0 }}>
@@ -631,7 +631,7 @@ export function LandingPage() {
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }} className="ld-two-col">
             {[
-              { img: MEDIA.tileHire, emoji: '🔍', title: 'Find a skilled worker near you', body: 'Browse 500+ workers in Wukari. Filter by trade, location, and availability. Contact directly — no middleman.', cta: 'Find workers', situation: 'need-done' as Situation },
+              { img: MEDIA.tileHire, emoji: '🔍', title: 'Find a skilled worker near you', body: 'Choose from 500+ workers in Taraba. Filter by trade, location and availability. Contact them directly.', cta: 'Find workers', situation: 'need-done' as Situation },
               { img: MEDIA.tileWork, emoji: '📋', title: 'Post your skills and start earning', body: 'No CV, no agency fees. Create your profile, list your trade, and start getting hired by people near you.', cta: 'Offer your skills', situation: 'have-skill' as Situation },
             ].map((tile, i) => (
               <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
@@ -720,7 +720,7 @@ export function LandingPage() {
               "I got 3 jobs in my first week on Butsó"
             </h2>
             <p style={{ fontSize: '0.88rem', color: C.muted, lineHeight: 1.75, marginBottom: '1.5rem' }}>
-              Wunuken had been doing plumbing in Wukari for 8 years — mostly through word of mouth. Within a week of joining Butsó, he had 3 new clients who would never have found him otherwise.
+              Wunuken had been doing plumbing in Wukari for 8 years, mostly through word of mouth. Within a week of joining Butsó, he had 3 new clients who would never have found him otherwise.
             </p>
             <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.75rem', flexWrap: 'wrap' }}>
               {[['₦42,000', 'earned first month'], ['3 jobs', 'in first week'], ['4.9★', 'client rating']].map(([v, l], i) => (
@@ -747,7 +747,7 @@ export function LandingPage() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '1.25rem' }}>
             {[
-              { e: '📱', t: 'Sign up free', b: 'Just your phone number. No CV, no documents, no fees — ever.' },
+              { e: '📱', t: 'Sign up free', b: 'Just your phone number. No CV, no documents or fees. Ever.' },
               { e: '🔍', t: 'Browse or post', b: 'Find skilled workers nearby or post your own skills and get hired.' },
               { e: '💬', t: 'Chat & agree', b: 'Message directly, agree on price. No middleman taking a cut.' },
               { e: '✅', t: 'Get it done', b: 'Work happens, payment tracked. Leave a rating when done.' },
@@ -799,7 +799,7 @@ export function LandingPage() {
               Join workers, employers, and shops already on Butsó
             </h2>
             <p style={{ fontSize: '0.88rem', color: 'rgba(245,244,240,0.75)', lineHeight: 1.7, marginBottom: '1.75rem' }}>
-              Wukari's first real work marketplace. Free to join, free to post, free to apply.
+              Started in Wukari, now Taraba's first real work marketplace. Free to join, free to post, free to apply.
             </p>
             <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
               {['No CV needed', 'No fees ever', 'Direct payments'].map(l => (
@@ -812,7 +812,7 @@ export function LandingPage() {
             {/* LinkedIn's single "Get started" button */}
             <button onClick={() => go('have-skill')}
               style={{ background: C.green, color: '#fff', border: 'none', borderRadius: 10, padding: '0.88rem 2rem', fontWeight: 800, fontSize: '0.92rem', cursor: 'pointer', boxShadow: '0 4px 20px rgba(27,158,110,0.3)' }}>
-              Get started — it's free
+              Get started for free
             </button>
           </div>
           {/* Right empty — image bleeds through */}

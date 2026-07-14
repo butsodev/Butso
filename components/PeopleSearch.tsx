@@ -295,7 +295,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
       <div className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground px-4 sm:px-6 pt-8 pb-12">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl sm:text-3xl font-black mb-1">Find People</h1>
-          <p className="text-primary-foreground/75 text-sm">Browse skilled workers in Wukari</p>
+          <p className="text-primary-foreground/75 text-sm">Browse skilled workers in Taraba</p>
         </div>
       </div>
 

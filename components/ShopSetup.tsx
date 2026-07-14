@@ -212,7 +212,7 @@ export function ShopSetup() {
                                 <label className="flex items-center gap-3 p-3 border-2 border-border rounded-xl cursor-pointer hover:border-primary/40 transition mb-3">
                                     <input type="checkbox" checked={isMobile} onChange={e => setIsMobile(e.target.checked)} className="w-4 h-4 accent-primary" />
                                     <div>
-                                        <p className="font-semibold text-foreground text-sm">Mobile — I come to the customer</p>
+                                        <p className="font-semibold text-foreground text-sm">Mobile, I come to the customer</p>
                                         <p className="text-xs text-muted-foreground">Your shop travels to them</p>
                                     </div>
                                 </label>
@@ -240,7 +240,7 @@ export function ShopSetup() {
                                 <label className="block text-sm font-bold text-foreground mb-1">
                                     Tagline <span className="text-muted-foreground font-normal">(optional)</span>
                                 </label>
-                                <p className="text-xs text-muted-foreground mb-2">One punchy sentence shown under your shop name — e.g. "Cleanest fades in Wukari, guaranteed."</p>
+                                <p className="text-xs text-muted-foreground mb-2">One punchy sentence shown under your shop name, e.g. "Cleanest fades in Wukari, guaranteed."</p>
                                 <input value={tagline} onChange={e => setTagline(e.target.value.slice(0, 80))} placeholder="What are you known for?"
                                     className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-sm transition" />
                                 <p className="text-xs text-muted-foreground text-right mt-1">{tagline.length}/80</p>
@@ -253,7 +253,7 @@ export function ShopSetup() {
                         <motion.div key="services" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
                             <div>
                                 <h2 className="text-xl font-black text-foreground mb-1">Your services</h2>
-                                <p className="text-sm text-muted-foreground">Add what you offer. Set a price — fixed or negotiable.</p>
+                                <p className="text-sm text-muted-foreground">Add what you offer. Set a price, fixed or negotiable.</p>
                             </div>
 
                             {/* Service list */}

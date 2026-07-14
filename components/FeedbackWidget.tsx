@@ -46,7 +46,7 @@ const FAQS = [
     {
         emoji: '📋',
         question: 'How do I apply for a job?',
-        answer: 'Find a job you like, tap it, then tap "Quick Apply" to apply instantly with your profile — no writing needed. Or tap "Add a Message" to send a short note with your application.',
+        answer: 'Find a job you like, tap it, then tap "Quick Apply" to apply instantly with your profile. No writing needed. Or tap "Add a Message" to send a short note with your application.',
     },
     {
         emoji: '💰',
@@ -229,7 +229,7 @@ export function FeedbackWidget() {
             case 'topic-select':
                 return (
                     <motion.div key="topic" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-3">
-                        <p className="text-sm text-muted-foreground">Pick a topic — or skip straight to writing</p>
+                        <p className="text-sm text-muted-foreground">Pick a topic, or skip straight to writing</p>
                         <div className="flex flex-wrap gap-2">
                             {topics.map(t => (
                                 <motion.button key={t.label} whileTap={{ scale: 0.95 }}
@@ -241,7 +241,7 @@ export function FeedbackWidget() {
                         </div>
                         <button onClick={() => setStage('text-input')}
                             className="w-full py-3 rounded-2xl border-2 border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition font-semibold">
-                            ✏️ Skip — just let me write
+                            ✏️ Skip, just let me write
                         </button>
                     </motion.div>
                 )
@@ -283,7 +283,7 @@ export function FeedbackWidget() {
             case 'faq-list':
                 return (
                     <motion.div key="faq" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-2">
-                        <p className="text-sm text-muted-foreground mb-3">Pick a topic — your answer might already be here</p>
+                        <p className="text-sm text-muted-foreground mb-3">Pick a topic, your answer might already be here</p>
                         {FAQS.map(faq => (
                             <motion.button key={faq.question} whileTap={{ scale: 0.98 }}
                                 onClick={() => { setSelectedFaq(faq); setStage('faq-answer') }}
@@ -295,7 +295,7 @@ export function FeedbackWidget() {
                         ))}
                         <button onClick={() => setStage('ai-input')}
                             className="w-full py-3 rounded-2xl border-2 border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition font-semibold mt-1">
-                            🤖 My question isn't here — ask AI
+                            🤖 My question isn't here, ask AI
                         </button>
                     </motion.div>
                 )
@@ -328,7 +328,7 @@ export function FeedbackWidget() {
                     <motion.div key="ai-input" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-3">
                         <div className="flex items-center gap-2 px-3 py-2 bg-primary/8 rounded-xl">
                             <span className="text-lg">🤖</span>
-                            <span className="text-xs text-muted-foreground">Ask anything about Butsó — AI will answer instantly</span>
+                            <span className="text-xs text-muted-foreground">Ask anything about Butsó, AI will answer instantly</span>
                         </div>
                         <textarea
                             ref={textareaRef}
@@ -366,7 +366,7 @@ export function FeedbackWidget() {
                             <span className="text-xl shrink-0">🤖</span>
                             <p className="text-sm text-foreground leading-relaxed">
                                 {aiError
-                                    ? "Sorry, I couldn't get an answer right now. Try the live support chat — a real person will help you fast."
+                                    ? "Sorry, I couldn't get an answer right now. Need help? Chat with our support team and get answers fast."
                                     : aiAnswer}
                             </p>
                         </div>
@@ -398,7 +398,7 @@ export function FeedbackWidget() {
                             <Check size={28} className="text-primary" />
                         </div>
                         <p className="font-black text-foreground">
-                            {type === 'confused' ? 'Glad we could help!' : 'Got it — thank you! 🙏'}
+                            {type === 'confused' ? 'Glad we could help!' : 'Got it, thank you! 🙏'}
                         </p>
                         <p className="text-sm text-muted-foreground text-center">
                             {type === 'confused'

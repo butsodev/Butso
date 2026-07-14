@@ -18,7 +18,7 @@ const fraunces = Fraunces({
 })
 
 export const metadata: Metadata = {
-  title: 'Butsó — Your Local Work Network',
+  title: 'Butsó: Your Local Work Network',
   description: 'Butsó connects skilled workers and employers right here in Wukari, Taraba State. No CV needed. Just show up.',
   icons: {
     icon: [

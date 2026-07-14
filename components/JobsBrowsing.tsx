@@ -66,7 +66,7 @@ export function JobsBrowsing() {
             transition={{ delay: 0.1, type: 'spring', stiffness: 260 }}
           >
             <h1 className="text-2xl sm:text-3xl font-black mb-1">Available Jobs</h1>
-            <p className="text-primary-foreground/75 text-sm">Find work near you in Wukari</p>
+            <p className="text-primary-foreground/75 text-sm">Find work near you in Taraba</p>
           </motion.div>
         </div>
       </div>

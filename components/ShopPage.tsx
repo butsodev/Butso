@@ -155,7 +155,7 @@ export function ShopPage() {
                     <div className="flex flex-wrap gap-3">
                         <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
                             <MapPin size={13} className="text-primary" />
-                            {shop.isMobile ? 'Mobile — comes to you' : shop.location}
+                            {shop.isMobile ? 'Mobile service that comes to you' : shop.location}
                         </span>
                         {shop.phone && (
                             <a href={`tel:${shop.phone}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition">
@@ -201,7 +201,7 @@ export function ShopPage() {
                                         Book an Appointment <ChevronRight size={18} />
                                     </motion.button>
                                     <p className="text-xs text-center text-muted-foreground mt-2">
-                                        {currentUser ? 'Select a service above to book' : 'You\'ll need to sign up — takes 2 minutes'}
+                                        {currentUser ? 'Select a service above to book' : 'You\'ll need to sign up first. It takes 2 minutes'}
                                     </p>
                                 </div>
                             )}

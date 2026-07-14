@@ -16,7 +16,7 @@ export function RoleSelection() {
       role: 'find-work' as UserRole,
       emoji: '🛠️',
       title: "I'm looking for work",
-      description: 'Find jobs near you — plumbing, cleaning, electrical, carpentry, and more.',
+      description: 'Find nearby jobs in plumbing, cleaning, electrical, carpentry and more.',
       gradient: 'from-primary to-primary/75',
       examples: ['Plumber', 'Electrician', 'Cleaner', 'Carpenter', 'Cook'],
     },
@@ -60,7 +60,7 @@ export function RoleSelection() {
             What are you here for?
           </h1>
           <p className="text-muted-foreground">
-            Pick one — you can always do both later
+            Pick one. You can always do both later
           </p>
         </motion.div>
 

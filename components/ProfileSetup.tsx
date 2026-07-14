@@ -107,7 +107,7 @@ function UsernameField({ value, onChange, allUsers, excludeId }: {
       {touched && isTaken && <p className="text-xs text-destructive mt-1">That username is taken. Try another.</p>}
       {touched && !isValid && value.length > 0 && (
         <p className="text-xs text-destructive mt-1">
-          {value.length < 3 ? 'Too short — at least 3 characters.' : 'Only letters, numbers, and underscores allowed.'}
+          {value.length < 3 ? 'Too short. At least 3 characters.' : 'Only letters, numbers, and underscores allowed.'}
         </p>
       )}
     </div>
@@ -150,7 +150,7 @@ function SkillsPicker({ selected, onChange }: { selected: string[]; onChange: (s
       <label className="block text-sm font-bold text-foreground mb-1">
         Your Skills <span className="text-muted-foreground font-normal">(up to 6)</span>
       </label>
-      <p className="text-xs text-muted-foreground mb-2">Type to search — e.g. "plumb", "tailor", "clean"</p>
+      <p className="text-xs text-muted-foreground mb-2">Type to search, e.g. "plumb", "tailor", "clean"</p>
 
       {selected.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-2">
@@ -299,7 +299,7 @@ export function ProfileSetup() {
     <motion.div key="role" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} className="space-y-4">
       <div className="mb-4">
         <h1 className="text-2xl font-black text-foreground mb-1 tracking-tight">What are you here for?</h1>
-        <p className="text-muted-foreground text-sm">Pick one — you can always do both later</p>
+        <p className="text-muted-foreground text-sm">Pick one. You can always do both later</p>
       </div>
       {([
         { role: 'worker' as UserRole, emoji: '🛠️', title: 'I have a skill to offer', sub: 'Plumbing, cleaning, electrical, carpentry and more' },
@@ -388,7 +388,7 @@ export function ProfileSetup() {
         <h1 className="text-2xl font-black text-foreground mb-1">Quick question</h1>
         <p className="text-muted-foreground text-sm">
           Helps personalise hair & beauty services for you.<br />
-          <span className="text-xs">Note: everyone can book any service — this is just for recommendations.</span>
+          <span className="text-xs">Note: everyone can book any service. This is just for recommendations.</span>
         </p>
       </div>
 

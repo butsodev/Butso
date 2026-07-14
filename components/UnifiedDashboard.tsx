@@ -58,7 +58,7 @@ export function UnifiedDashboard() {
       <div className="flex items-center gap-1.5 mb-2.5">
         <Sparkles size={13} className="text-primary" />
         <p className="text-xs font-black text-muted-foreground uppercase tracking-wide">
-          {hour < 12 ? 'Good morning — try these' : hour < 17 ? 'Available near you' : 'Evening picks'}
+          {hour < 12 ? 'Good morning. Try these' : hour < 17 ? 'Available near you' : 'Evening picks'}
         </p>
       </div>
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
@@ -168,7 +168,7 @@ export function UnifiedDashboard() {
         <span className="text-3xl">🔍</span>
         <div className="flex-1 text-left">
           <p className="font-black text-base">Browse Available Jobs</p>
-          <p className="text-primary-foreground/70 text-sm">Find work near you in Wukari</p>
+          <p className="text-primary-foreground/70 text-sm">Find work near you in Taraba</p>
         </div>
         <ArrowRight size={20} className="text-primary-foreground/70" />
       </motion.button>
