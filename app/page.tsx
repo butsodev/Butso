@@ -54,7 +54,7 @@ const KNOWN_PAGES = [
 const AUTH_PAGES = ['role-select', 'phone-verification', 'auth', 'profile-setup', 'explore-onboarding', 'privacy', 'terms']
 
 export default function Home() {
-  const { currentPage, currentUser } = useAppStore()
+  const { currentPage, currentUser, setCurrentPage } = useAppStore()
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
@@ -62,6 +62,31 @@ export default function Home() {
 
   // ── Unauthenticated ───────────────────────────────────────────────────────
   if (!currentUser) {
+    // Pages guests can browse without logging in
+    const GUEST_BROWSABLE = ['jobs', 'people', 'shops', 'shop']
+    if (GUEST_BROWSABLE.includes(currentPage)) {
+      return (
+        <ThemeProvider>
+          <div className="min-h-screen bg-background text-foreground pb-20">
+            {currentPage === 'jobs' && <JobsBrowsing />}
+            {currentPage === 'people' && <PeopleSearch />}
+            {currentPage === 'shops' && <ShopsBrowsing />}
+            {currentPage === 'shop' && <ShopPage />}
+            {/* Guest banner — prompt to sign up */}
+            <div className="fixed bottom-0 left-0 right-0 z-50 bg-primary text-primary-foreground px-4 py-3 flex items-center justify-between text-sm">
+              <span>Sign up free to apply or post jobs</span>
+              <button
+                onClick={() => setCurrentPage('auth')}
+                className="bg-primary-foreground text-primary font-bold px-4 py-1.5 rounded-lg text-xs"
+              >
+                Join Butsó
+              </button>
+            </div>
+          </div>
+        </ThemeProvider>
+      )
+    }
+
     // Landing page — theme toggle visible but no back button, no logo (has its own)
     if (!AUTH_PAGES.includes(currentPage)) {
       return (

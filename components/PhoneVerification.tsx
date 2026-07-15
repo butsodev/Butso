@@ -43,21 +43,26 @@ export function PhoneVerification() {
     }, 800)
   }
 
-  // PHASE 1 FIX: Auto-advance to next box on input, auto-submit when complete
+  // FIXED: Auto-advance to next box on input, auto-submit when complete
   const handleOtpChange = (index: number, value: string) => {
-    // Only allow digits
+    // Only allow digits — strip everything else
     const digit = value.replace(/\D/g, '').slice(-1)
     const newOtp = [...otp]
     newOtp[index] = digit
     setOtp(newOtp)
 
     if (digit) {
-      // Move to next box
-      if (index < 3) {
-        otpRefs.current[index + 1]?.focus()
+      // Always move to next box immediately
+      const nextIndex = index + 1
+      if (nextIndex < 4) {
+        // Small timeout ensures state update before focus shift
+        requestAnimationFrame(() => {
+          otpRefs.current[nextIndex]?.focus()
+          otpRefs.current[nextIndex]?.select()
+        })
       }
       // Auto-submit when all 4 filled
-      if (newOtp.every(d => d !== '') && newOtp.join('').length === 4) {
+      if (newOtp.every(d => d !== '')) {
         setTimeout(() => handleOtpVerify(newOtp), 150)
       }
     }
@@ -201,6 +206,7 @@ export function PhoneVerification() {
                     value={digit}
                     onChange={(e) => handleOtpChange(index, e.target.value)}
                     onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                    onClick={(e) => (e.target as HTMLInputElement).select()}
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: index * 0.05 }}

@@ -227,8 +227,10 @@ export function LandingPage() {
   const go = (situation: Situation) => {
     sessionStorage.setItem('selectedSituation', situation)
     if (situation === 'exploring') {
-      setCurrentPage('explore-onboarding')
+      // Browse without logging in — land on jobs/workers view directly
+      setCurrentPage('jobs')
     } else {
+      // Role chosen — save it so ProfileSetup skips the role step
       sessionStorage.setItem('selectedRole', situation === 'need-done' ? 'employer' : 'worker')
       setCurrentPage('auth')
     }
@@ -291,11 +293,11 @@ export function LandingPage() {
           {/* Nav links — LinkedIn style, desktop only */}
           <nav style={{ display: 'flex', gap: 4 }} className="ld-nav">
             {[
-              { label: 'Browse Jobs', s: 'have-skill' as Situation },
-              { label: 'Find Workers', s: 'need-done' as Situation },
-              { label: 'Book a Service', s: 'exploring' as Situation },
+              { label: 'Browse Jobs', page: 'jobs' },
+              { label: 'Find Workers', page: 'people' },
+              { label: 'Book a Service', page: 'shops' },
             ].map(item => (
-              <button key={item.label} onClick={() => go(item.s)}
+              <button key={item.label} onClick={() => setCurrentPage(item.page)}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem 0.8rem', fontSize: '0.82rem', color: C.muted, fontWeight: 600, borderBottom: '2px solid transparent', transition: 'color 0.15s, border-color 0.15s' }}
                 onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.color = C.text; el.style.borderBottomColor = C.green }}
                 onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.color = C.muted; el.style.borderBottomColor = 'transparent' }}

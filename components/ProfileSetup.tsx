@@ -231,20 +231,32 @@ export function ProfileSetup() {
   const [gender, setGender] = useState<Gender | null>(null)
   const [skills, setSkills] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [step, setStep] = useState<Step>('role')
+  // step is initialized in allSteps logic below
   const [pressedNext, setPressedNext] = useState<string | null>(null)
 
-  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null)
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(
+    () => (sessionStorage.getItem('selectedRole') as UserRole | null)
+  )
   const phone = sessionStorage.getItem('userPhone') || ''
   const role: UserRole = selectedRole ?? 'worker'
   const isWorker = role === 'worker'
 
-  // Steps: role → basic → gender → skills (workers) → next
-  const allSteps: Step[] = selectedRole === null
-    ? ['role']
-    : isWorker
-      ? ['role', 'basic', 'gender', 'skills', 'next']
-      : ['role', 'basic', 'gender', 'next']
+  // Skip role step if already chosen on landing page
+  const roleAlreadyChosen = !!sessionStorage.getItem('selectedRole')
+
+  // Steps: role (skipped if already chosen) → basic → gender → skills (workers) → next
+  const allSteps: Step[] = roleAlreadyChosen
+    ? isWorker
+      ? ['basic', 'gender', 'skills', 'next']
+      : ['basic', 'gender', 'next']
+    : selectedRole === null
+      ? ['role']
+      : isWorker
+        ? ['role', 'basic', 'gender', 'skills', 'next']
+        : ['role', 'basic', 'gender', 'next']
+
+  // Start on first step (skips role if already chosen)
+  const [step, setStep] = useState<Step>(allSteps[0])
   const stepIndex = allSteps.indexOf(step)
 
   useEffect(() => {
