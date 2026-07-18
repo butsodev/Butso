@@ -78,4 +78,4 @@ This is a private project. If you've been given access for testing, please repor
 
 ## License
 
-Private — All rights reserved © 2026 Butsó, Wukari, Taraba State, Nigeria.
+Private — All rights reserved © 2026 Butsó, Wukari, Taraba State, Nigeria..
