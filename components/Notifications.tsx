@@ -34,7 +34,7 @@ const mockNotifications = [
     id: 4,
     type: 'success',
     title: 'Booking Confirmed',
-    message: 'Your booking with John Okafor is confirmed',
+    message: 'Your booking with Asoga Tarfa is confirmed',
     timestamp: '2 days ago',
     read: true,
   },
@@ -133,11 +133,10 @@ export function Notifications() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: index * 0.05 }}
               onClick={() => handleMarkAsRead(notification.id)}
-              className={`rounded-lg p-4 flex items-start gap-4 cursor-pointer transition ${
-                notification.read
-                  ? 'bg-card hover:bg-opacity-80'
-                  : 'bg-primary bg-opacity-10 border-l-4 border-primary'
-              }`}
+              className={`rounded-lg p-4 flex items-start gap-4 cursor-pointer transition ${notification.read
+                ? 'bg-card hover:bg-opacity-80'
+                : 'bg-primary bg-opacity-10 border-l-4 border-primary'
+                }`}
             >
               <div className="flex-shrink-0 mt-1">
                 {getNotificationIcon(notification.type)}

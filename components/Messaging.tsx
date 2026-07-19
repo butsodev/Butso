@@ -9,13 +9,14 @@ type Message = { id: string; sender: 'me' | 'other'; text: string; time: string 
 type Conversation = {
   id: string; name: string; avatar: string; lastMessage: string
   timestamp: string; unread: number; isOnline: boolean; job: string
+  workerId?: string
 }
 
 const conversations: Conversation[] = [
-  { id: 'conv1', name: 'Chukwu Okonkwo', avatar: '👷', lastMessage: 'Can you start on Monday?', timestamp: '2h ago', unread: 2, isOnline: true, job: 'Bathroom Renovation' },
-  { id: 'conv2', name: 'Amara Adebayo', avatar: '👩‍🔧', lastMessage: 'I can do that!', timestamp: '4h ago', unread: 0, isOnline: true, job: 'Electrical Work' },
-  { id: 'conv3', name: 'Tunde Oluwaseun', avatar: '👨‍💼', lastMessage: 'What time works best for you?', timestamp: '1d ago', unread: 0, isOnline: false, job: 'Plumbing Repair' },
-  { id: 'conv4', name: 'Blessing Ezeoke', avatar: '👩‍💼', lastMessage: 'Thank you for the opportunity', timestamp: '2d ago', unread: 0, isOnline: false, job: 'House Cleaning' },
+  { id: 'conv1', name: 'Wunuken Danladi', avatar: '👷', lastMessage: 'Can you start on Monday?', timestamp: '2h ago', unread: 2, isOnline: true, job: 'Bathroom Renovation', workerId: 'worker1' },
+  { id: 'conv2', name: 'Zando Ishaku', avatar: '👩‍🔧', lastMessage: 'I can do that!', timestamp: '4h ago', unread: 0, isOnline: true, job: 'Electrical Work', workerId: 'worker5' },
+  { id: 'conv3', name: 'Chidonku Agbu', avatar: '👨‍💼', lastMessage: 'What time works best for you?', timestamp: '1d ago', unread: 0, isOnline: false, job: 'Plumbing Repair', workerId: 'worker3' },
+  { id: 'conv4', name: 'Fatima Abdullahi', avatar: '👩‍💼', lastMessage: 'Thank you for the opportunity', timestamp: '2d ago', unread: 0, isOnline: false, job: 'House Cleaning', workerId: 'worker2' },
 ]
 
 const allMessages: Record<string, Message[]> = {
@@ -44,7 +45,7 @@ const allMessages: Record<string, Message[]> = {
 }
 
 export function Messaging() {
-  const { setCurrentPage } = useAppStore()
+  const { setCurrentPage, viewWorkerProfile } = useAppStore()
   // PHASE 3 FIX: null = show list, string = show chat (mobile stack behaviour)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [messageInput, setMessageInput] = useState('')
@@ -178,7 +179,7 @@ export function Messaging() {
             )}
           </div>
           <div>
-            <p className="font-black text-foreground text-sm">{selectedConv.name}</p>
+            <button onClick={() => selectedConv.workerId && viewWorkerProfile(selectedConv.workerId)} className="font-black text-foreground text-sm hover:text-primary transition text-left">{selectedConv.name}</button>
             <p className="text-xs text-muted-foreground">{selectedConv.isOnline ? '🟢 Online' : selectedConv.job}</p>
           </div>
         </div>

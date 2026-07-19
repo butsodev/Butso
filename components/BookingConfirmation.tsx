@@ -13,13 +13,13 @@ export function BookingConfirmation() {
     id: 'BK-2024-001',
     jobTitle: 'Wooden Door Installation',
     worker: {
-      name: 'Chukwu Obi',
+      name: 'Jinatswen Daka',
       rating: 4.8,
       reviews: 127,
       avatar: '🧑‍🔧'
     },
     employer: {
-      name: 'Sarah Johnson',
+      name: 'Amaka Nwosu',
       avatar: '👩‍💼'
     },
     date: 'March 15, 2024',
@@ -80,11 +80,10 @@ export function BookingConfirmation() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-3 font-medium capitalize transition border-b-2 ${
-                activeTab === tab
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
+              className={`px-4 py-3 font-medium capitalize transition border-b-2 ${activeTab === tab
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
             >
               {tab}
             </button>
@@ -170,13 +169,13 @@ export function BookingConfirmation() {
 
             {/* Action Buttons */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <button 
+              <button
                 onClick={() => setCurrentPage('messaging')}
                 className="bg-primary text-primary-foreground py-3 rounded-lg hover:opacity-90 transition font-medium"
               >
                 Message Worker
               </button>
-              <button 
+              <button
                 onClick={() => setCurrentPage('dashboard')}
                 className="bg-card text-foreground py-3 rounded-lg hover:bg-opacity-80 transition font-medium"
               >
@@ -222,6 +221,16 @@ export function BookingConfirmation() {
                   ₦{bookingDetails.totalPrice.toLocaleString()}
                 </span>
               </div>
+            </div>
+
+            {/* Paystack badge */}
+            <div className="flex items-center gap-2 bg-card rounded-lg p-3 border border-border">
+              <svg width="20" height="20" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="40" height="40" rx="8" fill="#00C3F7" />
+                <path d="M8 16h24v4H8zM8 24h16v4H8z" fill="white" />
+              </svg>
+              <span className="text-sm text-muted-foreground">Paid securely via</span>
+              <span className="text-sm font-semibold text-foreground">Paystack</span>
             </div>
 
             <div className="bg-primary/10 dark:bg-primary/20 border border-primary/30 dark:border-primary/40 rounded-lg p-4">

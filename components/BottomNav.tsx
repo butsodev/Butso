@@ -1,16 +1,25 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Home, Search, Users, MessageCircle, User } from 'lucide-react'
+import { Home, Search, Store, MessageCircle, User } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 
 const navItems = [
   { id: 'dashboard', icon: Home, label: 'Home' },
   { id: 'jobs', icon: Search, label: 'Jobs' },
-  { id: 'people', icon: Users, label: 'People' },
+  { id: 'shops', icon: Store, label: 'Explore' },
   { id: 'messaging', icon: MessageCircle, label: 'Messages' },
   { id: 'profile', icon: User, label: 'Profile' },
 ]
+
+// Pages that count as "active" for each nav item
+const activeMap: Record<string, string[]> = {
+  dashboard: ['dashboard'],
+  jobs: ['jobs', 'job-details', 'apply-job', 'advanced-search'],
+  shops: ['shops', 'shop', 'shop-setup', 'people', 'worker-profile'],
+  messaging: ['messaging'],
+  profile: ['profile', 'settings'],
+}
 
 export function BottomNav() {
   const { currentUser, setCurrentPage, currentPage } = useAppStore()
@@ -27,7 +36,7 @@ export function BottomNav() {
       <div className="flex justify-around items-center h-16 px-2 max-w-lg mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon
-          const isActive = currentPage === item.id
+          const isActive = (activeMap[item.id] ?? [item.id]).includes(currentPage)
 
           return (
             <button

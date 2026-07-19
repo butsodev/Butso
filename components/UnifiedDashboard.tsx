@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { Star, Briefcase, DollarSign, Clock, ArrowRight, Bell, Plus, Users } from 'lucide-react'
+import { Star, Briefcase, DollarSign, Clock, ArrowRight, Bell, Plus, Users, Sparkles } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useAppStore, type DashboardMode } from '@/lib/store'
 import { SkeletonDashboard } from '@/components/Skeleton'
@@ -27,13 +27,55 @@ export function UnifiedDashboard() {
 
   if (loading) return <SkeletonDashboard />
 
-  const isLooking = dashboardMode === 'worker'
+  const isLooking = dashboardMode === 'find-work'
   const myPostedJobs = jobs.filter(j => j.employerId === currentUser?.id)
 
   const switchMode = (mode: DashboardMode) => {
     setPrevMode(dashboardMode)
     setDashboardMode(mode)
   }
+
+
+  // ── Contextual suggestions ────────────────────────────────────────────────
+  const hour = new Date().getHours()
+  const isWeekend = [0, 6].includes(new Date().getDay())
+
+  const suggestions = [
+    { emoji: '✂️', text: 'Barbing shops', page: 'shops', show: true },
+    { emoji: '💇', text: 'Hair salons near you', page: 'shops', show: true },
+    { emoji: '🧹', text: 'Cleaners available', page: 'shops', show: hour >= 7 && hour <= 20 },
+    { emoji: '🔧', text: 'Plumbers ready now', page: 'people', show: true },
+    { emoji: '⚡', text: 'Electricians nearby', page: 'people', show: true },
+    { emoji: '🍳', text: 'Caterers & cooks', page: 'people', show: isWeekend },
+    { emoji: '🚗', text: 'Auto repair workshops', page: 'shops', show: true },
+    { emoji: '👗', text: 'Tailors taking orders', page: 'shops', show: true },
+    { emoji: '📸', text: 'Event photographers', page: 'people', show: isWeekend },
+    { emoji: '🏗️', text: 'Construction workers', page: 'people', show: !isWeekend },
+  ].filter(s => s.show).slice(0, 6)
+
+  const SuggestionStrip = (
+    <motion.div variants={item} className="mb-2">
+      <div className="flex items-center gap-1.5 mb-2.5">
+        <Sparkles size={13} className="text-primary" />
+        <p className="text-xs font-black text-muted-foreground uppercase tracking-wide">
+          {hour < 12 ? 'Good morning. Try these' : hour < 17 ? 'Available near you' : 'Evening picks'}
+        </p>
+      </div>
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
+        {suggestions.map((s, i) => (
+          <motion.button
+            key={i}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setCurrentPage(s.page)}
+            className="flex items-center gap-2 shrink-0 px-3 py-2 bg-card border border-border rounded-2xl hover:border-primary/40 hover:bg-primary/5 transition-all"
+          >
+            <span className="text-base leading-none">{s.emoji}</span>
+            <span className="text-xs font-semibold text-foreground whitespace-nowrap">{s.text}</span>
+          </motion.button>
+        ))}
+      </div>
+    </motion.div>
+  )
 
   // ─────────────────────────────────────────────────────────────────────────
   // BIG MODE SWITCHER — two full cards, very obvious, impossible to miss
@@ -43,7 +85,7 @@ export function UnifiedDashboard() {
       {/* Find Work tab */}
       <motion.button
         whileTap={{ scale: 0.96 }}
-        onClick={() => switchMode('worker')}
+        onClick={() => switchMode('find-work')}
         className={`relative overflow-hidden rounded-2xl p-4 text-left transition-all duration-300 ${isLooking
           ? 'bg-primary shadow-lg shadow-primary/25 scale-[1.02]'
           : 'bg-card border-2 border-border hover:border-primary/40'
@@ -67,7 +109,7 @@ export function UnifiedDashboard() {
       {/* Hire tab */}
       <motion.button
         whileTap={{ scale: 0.96 }}
-        onClick={() => switchMode('employer')}
+        onClick={() => switchMode('need-help')}
         className={`relative overflow-hidden rounded-2xl p-4 text-left transition-all duration-300 ${!isLooking
           ? 'bg-emerald-600 shadow-lg shadow-emerald-500/25 scale-[1.02]'
           : 'bg-card border-2 border-border hover:border-emerald-500/40'
@@ -94,7 +136,7 @@ export function UnifiedDashboard() {
   // FIND WORK CONTENT
   // ─────────────────────────────────────────────────────────────────────────
   const FindWorkView = (
-    <motion.div key="worker" variants={container} initial="hidden" animate="show" className="space-y-4">
+    <motion.div key="find-work" variants={container} initial="hidden" animate="show" className="space-y-4">
       {/* Stats */}
       <motion.div variants={item} className="grid grid-cols-2 gap-3">
         {[
@@ -117,6 +159,8 @@ export function UnifiedDashboard() {
         })}
       </motion.div>
 
+      {SuggestionStrip}
+
       {/* Primary CTA */}
       <motion.button variants={item} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
         onClick={() => setCurrentPage('jobs')}
@@ -124,7 +168,7 @@ export function UnifiedDashboard() {
         <span className="text-3xl">🔍</span>
         <div className="flex-1 text-left">
           <p className="font-black text-base">Browse Available Jobs</p>
-          <p className="text-primary-foreground/70 text-sm">Find work near you in Wukari</p>
+          <p className="text-primary-foreground/70 text-sm">Find work near you in Taraba</p>
         </div>
         <ArrowRight size={20} className="text-primary-foreground/70" />
       </motion.button>
@@ -135,7 +179,7 @@ export function UnifiedDashboard() {
           { label: 'My Bookings', sub: 'Scheduled work', icon: '📅', page: 'bookings' },
           { label: 'Messages', sub: 'Chat with hirers', icon: '💬', page: 'messaging' },
           { label: 'My Earnings', sub: 'Track payments', icon: '💰', page: 'payments' },
-          { label: 'My Profile', sub: 'Edit your skills', icon: '👤', page: 'profile' },
+          { label: 'My Shop', sub: 'Manage your services', icon: '🏪', page: 'shop-setup' },
         ].map(action => (
           <motion.button key={action.label} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}
             onClick={() => setCurrentPage(action.page)}
@@ -172,7 +216,7 @@ export function UnifiedDashboard() {
   // HIRE SOMEONE CONTENT
   // ─────────────────────────────────────────────────────────────────────────
   const HireView = (
-    <motion.div key="employer" variants={container} initial="hidden" animate="show" className="space-y-4">
+    <motion.div key="need-help" variants={container} initial="hidden" animate="show" className="space-y-4">
       {/* Stats */}
       <motion.div variants={item} className="grid grid-cols-3 gap-3">
         {[
@@ -211,7 +255,7 @@ export function UnifiedDashboard() {
         {[
           { label: 'My Jobs', sub: 'View posted jobs', icon: '📌', page: 'bookings' },
           { label: 'Messages', sub: 'Chat with workers', icon: '💬', page: 'messaging' },
-          { label: 'Payments', sub: 'Track spending', icon: '💳', page: 'payments' },
+          { label: 'Browse Shops', sub: 'Book a service', icon: '🏪', page: 'shops' },
           { label: 'My Profile', sub: 'Edit your info', icon: '👤', page: 'profile' },
         ].map(action => (
           <motion.button key={action.label} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}

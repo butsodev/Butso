@@ -8,7 +8,7 @@ import { useAppStore } from '@/lib/store'
 const mockReviews = [
   {
     id: 1,
-    author: 'Sarah Johnson',
+    author: 'Wando Agishi',
     avatar: '👩‍💼',
     rating: 5,
     date: '2 days ago',
@@ -19,7 +19,7 @@ const mockReviews = [
   },
   {
     id: 2,
-    author: 'Michael Chen',
+    author: 'Isa Tarfa',
     avatar: '👨‍💻',
     rating: 5,
     date: '1 week ago',
@@ -30,7 +30,7 @@ const mockReviews = [
   },
   {
     id: 3,
-    author: 'Amara Adeyemi',
+    author: 'Ashu Pwajok',
     avatar: '👩‍🎨',
     rating: 4,
     date: '2 weeks ago',

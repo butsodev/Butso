@@ -2,21 +2,24 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Star, MapPin, Zap, SlidersHorizontal, X } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 import { mockWorkers } from '@/lib/mockData'
 
 const skillFilters = [
   { id: 'all', label: 'Everyone', emoji: '👥' },
+  { id: 'Barbing', label: 'Barbing', emoji: '✂️' },
   { id: 'Plumbing', label: 'Plumbing', emoji: '🔧' },
-  { id: 'Electrical', label: 'Electrical', emoji: '⚡' },
+  { id: 'Tailoring', label: 'Tailoring', emoji: '👗' },
   { id: 'Cleaning', label: 'Cleaning', emoji: '🧹' },
-  { id: 'Construction', label: 'Construction', emoji: '🏗️' },
-  { id: 'Carpentry', label: 'Carpentry', emoji: '🪵' },
+  { id: 'Electrical', label: 'Electrical', emoji: '⚡' },
   { id: 'Cooking', label: 'Cooking', emoji: '🍳' },
-  { id: 'Auto Repair', label: 'Auto Repair', emoji: '🔩' },
-  { id: 'Welding', label: 'Welding', emoji: '🔥' },
+  { id: 'Auto Repair', label: 'Auto Repair', emoji: '🚗' },
+  { id: 'Carpentry', label: 'Carpentry', emoji: '🪵' },
 ]
+
+// How many filter pills to show before "more" nudge
+const VISIBLE_FILTERS = 5
 
 const container = {
   hidden: {},
@@ -27,19 +30,43 @@ const card = {
   show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 280, damping: 24 } },
 }
 
-export function PeopleSearch() {
-  const { setCurrentPage } = useAppStore()
+export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
+  const { setCurrentPage, preferences, trackSearch, viewedWorkerId } = useAppStore()
   const [query, setQuery] = useState('')
   const [selectedSkill, setSelectedSkill] = useState('all')
   const [availableOnly, setAvailableOnly] = useState(false)
+  const [showAllFilters, setShowAllFilters] = useState(false)
   const [selectedWorker, setSelectedWorker] = useState<typeof mockWorkers[0] | null>(null)
+
+  useEffect(() => {
+    if (viewedWorkerId) {
+      const worker = mockWorkers.find(w => w.id === viewedWorkerId)
+      if (worker) setSelectedWorker(worker)
+      useAppStore.setState({ viewedWorkerId: null })
+    }
+  }, [viewedWorkerId])
+
+  // Recent searches — top 4 by frequency, min 1 search
+  const recentSearches = Object.entries(preferences.searched ?? {})
+    .filter(([, count]) => count >= 1)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([term]) => term)
+
+  const handleSearch = (val: string) => {
+    setQuery(val)
+    if (val.trim().length >= 2) trackSearch(val.trim().toLowerCase())
+  }
+
+  const visibleFilters = showAllFilters ? skillFilters : skillFilters.slice(0, VISIBLE_FILTERS + 1)
 
   const filtered = mockWorkers.filter(w => {
     const matchesQuery =
       w.name.toLowerCase().includes(query.toLowerCase()) ||
       w.bio.toLowerCase().includes(query.toLowerCase()) ||
       w.skills.some(s => s.toLowerCase().includes(query.toLowerCase())) ||
-      w.location.toLowerCase().includes(query.toLowerCase())
+      w.location.toLowerCase().includes(query.toLowerCase()) ||
+      w.username.toLowerCase().includes(query.toLowerCase())
     const matchesSkill = selectedSkill === 'all' || w.skills.includes(selectedSkill)
     const matchesAvailable = !availableOnly || w.available
     return matchesQuery && matchesSkill && matchesAvailable
@@ -173,6 +200,90 @@ export function PeopleSearch() {
   }
 
   // ── Search list ───────────────────────────────────────────────────────────
+  // When embedded inside ShopsBrowsing, render without the full page shell
+  if (embedded) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 pb-8 pt-3">
+        {/* Search bar */}
+        <div className="relative mb-3">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+          <input
+            type="text"
+            placeholder="Search by name, skill, or @username..."
+            value={query}
+            onChange={e => handleSearch(e.target.value)}
+            className="w-full pl-11 pr-4 py-3.5 border border-border rounded-2xl focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/60 bg-card shadow-sm transition text-sm"
+          />
+        </div>
+        {recentSearches.length > 0 && !query && (
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <span className="text-xs text-muted-foreground shrink-0">Recent:</span>
+            {recentSearches.map(term => (
+              <button key={term} onClick={() => setQuery(term)}
+                className="text-xs px-3 py-1 rounded-full bg-secondary border border-border text-muted-foreground hover:text-foreground hover:border-primary/40 transition capitalize">
+                {term}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm text-muted-foreground">{filtered.length} {filtered.length === 1 ? 'person' : 'people'} found</p>
+          <button onClick={() => setAvailableOnly(!availableOnly)}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition border ${availableOnly ? 'bg-green-500/15 text-green-700 border-green-400/40 dark:text-green-400' : 'bg-card border-border text-muted-foreground'}`}>
+            <Zap size={12} /> Available now
+          </button>
+        </div>
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-1 scrollbar-hide">
+          {visibleFilters.map(f => (
+            <motion.button key={f.id} whileTap={{ scale: 0.93 }} onClick={() => setSelectedSkill(f.id)}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full whitespace-nowrap font-semibold text-sm transition-colors shrink-0 ${selectedSkill === f.id ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20' : 'bg-card border border-border text-foreground hover:border-primary/50'}`}>
+              <span>{f.emoji}</span>{f.label}
+            </motion.button>
+          ))}
+        </div>
+        {filtered.length === 0 ? (
+          <div className="bg-card border border-border rounded-2xl p-12 text-center">
+            <div className="text-4xl mb-3">🔍</div>
+            <p className="font-bold text-foreground mb-1">Nobody found</p>
+            <p className="text-sm text-muted-foreground">Try a different skill or remove the filter</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {filtered.map(worker => (
+              <motion.div key={worker.id} whileHover={{ y: -3 }} onClick={() => setSelectedWorker(worker)}
+                className="bg-card border border-border rounded-2xl p-4 cursor-pointer hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                    <span className="text-lg font-black text-primary">{worker.name[0]}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-black text-foreground text-sm truncate">{worker.name}</h3>
+                      {worker.available ? <span className="shrink-0 w-2 h-2 rounded-full bg-green-500" /> : <span className="shrink-0 w-2 h-2 rounded-full bg-muted-foreground/30" />}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{worker.location}</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {worker.skills.slice(0, 3).map(s => (
+                    <span key={s} className="text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-full font-semibold">{s}</span>
+                  ))}
+                </div>
+                <div className="flex items-center justify-between text-xs pt-2 border-t border-border">
+                  <span className="flex items-center gap-1 font-bold text-foreground">
+                    <Star size={11} fill="currentColor" className="text-yellow-500" />{worker.rating.toFixed(1)}
+                    <span className="text-muted-foreground font-normal">({worker.completedJobs})</span>
+                  </span>
+                  <span className="font-bold text-primary">₦{worker.hourlyRate.toLocaleString()}/hr</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -184,7 +295,7 @@ export function PeopleSearch() {
       <div className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground px-4 sm:px-6 pt-8 pb-12">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl sm:text-3xl font-black mb-1">Find People</h1>
-          <p className="text-primary-foreground/75 text-sm">Browse skilled workers in Wukari</p>
+          <p className="text-primary-foreground/75 text-sm">Browse skilled workers in Taraba</p>
         </div>
       </div>
 
@@ -194,12 +305,28 @@ export function PeopleSearch() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
           <input
             type="text"
-            placeholder="Search by name, skill, or area..."
+            placeholder="Search by name, skill, or @username..."
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={e => handleSearch(e.target.value)}
             className="w-full pl-11 pr-4 py-3.5 border border-border rounded-2xl focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/60 bg-card shadow-sm transition text-sm"
           />
         </div>
+
+        {/* Recent searches */}
+        {recentSearches.length > 0 && !query && (
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <span className="text-xs text-muted-foreground shrink-0">Recent:</span>
+            {recentSearches.map(term => (
+              <button
+                key={term}
+                onClick={() => setQuery(term)}
+                className="text-xs px-3 py-1 rounded-full bg-secondary border border-border text-muted-foreground hover:text-foreground hover:border-primary/40 transition capitalize"
+              >
+                {term}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Available toggle */}
         <div className="flex items-center justify-between mb-4">
@@ -211,7 +338,7 @@ export function PeopleSearch() {
             className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition border ${availableOnly
               ? 'bg-green-500/15 text-green-700 border-green-400/40 dark:text-green-400'
               : 'bg-card border-border text-muted-foreground'
-            }`}
+              }`}
           >
             <Zap size={12} />
             Available now
@@ -219,8 +346,8 @@ export function PeopleSearch() {
         </div>
 
         {/* Skill pills */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-hide">
-          {skillFilters.map(f => (
+        <div className="flex gap-2 mb-3 overflow-x-auto pb-1 scrollbar-hide">
+          {visibleFilters.map(f => (
             <motion.button
               key={f.id}
               whileTap={{ scale: 0.93 }}
@@ -228,13 +355,36 @@ export function PeopleSearch() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full whitespace-nowrap font-semibold text-sm transition-colors shrink-0 ${selectedSkill === f.id
                 ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
                 : 'bg-card border border-border text-foreground hover:border-primary/50'
-              }`}
+                }`}
             >
               <span>{f.emoji}</span>
               {f.label}
             </motion.button>
           ))}
         </div>
+
+        {/* More categories nudge */}
+        {!showAllFilters ? (
+          <p className="text-xs text-muted-foreground mb-5">
+            Don't see your category?{' '}
+            <button
+              onClick={() => setShowAllFilters(true)}
+              className="text-primary font-semibold hover:underline"
+            >
+              See all categories
+            </button>
+            {' '}or search above.
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground mb-5">
+            <button
+              onClick={() => setShowAllFilters(false)}
+              className="text-primary font-semibold hover:underline"
+            >
+              Show less
+            </button>
+          </p>
+        )}
 
         {/* Results */}
         {filtered.length === 0 ? (
@@ -297,13 +447,13 @@ export function PeopleSearch() {
                   </div>
 
                   {/* Footer */}
-                  <div className="flex items-center justify-between text-xs pt-3 border-t border-border">
-                    <span className="flex items-center gap-1 font-bold text-foreground">
-                      <Star size={12} fill="currentColor" className="text-yellow-500" />
+                  <div className="flex items-center justify-between gap-2 text-xs pt-3 border-t border-border flex-wrap">
+                    <span className="flex items-center gap-1 font-bold text-foreground min-w-0">
+                      <Star size={12} fill="currentColor" className="text-yellow-500 shrink-0" />
                       {worker.rating.toFixed(1)}
-                      <span className="text-muted-foreground font-normal ml-0.5">({worker.completedJobs} jobs)</span>
+                      <span className="text-muted-foreground font-normal ml-0.5 truncate">({worker.completedJobs} jobs)</span>
                     </span>
-                    <span className="font-bold text-primary">₦{worker.hourlyRate.toLocaleString()}/hr</span>
+                    <span className="font-bold text-primary shrink-0">₦{worker.hourlyRate.toLocaleString()}/hr</span>
                   </div>
                 </motion.div>
               ))}

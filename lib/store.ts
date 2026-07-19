@@ -2,18 +2,21 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 export type UserRole = 'worker' | 'employer' | 'exploring'
-export type DashboardMode = 'worker' | 'employer'
+export type DashboardMode = 'find-work' | 'need-help'
 
 export interface User {
   id: string
   phone: string
   name: string
+  username: string          // unique, chosen at signup
   role: UserRole
   avatar?: string
+  gender?: 'male' | 'female' | 'other'
   bio?: string
   skills?: string[]
   rating?: number
   completedJobs?: number
+  shopId?: string           // set if this worker has a shop
 }
 
 export interface Job {
@@ -33,8 +36,13 @@ export interface Job {
 
 export interface Booking {
   id: string
-  jobId: string
+  type: 'job' | 'shop'           // job-based vs shop-based booking
+  jobId?: string
   jobTitle?: string
+  shopId?: string
+  shopName?: string
+  serviceId?: string
+  serviceName?: string
   workerId: string
   workerName?: string
   employerId: string
@@ -43,6 +51,7 @@ export interface Booking {
   date: string
   slots: string[]
   totalPrice: number
+  negotiated: boolean            // was price negotiated?
   createdAt: string
 }
 
@@ -73,12 +82,91 @@ export interface Transaction {
   createdAt: string
 }
 
-/* ─── Preference / behaviour profile ──────────────────────────────────────
-   Lives in the store and persists to localStorage.
-   Every tap, view, apply, save increments the right bucket.
-   rankCategories() returns categories sorted by score so any
-   feed can call it to get a personalised order instantly.
-───────────────────────────────────────────────────────────────────────── */
+/* ─── Shop types ──────────────────────────────────────────────────────────── */
+
+export interface ShopService {
+  id: string
+  name: string                          // e.g. "Haircut", "Full shave"
+  description?: string
+  price: number
+  pricingType: 'fixed' | 'negotiable'   // fixed = book & pay; negotiable = send request
+  durationMinutes?: number              // how long the service takes
+}
+
+export type DayOfWeek = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
+
+export interface DayHours {
+  open: boolean
+  from: string   // e.g. "08:00"
+  to: string     // e.g. "18:00"
+}
+
+export type OpeningHours = Record<DayOfWeek, DayHours>
+
+export const DEFAULT_HOURS: OpeningHours = {
+  mon: { open: true, from: '08:00', to: '18:00' },
+  tue: { open: true, from: '08:00', to: '18:00' },
+  wed: { open: true, from: '08:00', to: '18:00' },
+  thu: { open: true, from: '08:00', to: '18:00' },
+  fri: { open: true, from: '08:00', to: '18:00' },
+  sat: { open: true, from: '09:00', to: '15:00' },
+  sun: { open: false, from: '09:00', to: '13:00' },
+}
+
+export interface ShopReview {
+  id: string
+  userId: string
+  userName: string
+  rating: number        // 1–5
+  comment: string
+  createdAt: string
+}
+
+export interface PortfolioItem {
+  id: string
+  imageUrl: string          // URL or base64 — swap for real upload later
+  caption: string
+  serviceId?: string        // links to a service — tapping suggests booking it
+  pinned: boolean           // pinned items show at top of profile
+  createdAt: string
+}
+
+export type ShopDefaultTab = 'services' | 'portfolio' | 'reviews'
+
+export interface PendingBooking {
+  shopId: string
+  shopName: string
+  serviceId: string
+  serviceName: string
+  servicePrice: number
+  durationMinutes?: number
+}
+
+export interface Shop {
+  id: string
+  ownerId: string
+  ownerName: string
+  ownerUsername: string
+  name: string
+  tagline?: string                // "Known for the cleanest fades in Wukari"
+  category: string
+  description: string
+  location: string
+  isMobile: boolean
+  phone?: string
+  services: ShopService[]
+  portfolio: PortfolioItem[]      // owner's work showcase
+  defaultTab: ShopDefaultTab      // which tab visitors see first
+  openingHours: OpeningHours
+  rating: number
+  reviewCount: number
+  reviews: ShopReview[]
+  isOpen: boolean
+  verified: boolean
+  createdAt: string
+}
+
+/* ─── Preference / behaviour profile ─────────────────────────────────────── */
 export interface UserPreferences {
   chosenCategories: string[]
   viewed: Record<string, number>
@@ -111,7 +199,36 @@ export function rankCategories(prefs: UserPreferences, allCategories: string[]):
   return [...allCategories].sort((a, b) => score(b) - score(a))
 }
 
-interface AppStore {
+/* ─── Username helpers ────────────────────────────────────────────────────── */
+export function generateUsernameFromName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/\s+/g, '')
+    .replace(/[^a-z0-9_]/g, '')
+    .slice(0, 20)
+}
+
+export function isUsernameAvailable(username: string, existingUsers: User[], excludeId?: string): boolean {
+  return !existingUsers.some(u =>
+    u.username?.toLowerCase() === username.toLowerCase() && u.id !== excludeId
+  )
+}
+
+/* ─── isShopOpenNow helper ────────────────────────────────────────────────── */
+export function isShopOpenNow(hours: OpeningHours): boolean {
+  const now = new Date()
+  const days: DayOfWeek[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
+  const today = days[now.getDay()]
+  const todayHours = hours[today]
+  if (!todayHours.open) return false
+  const [fh, fm] = todayHours.from.split(':').map(Number)
+  const [th, tm] = todayHours.to.split(':').map(Number)
+  const nowMins = now.getHours() * 60 + now.getMinutes()
+  return nowMins >= fh * 60 + fm && nowMins <= th * 60 + tm
+}
+
+/* ─── Store interface ─────────────────────────────────────────────────────── */
+export interface AppStore {
   // Auth
   currentUser: User | null
   setCurrentUser: (user: User | null) => void
@@ -119,6 +236,14 @@ interface AppStore {
   // Navigation
   currentPage: string
   setCurrentPage: (page: string) => void
+  selectedShopId: string | null
+  setSelectedShopId: (id: string | null) => void
+  selectedJobId: string | null
+  setSelectedJobId: (id: string | null) => void
+  viewedWorkerId: string | null
+  viewWorkerProfile: (id: string) => void
+  pendingBooking: PendingBooking | null
+  setPendingBooking: (b: PendingBooking | null) => void
   pageHistory: string[]
   goBack: () => void
 
@@ -127,31 +252,51 @@ interface AppStore {
   setDarkMode: (isDark: boolean) => void
   toggleDarkMode: () => void
 
-  // Dashboard mode (worker view vs employer view)
+  // Dashboard mode
   dashboardMode: DashboardMode
   setDashboardMode: (mode: DashboardMode) => void
 
-  // Data
+  // Jobs
   jobs: Job[]
   setJobs: (jobs: Job[]) => void
   addJob: (job: Job) => void
 
+  // Bookings
   bookings: Booking[]
   setBookings: (bookings: Booking[]) => void
   addBooking: (booking: Booking) => void
 
+  // Messages
   messages: Message[]
   setMessages: (messages: Message[]) => void
   addMessage: (message: Message) => void
 
+  // Notifications
   notifications: Notification[]
   setNotifications: (notifications: Notification[]) => void
   markNotificationRead: (id: string) => void
   markAllNotificationsRead: () => void
 
+  // Transactions
   transactions: Transaction[]
   setTransactions: (transactions: Transaction[]) => void
   addTransaction: (transaction: Transaction) => void
+
+  // Shops
+  shops: Shop[]
+  setShops: (shops: Shop[]) => void
+  addShop: (shop: Shop) => void
+  updateShop: (shopId: string, updates: Partial<Shop>) => void
+  getShopByOwner: (ownerId: string) => Shop | undefined
+  addShopReview: (shopId: string, review: ShopReview) => void
+  addPortfolioItem: (shopId: string, item: PortfolioItem) => void
+  removePortfolioItem: (shopId: string, itemId: string) => void
+  togglePortfolioPin: (shopId: string, itemId: string) => void
+  setShopDefaultTab: (shopId: string, tab: ShopDefaultTab) => void
+
+  // Users (for username validation)
+  allUsers: User[]
+  setAllUsers: (users: User[]) => void
 
   // Preferences & behaviour tracking
   preferences: UserPreferences
@@ -171,6 +316,19 @@ export const useAppStore = create<AppStore>()(
 
       currentPage: 'splash',
       pageHistory: [],
+      selectedShopId: null,
+      setSelectedShopId: (id) => set({ selectedShopId: id }),
+      selectedJobId: null,
+      setSelectedJobId: (id) => set({ selectedJobId: id }),
+      viewedWorkerId: null,
+      viewWorkerProfile: (id) => {
+        const state = get()
+        const newHistory = state.pageHistory.slice(-9)
+        set({ viewedWorkerId: id, currentPage: 'people', pageHistory: [...newHistory, state.currentPage].filter(p => p !== 'splash') })
+      },
+      pendingBooking: null,
+      setPendingBooking: (b) => set({ pendingBooking: b }),
+
       setCurrentPage: (page) => {
         const state = get()
         const newHistory = state.pageHistory.slice(-9)
@@ -192,7 +350,7 @@ export const useAppStore = create<AppStore>()(
       setDarkMode: (isDark) => set({ darkMode: isDark }),
       toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
 
-      dashboardMode: 'worker',
+      dashboardMode: 'find-work',
       setDashboardMode: (mode) => set({ dashboardMode: mode }),
 
       jobs: [],
@@ -225,7 +383,58 @@ export const useAppStore = create<AppStore>()(
       addTransaction: (transaction) =>
         set((state) => ({ transactions: [transaction, ...state.transactions] })),
 
-      // ── Preferences ──────────────────────────────────────────────────────
+      // ── Shops ──────────────────────────────────────────────────────────────
+      shops: [],
+      setShops: (shops) => set({ shops }),
+      addShop: (shop) => set((state) => ({ shops: [shop, ...state.shops] })),
+      updateShop: (shopId, updates) =>
+        set((state) => ({
+          shops: state.shops.map(s => s.id === shopId ? { ...s, ...updates } : s),
+        })),
+      getShopByOwner: (ownerId) => get().shops.find(s => s.ownerId === ownerId),
+      addShopReview: (shopId, review) =>
+        set((state) => ({
+          shops: state.shops.map(s => {
+            if (s.id !== shopId) return s
+            const reviews = [review, ...s.reviews]
+            const rating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+            return { ...s, reviews, reviewCount: reviews.length, rating: Math.round(rating * 10) / 10 }
+          }),
+        })),
+
+      addPortfolioItem: (shopId, item) =>
+        set((state) => ({
+          shops: state.shops.map(s =>
+            s.id === shopId ? { ...s, portfolio: [item, ...s.portfolio] } : s
+          ),
+        })),
+
+      removePortfolioItem: (shopId, itemId) =>
+        set((state) => ({
+          shops: state.shops.map(s =>
+            s.id === shopId ? { ...s, portfolio: s.portfolio.filter(p => p.id !== itemId) } : s
+          ),
+        })),
+
+      togglePortfolioPin: (shopId, itemId) =>
+        set((state) => ({
+          shops: state.shops.map(s =>
+            s.id === shopId
+              ? { ...s, portfolio: s.portfolio.map(p => p.id === itemId ? { ...p, pinned: !p.pinned } : p) }
+              : s
+          ),
+        })),
+
+      setShopDefaultTab: (shopId, tab) =>
+        set((state) => ({
+          shops: state.shops.map(s => s.id === shopId ? { ...s, defaultTab: tab } : s),
+        })),
+
+      // ── Users ──────────────────────────────────────────────────────────────
+      allUsers: [],
+      setAllUsers: (users) => set({ allUsers: users }),
+
+      // ── Preferences ────────────────────────────────────────────────────────
       preferences: EMPTY_PREFS,
 
       setChosenCategories: (cats) =>

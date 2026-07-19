@@ -21,7 +21,7 @@ export function SplashScreen() {
           className="mb-8"
         >
           <div className="text-6xl font-bold text-primary-foreground mb-4">Butsó</div>
-          <p className="text-primary-foreground/90 text-lg">Connect with jobs and workers in Wukari</p>
+          <p className="text-primary-foreground/90 text-lg">Connect with jobs and workers in Taraba</p>
         </motion.div>
 
         <motion.button

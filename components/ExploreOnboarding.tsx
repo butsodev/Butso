@@ -55,6 +55,7 @@ export function ExploreOnboarding() {
                 id: 'guest-' + Date.now(),
                 phone: '',
                 name: 'Guest',
+                username: 'guest',
                 role: 'exploring',
             })
         }
@@ -123,7 +124,7 @@ export function ExploreOnboarding() {
                         <em style={{ color: '#1B9E6E', fontStyle: 'italic' }}>interested in?</em>
                     </h1>
                     <p style={{ fontSize: '0.85rem', color: '#8A8980', lineHeight: 1.6, marginBottom: '1.75rem' }}>
-                        Pick up to 5 — we'll show you the most relevant jobs and workers first. You can change this anytime.
+                        Choose up to 5 skills. We'll show you the jobs and workers that match you best. You can change this anytime.
                     </p>
                 </motion.div>
 

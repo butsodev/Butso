@@ -98,7 +98,7 @@ export function ApplyJob() {
                       <span className="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded-full">Recommended</span>
                     </div>
                     <p className="text-white/80 text-sm leading-relaxed">
-                      Send your profile directly to the employer — no writing needed. Best for most jobs.
+                      Apply instantly with your profile. No writing needed. Perfect for most jobs.
                     </p>
                   </div>
                 </div>
@@ -118,7 +118,7 @@ export function ApplyJob() {
                   <div>
                     <h3 className="font-black text-lg text-foreground mb-1">Add a Message</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">
-                      Want to say something specific? Add your availability or a short note — all optional.
+                      Want to say something specific? Add your availability or a short note. It's all optional.
                     </p>
                   </div>
                 </div>
@@ -210,7 +210,7 @@ export function ApplyJob() {
               </div>
 
               <h2 className="text-2xl font-black text-foreground mb-1">Tell them a little more</h2>
-              <p className="text-muted-foreground mb-6">Everything here is optional — just fill what applies to you.</p>
+              <p className="text-muted-foreground mb-6">Everything here is optional. Just fill what applies to you.</p>
 
               <div className="space-y-5">
                 {/* Availability — only required field, but it's a simple dropdown */}

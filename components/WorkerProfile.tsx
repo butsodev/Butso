@@ -10,7 +10,7 @@ export function WorkerProfile() {
   // Sample worker data - in real app, would be fetched
   const worker = currentUser || {
     id: '1',
-    name: 'John Okafor',
+    name: 'Asoga Tarfa',
     phone: '+234 801 234 5678',
     role: 'worker' as const,
     bio: 'Professional with 5+ years of experience in construction and home repairs',
@@ -22,21 +22,21 @@ export function WorkerProfile() {
   const reviews = [
     {
       id: '1',
-      author: 'Chioma Adeyemi',
+      author: 'Larai Sule',
       rating: 5,
       comment: 'Excellent work! Very professional and completed ahead of schedule.',
       date: '2 weeks ago',
     },
     {
       id: '2',
-      author: 'Tunde Oluwaseun',
+      author: 'Chidonku Agbu',
       rating: 5,
       comment: 'Great communication and high-quality workmanship. Highly recommended!',
       date: '1 month ago',
     },
     {
       id: '3',
-      author: 'Amina Hassan',
+      author: 'Yusuf Garba',
       rating: 4,
       comment: 'Good work, very reliable. Minor delays but excellent finish.',
       date: '6 weeks ago',
@@ -91,7 +91,7 @@ export function WorkerProfile() {
               <div>
                 <h1 className="text-4xl font-bold text-foreground mb-2">{worker.name}</h1>
                 <p className="text-muted-foreground mb-4">Professional Service Provider</p>
-                
+
                 <div className="flex items-center gap-6 mb-4">
                   <div className="flex items-center gap-2">
                     <Star className="text-accent" size={20} fill="currentColor" />
@@ -105,7 +105,7 @@ export function WorkerProfile() {
                 </div>
 
                 <p className="text-foreground mb-4 max-w-2xl">{worker.bio}</p>
-                
+
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <MapPin size={16} />
                   <span>Wukari, Taraba State</span>

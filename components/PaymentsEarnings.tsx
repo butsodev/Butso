@@ -153,6 +153,7 @@ export function PaymentsEarnings() {
             </div>
             <h2 className="text-3xl font-bold">₦145,500</h2>
             <p className="text-sm opacity-90 mt-2">From 12 active jobs</p>
+            <p className="text-xs opacity-70 mt-3">Payments processed via Paystack</p>
           </motion.div>
         )}
 
@@ -164,11 +165,14 @@ export function PaymentsEarnings() {
             transition={{ delay: 0.1 }}
             className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"
           >
-            <button className="bg-primary text-primary-foreground py-3 rounded-lg hover:opacity-90 transition font-medium flex items-center justify-center gap-2">
-              <CreditCard size={20} />
-              Withdraw Money
-            </button>
-            <button 
+            <div>
+              <button className="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:opacity-90 transition font-medium flex items-center justify-center gap-2">
+                <CreditCard size={20} />
+                Withdraw via Paystack
+              </button>
+              <p className="text-xs text-muted-foreground text-center mt-1">Funds sent directly to your bank account</p>
+            </div>
+            <button
               onClick={() => setCurrentPage('bookings')}
               className="bg-card text-foreground py-3 rounded-lg hover:bg-opacity-80 transition font-medium flex items-center justify-center gap-2"
             >
@@ -189,11 +193,10 @@ export function PaymentsEarnings() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg font-medium transition capitalize ${
-                filter === f
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-card text-foreground hover:bg-opacity-80'
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition capitalize ${filter === f
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-card text-foreground hover:bg-opacity-80'
+                }`}
             >
               {f}
             </button>
@@ -223,18 +226,16 @@ export function PaymentsEarnings() {
                 </div>
               </div>
               <div className="text-right flex-shrink-0">
-                <p className={`font-bold text-lg ${
-                  transaction.type === 'earned' || transaction.type === 'escrow'
-                    ? 'text-primary'
-                    : 'text-destructive'
-                }`}>
+                <p className={`font-bold text-lg ${transaction.type === 'earned' || transaction.type === 'escrow'
+                  ? 'text-primary'
+                  : 'text-destructive'
+                  }`}>
                   {transaction.amount}
                 </p>
-                <span className={`text-xs px-2 py-1 rounded capitalize ${
-                  transaction.status === 'completed'
-                    ? 'bg-primary/15 dark:bg-primary/15 text-primary dark:text-primary'
-                    : 'bg-accent/15 dark:bg-accent/20 text-accent dark:text-accent'
-                }`}>
+                <span className={`text-xs px-2 py-1 rounded capitalize ${transaction.status === 'completed'
+                  ? 'bg-primary/15 dark:bg-primary/15 text-primary dark:text-primary'
+                  : 'bg-accent/15 dark:bg-accent/20 text-accent dark:text-accent'
+                  }`}>
                   {transaction.status}
                 </span>
               </div>

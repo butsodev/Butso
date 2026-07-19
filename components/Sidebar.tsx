@@ -1,14 +1,14 @@
 'use client'
 
 import { useAppStore } from '@/lib/store'
-import { 
-  Home, 
-  Briefcase, 
-  Zap, 
-  MessageSquare, 
-  Calendar, 
-  DollarSign, 
-  HelpCircle, 
+import {
+  Home,
+  Briefcase,
+  Zap,
+  MessageSquare,
+  Calendar,
+  DollarSign,
+  HelpCircle,
   Settings as SettingsIcon,
   LogOut
 } from 'lucide-react'
@@ -22,7 +22,7 @@ interface NavItem {
 
 export function Sidebar() {
   const { currentUser, currentPage, setCurrentPage } = useAppStore()
-  
+
   const workerNav: NavItem[] = [
     { page: 'dashboard', label: 'Dashboard', icon: <Home size={20} />, roles: ['worker'] },
     { page: 'jobs', label: 'Browse Jobs', icon: <Briefcase size={20} />, roles: ['worker'] },
@@ -32,7 +32,7 @@ export function Sidebar() {
     { page: 'support', label: 'Help', icon: <HelpCircle size={20} /> },
     { page: 'settings', label: 'Settings', icon: <SettingsIcon size={20} /> },
   ]
-  
+
   const employerNav: NavItem[] = [
     { page: 'dashboard', label: 'Dashboard', icon: <Home size={20} />, roles: ['employer'] },
     { page: 'post-job', label: 'Post Job', icon: <Zap size={20} />, roles: ['employer'] },
@@ -42,9 +42,9 @@ export function Sidebar() {
     { page: 'support', label: 'Help', icon: <HelpCircle size={20} /> },
     { page: 'settings', label: 'Settings', icon: <SettingsIcon size={20} /> },
   ]
-  
+
   const navItems = currentUser?.role === 'worker' ? workerNav : employerNav
-  
+
   return (
     <aside className="hidden lg:flex w-64 bg-card border-r border-border flex-col fixed left-0 top-16 h-[calc(100vh-64px)]">
       <nav className="flex-1 overflow-y-auto p-4">
@@ -53,11 +53,10 @@ export function Sidebar() {
             <li key={item.page}>
               <button
                 onClick={() => setCurrentPage(item.page)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-                  currentPage === item.page
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground hover:bg-secondary'
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${currentPage === item.page
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-foreground hover:bg-secondary'
+                  }`}
               >
                 <span className="flex-shrink-0">{item.icon}</span>
                 <span className="text-sm font-medium">{item.label}</span>
@@ -66,7 +65,7 @@ export function Sidebar() {
           ))}
         </ul>
       </nav>
-      
+
       {/* Logout Button */}
       <div className="border-t border-border p-4">
         <button
