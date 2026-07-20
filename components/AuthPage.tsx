@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef } from 'react'
 import { useAppStore } from '@/lib/store'
+import { supabase } from '@/lib/supabase'
 
 type Panel = 'signup' | 'login'
 type Method = null | 'phone' | 'email'
@@ -40,10 +41,10 @@ export function AuthPage() {
     const [phoneError, setPhoneError] = useState('')
     const [emailError, setEmailError] = useState('')
 
-    const [otp, setOtp] = useState(['', '', '', ''])
-    const [loginOtp, setLoginOtp] = useState(['', '', '', ''])
-    const otpRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null])
-    const loginOtpRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null])
+    const [otp, setOtp] = useState(['', '', '', '', '', ''])
+    const [loginOtp, setLoginOtp] = useState(['', '', '', '', '', ''])
+    const otpRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null, null, null])
+    const loginOtpRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null, null, null])
 
     const [isLoading, setIsLoading] = useState(false)
 
@@ -52,60 +53,91 @@ export function AuthPage() {
         index: number, value: string,
         arr: string[], setArr: (v: string[]) => void,
         refs: React.MutableRefObject<(HTMLInputElement | null)[]>,
-        onComplete: () => void
+        onComplete: (finalCode: string) => void
     ) => {
         const digit = value.replace(/\D/g, '').slice(-1)
         const next = [...arr]; next[index] = digit; setArr(next)
-        if (digit && index < 3) refs.current[index + 1]?.focus()
-        if (next.every(d => d !== '')) setTimeout(onComplete, 150)
+        if (digit && index < 5) {
+            const targetIndex = index + 1
+            requestAnimationFrame(() => {
+                refs.current[targetIndex]?.focus()
+            })
+        }
+        if (next.every(d => d !== '')) setTimeout(() => onComplete(next.join('')), 150)
     }
 
     const handleOtpKeyDown = (
         index: number, e: React.KeyboardEvent,
         arr: string[], refs: React.MutableRefObject<(HTMLInputElement | null)[]>
     ) => {
-        if (e.key === 'Backspace' && !arr[index] && index > 0) refs.current[index - 1]?.focus()
+        if ((e.key === 'Backspace' || e.key === 'Delete') && !arr[index] && index > 0) {
+            const targetIndex = index - 1
+            requestAnimationFrame(() => {
+                refs.current[targetIndex]?.focus()
+            })
+        }
     }
 
     const handleOtpPaste = (
         e: React.ClipboardEvent,
         setArr: (v: string[]) => void,
         refs: React.MutableRefObject<(HTMLInputElement | null)[]>,
-        onComplete: () => void
+        onComplete: (finalCode: string) => void
     ) => {
         e.preventDefault()
-        const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4)
-        const next = ['', '', '', '']
+        const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
+        const next = ['', '', '', '', '', '']
         pasted.split('').forEach((c, i) => { next[i] = c })
         setArr(next)
-        refs.current[Math.min(pasted.length, 3)]?.focus()
-        if (pasted.length === 4) setTimeout(onComplete, 150)
+        refs.current[Math.min(pasted.length, 5)]?.focus()
+        if (pasted.length === 6) setTimeout(() => onComplete(next.join('')), 150)
     }
 
-    const verifyAndProceed = () => {
+    // Note: no `profiles` table exists yet (that's Phase 2), so we can't yet tell
+    // apart a brand-new signup from a returning user. Every successful verification
+    // routes to profile-setup for now — this is a known, temporary limitation until
+    // the real schema exists.
+    const verifyAndProceed = async (
+        contact: string,
+        code: string,
+        type: 'phone' | 'email'
+    ) => {
         setIsLoading(true)
-        setTimeout(() => {
-            setCurrentPage('profile-setup')
-            setIsLoading(false)
-        }, 700)
+        const { error } = type === 'phone'
+            ? await supabase.auth.verifyOtp({ phone: contact, token: code, type: 'sms' })
+            : await supabase.auth.verifyOtp({ email: contact, token: code, type: 'email' })
+        setIsLoading(false)
+        if (error) {
+            // TODO: swap this alert for the app's own Toast component
+            alert(error.message)
+            return
+        }
+        setCurrentPage('profile-setup')
     }
 
-    const sendCode = (
+    const sendCode = async (
         value: string,
         type: 'phone' | 'email',
         onSuccess: () => void
     ) => {
         if (type === 'phone') {
-            if (value.length < 10) { setPhoneError('Enter a valid Nigerian number'); return }
+            const normalized = value.replace(/^0/, '')
+            if (normalized.length !== 10) { setPhoneError('Enter a valid Nigerian number'); return }
             setPhoneError('')
-            sessionStorage.setItem('userPhone', value)
+            setIsLoading(true)
+            const { error } = await supabase.auth.signInWithOtp({ phone: `+234${normalized}` })
+            setIsLoading(false)
+            if (error) { setPhoneError(error.message); return }
+            onSuccess()
         } else {
             if (!value.includes('@')) { setEmailError('Enter a valid email address'); return }
             setEmailError('')
-            sessionStorage.setItem('userPhone', value) // reuse key for now
+            setIsLoading(true)
+            const { error } = await supabase.auth.signInWithOtp({ email: value })
+            setIsLoading(false)
+            if (error) { setEmailError(error.message); return }
+            onSuccess()
         }
-        setIsLoading(true)
-        setTimeout(() => { setIsLoading(false); onSuccess() }, 800)
     }
 
     // ── Shared UI ─────────────────────────────────────────────────────────────
@@ -113,7 +145,7 @@ export function AuthPage() {
         arr: string[],
         setArr: (v: string[]) => void,
         refs: React.MutableRefObject<(HTMLInputElement | null)[]>,
-        onComplete: () => void
+        onComplete: (finalCode: string) => void
     ) => (
         <div className="flex gap-3 justify-center"
             onPaste={e => handleOtpPaste(e, setArr, refs, onComplete)}>
@@ -128,7 +160,7 @@ export function AuthPage() {
                     onChange={e => handleOtpChange(i, e.target.value, arr, setArr, refs, onComplete)}
                     onKeyDown={e => handleOtpKeyDown(i, e, arr, refs)}
                     disabled={isLoading}
-                    className={`w-14 h-14 border-2 rounded-xl text-center text-2xl font-black focus:outline-none transition
+                    className={`w-14 h-14 border-2 rounded-xl text-center text-2xl font-black focus:outline-none focus:ring-4 focus:ring-primary/40 focus:scale-105 transition
             ${digit ? 'border-primary bg-primary/5 text-primary' : 'border-border text-foreground focus:border-primary'}
             disabled:opacity-50`}
                 />
@@ -151,16 +183,17 @@ export function AuthPage() {
     )
 
     const OtpStep = ({
-        contact, arr, setArr, refs, onBack
+        contact, arr, setArr, refs, onBack, type
     }: {
         contact: string
         arr: string[]
         setArr: (v: string[]) => void
         refs: React.MutableRefObject<(HTMLInputElement | null)[]>
         onBack: () => void
+        type: 'phone' | 'email'
     }) => (
         <motion.div key="otp" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.25, ease }} className="space-y-5">
-            <BackBtn onClick={() => { onBack(); setOtp(['', '', '', '']); setLoginOtp(['', '', '', '']) }} />
+            <BackBtn onClick={() => { onBack(); setOtp(['', '', '', '', '', '']); setLoginOtp(['', '', '', '', '', '']) }} />
             <div>
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 mb-4">
                     <span className="text-2xl">🔐</span>
@@ -168,7 +201,7 @@ export function AuthPage() {
                 <h2 className="text-2xl font-black text-foreground mb-1 tracking-tight">Enter the code</h2>
                 <p className="text-muted-foreground text-sm">Sent to <strong>{contact}</strong></p>
             </div>
-            {renderOtpBoxes(arr, setArr, refs, verifyAndProceed)}
+            {renderOtpBoxes(arr, setArr, refs, (finalCode) => verifyAndProceed(contact, finalCode, type))}
             {isLoading && (
                 <div className="flex items-center justify-center gap-2 text-primary">
                     <span className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -177,7 +210,7 @@ export function AuthPage() {
             )}
             <p className="text-center text-sm text-muted-foreground">
                 Didn't get it?{' '}
-                <button onClick={() => { setOtp(['', '', '', '']); setLoginOtp(['', '', '', '']); setTimeout(() => refs.current[0]?.focus(), 50) }}
+                <button onClick={() => { setOtp(['', '', '', '', '', '']); setLoginOtp(['', '', '', '', '', '']); setTimeout(() => refs.current[0]?.focus(), 50) }}
                     className="text-primary font-bold hover:underline">Resend</button>
             </p>
         </motion.div>
@@ -203,7 +236,7 @@ export function AuthPage() {
             {/* Google */}
             <motion.button
                 whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
-                onClick={() => alert('Google sign-in coming soon!')}
+                onClick={() => supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })}
                 className="w-full py-3.5 flex items-center justify-center gap-3 border-2 border-border rounded-xl font-semibold text-sm text-foreground hover:bg-secondary hover:border-primary/30 transition"
             >
                 <GoogleIcon />
@@ -271,7 +304,7 @@ export function AuthPage() {
                 <input
                     type="tel" placeholder="08012345678" value={value} autoFocus
                     onChange={e => { setValue(e.target.value.replace(/\D/g, '').slice(0, 11)); setPhoneError('') }}
-                    onKeyDown={e => e.key === 'Enter' && value.length >= 10 && onNext()}
+                    onKeyDown={e => e.key === 'Enter' && value.replace(/^0/, '').length === 10 && onNext()}
                     className="w-full pl-16 pr-4 py-4 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-base font-medium placeholder:text-muted-foreground/40 transition"
                 />
             </div>
@@ -279,7 +312,7 @@ export function AuthPage() {
             <motion.button
                 whileTap={{ scale: 0.97 }}
                 onClick={onNext}
-                disabled={isLoading || value.length < 10}
+                disabled={isLoading || value.replace(/^0/, '').length !== 10}
                 className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition disabled:opacity-40 flex items-center justify-center gap-2 text-sm"
             >
                 {isLoading
@@ -392,9 +425,10 @@ export function AuthPage() {
 
                                     {signupMethod === 'phone' && signupPhoneStep === 'otp' && (
                                         <OtpStep
-                                            contact={`+234 ${signupPhone}`}
+                                            contact={`+234${signupPhone.replace(/^0/, '')}`}
                                             arr={otp} setArr={setOtp} refs={otpRefs}
                                             onBack={() => setSignupPhoneStep('input')}
+                                            type="phone"
                                         />
                                     )}
 
@@ -411,6 +445,7 @@ export function AuthPage() {
                                             contact={signupEmail}
                                             arr={otp} setArr={setOtp} refs={otpRefs}
                                             onBack={() => setSignupEmailStep('input')}
+                                            type="email"
                                         />
                                     )}
                                 </AnimatePresence>
@@ -440,9 +475,10 @@ export function AuthPage() {
 
                                     {loginMethod === 'phone' && loginPhoneStep === 'otp' && (
                                         <OtpStep
-                                            contact={`+234 ${loginPhone}`}
+                                            contact={`+234${loginPhone.replace(/^0/, '')}`}
                                             arr={loginOtp} setArr={setLoginOtp} refs={loginOtpRefs}
                                             onBack={() => setLoginPhoneStep('input')}
+                                            type="phone"
                                         />
                                     )}
 
@@ -459,6 +495,7 @@ export function AuthPage() {
                                             contact={loginEmail}
                                             arr={loginOtp} setArr={setLoginOtp} refs={loginOtpRefs}
                                             onBack={() => setLoginEmailStep('input')}
+                                            type="email"
                                         />
                                     )}
                                 </AnimatePresence>
