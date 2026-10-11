@@ -1,8 +1,8 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronRight, Briefcase, HardHat, Search, X, Check, AtSign } from 'lucide-react'
-import { useState, useRef, useEffect } from 'react'
+import { ChevronRight, Briefcase, HardHat, Search, X, Check, AtSign, Shuffle } from 'lucide-react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useAppStore, generateUsernameFromName, isUsernameAvailable, type UserRole, type AppStore } from '@/lib/store'
 import { mockJobs, mockBookings, mockNotifications, mockTransactions, mockShops } from '@/lib/mockData'
 import { supabase } from '@/lib/supabase'
@@ -59,17 +59,73 @@ const NEXT_OPTIONS = [
   },
 ]
 
+/* ─── Username helpers ───────────────────────────────────────────────────── */
+function randomUsername(name: string): string {
+  const base = generateUsernameFromName(name).slice(0, 14) || 'user'
+  const n = Math.floor(100 + Math.random() * 900)
+  const styles = [
+    `${base}${n}`,
+    `${base}_${n}`,
+    `${base}_${Math.floor(10 + Math.random() * 90)}`,
+    `the_${base}`,
+    `${base}_ng`,
+  ]
+  return styles[Math.floor(Math.random() * styles.length)].slice(0, 24)
+}
+
+type UsernameStatus = 'idle' | 'invalid' | 'checking' | 'available' | 'taken'
+
 /* ─── Username field ─────────────────────────────────────────────────────── */
-function UsernameField({ value, onChange, allUsers, excludeId }: {
+function UsernameField({ value, name, autoMode, onChange, onValidChange, allUsers, excludeId }: {
   value: string
-  onChange: (v: string, valid: boolean) => void
+  name: string
+  autoMode: boolean // true while the username is still auto-generated (user has not typed their own)
+  onChange: (v: string, fromUser: boolean) => void
+  onValidChange: (valid: boolean) => void
   allUsers: AppStore['allUsers']
   excludeId?: string
 }) {
-  const [touched, setTouched] = useState(false)
-  const isValid = value.length >= 3 && /^[a-z0-9_]+$/.test(value)
-  const isTaken = touched && isValid && !isUsernameAvailable(value, allUsers, excludeId)
-  const isGood = touched && isValid && !isTaken
+  const [status, setStatus] = useState<UsernameStatus>('idle')
+  const autoRetries = useRef(0)
+  const formatOk = value.length >= 3 && /^[a-z0-9_]+$/.test(value)
+
+  // Real-time availability check (debounced), against the real profiles table
+  useEffect(() => {
+    if (!value) { setStatus('idle'); onValidChange(false); return }
+    if (!formatOk) { setStatus('invalid'); onValidChange(false); return }
+    setStatus('checking'); onValidChange(false)
+    let cancelled = false
+    const t = setTimeout(async () => {
+      let taken = !isUsernameAvailable(value, allUsers, excludeId)
+      if (!taken) {
+        const { data, error } = await supabase.from('profiles').select('id').eq('username', value).maybeSingle()
+        // If the lookup itself fails we let it through; the insert still enforces uniqueness
+        if (!error && data && data.id !== excludeId) taken = true
+      }
+      if (cancelled) return
+      setStatus(taken ? 'taken' : 'available')
+      onValidChange(!taken)
+      // Auto-generated name collided: quietly pick another instead of bothering the user
+      if (taken && autoMode && autoRetries.current < 5) {
+        autoRetries.current += 1
+        onChange(randomUsername(name), false)
+      }
+    }, 400)
+    return () => { cancelled = true; clearTimeout(t) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value])
+
+  // A few clickable alternatives when the chosen name is taken
+  const suggestions = useMemo(
+    () => (status === 'taken' ? [randomUsername(name), randomUsername(name), randomUsername(name)] : []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [status, value]
+  )
+
+  const borderClass =
+    status === 'available' ? 'border-green-500 focus:border-green-500'
+      : status === 'taken' || status === 'invalid' ? 'border-destructive focus:border-destructive'
+        : 'border-border focus:border-primary'
 
   return (
     <div>
@@ -77,40 +133,66 @@ function UsernameField({ value, onChange, allUsers, excludeId }: {
         Username <span className="text-destructive">*</span>
       </label>
       <p className="text-xs text-muted-foreground mb-2">
-        Lowercase letters, numbers, underscores only. Min 3 characters.
+        This is how people find you on Butsó. We made one from your name. Edit it or tap Shuffle.
       </p>
-      <div className="relative">
-        <AtSign size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <input
-          type="text"
-          placeholder="e.g. wunuken_pipes"
-          value={value}
-          maxLength={24}
-          onChange={e => {
-            const v = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')
-            const valid = v.length >= 3 && isUsernameAvailable(v, allUsers, excludeId)
-            onChange(v, valid)
-          }}
-          onBlur={() => setTouched(true)}
-          className={`w-full pl-8 pr-10 py-3.5 border-2 rounded-xl focus:outline-none transition text-foreground text-base
-            ${!touched ? 'border-border focus:border-primary'
-              : isGood ? 'border-green-500 focus:border-green-500'
-                : 'border-destructive focus:border-destructive'}`}
-        />
-        {touched && (
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <AtSign size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="e.g. wunuken_pipes"
+            value={value}
+            maxLength={24}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            onChange={e => {
+              autoRetries.current = 0
+              onChange(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''), true)
+            }}
+            className={`w-full pl-8 pr-10 py-3.5 border-2 rounded-xl focus:outline-none transition text-foreground text-base ${borderClass}`}
+          />
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            {isGood
-              ? <Check size={16} className="text-green-500" />
-              : <X size={16} className="text-destructive" />}
+            {status === 'checking' && (
+              <span className="block w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+            )}
+            {status === 'available' && <Check size={16} className="text-green-500" />}
+            {(status === 'taken' || status === 'invalid') && <X size={16} className="text-destructive" />}
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => { autoRetries.current = 0; onChange(randomUsername(name), false) }}
+          className="px-3.5 border-2 border-border rounded-xl text-muted-foreground hover:text-primary hover:border-primary transition flex items-center gap-1.5 text-sm font-semibold"
+          aria-label="Shuffle username"
+        >
+          <Shuffle size={16} /> <span className="hidden sm:inline">Shuffle</span>
+        </button>
+      </div>
+
+      <div className="mt-1.5 min-h-[1.25rem] text-xs">
+        {status === 'idle' && <p className="text-muted-foreground">Type your name above, or pick your own. Letters, numbers and _ only.</p>}
+        {status === 'invalid' && <p className="text-destructive">Use at least 3 characters (letters, numbers or _).</p>}
+        {status === 'checking' && <p className="text-muted-foreground">Checking if @{value} is free...</p>}
+        {status === 'available' && <p className="text-green-600">@{value} is available.</p>}
+        {status === 'taken' && !autoMode && (
+          <div>
+            <p className="text-destructive">@{value} is already taken. Try one of these:</p>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {suggestions.map(sug => (
+                <button
+                  key={sug}
+                  type="button"
+                  onClick={() => { autoRetries.current = 0; onChange(sug, false) }}
+                  className="px-3 py-1 rounded-full border border-border text-foreground hover:border-primary hover:text-primary transition font-medium"
+                >
+                  @{sug}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
-      {touched && isTaken && <p className="text-xs text-destructive mt-1">That username is taken. Try another.</p>}
-      {touched && !isValid && value.length > 0 && (
-        <p className="text-xs text-destructive mt-1">
-          {value.length < 3 ? 'Too short. At least 3 characters.' : 'Only letters, numbers, and underscores allowed.'}
-        </p>
-      )}
     </div>
   )
 }
@@ -228,6 +310,7 @@ export function ProfileSetup() {
   const [name, setName] = useState('')
   const [username, setUsername] = useState('')
   const [usernameValid, setUsernameValid] = useState(false)
+  const [usernameEdited, setUsernameEdited] = useState(false)
   const [bio, setBio] = useState('')
   const [gender, setGender] = useState<Gender | null>(null)
   const [skills, setSkills] = useState<string[]>([])
@@ -280,12 +363,12 @@ export function ProfileSetup() {
   const [step, setStep] = useState<Step>(allSteps[0])
   const stepIndex = allSteps.indexOf(step)
 
+  // Keep the username in sync with the name until the user types their own
   useEffect(() => {
-    if (name && !username) {
-      const s = generateUsernameFromName(name)
-      setUsername(s)
-      setUsernameValid(s.length >= 3 && isUsernameAvailable(s, allUsers))
-    }
+    if (usernameEdited) return
+    const base = generateUsernameFromName(name)
+    setUsername(name.trim() ? (base.length >= 3 ? base : randomUsername(name)) : '')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name])
 
   const createUser = async () => {
@@ -437,8 +520,9 @@ export function ProfileSetup() {
         </div>
       )}
 
-      <UsernameField value={username}
-        onChange={(v, valid) => { setUsername(v); setUsernameValid(valid) }}
+      <UsernameField value={username} name={name} autoMode={!usernameEdited}
+        onChange={(v, fromUser) => { setUsername(v); if (fromUser) setUsernameEdited(true) }}
+        onValidChange={setUsernameValid}
         allUsers={allUsers}
       />
 
