@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { Award, Briefcase, Clock, ArrowRight, Bell, Plus, Users, Sparkles, Search, Calendar, MessageCircle, Wallet, Store, Pin, User } from 'lucide-react'
+import { Award, Briefcase, Clock, ArrowRight, Bell, Plus, Users, Compass, Search, Calendar, MessageCircle, Wallet, Store, Pin, User } from 'lucide-react'
 import { NairaIcon } from '@/components/NairaIcon'
 import { useState, useEffect } from 'react'
 import { useAppStore, type DashboardMode } from '@/lib/store'
@@ -58,7 +58,7 @@ export function UnifiedDashboard() {
   const SuggestionStrip = (
     <motion.div variants={item} className="mb-2">
       <div className="flex items-center gap-1.5 mb-2.5">
-        <Sparkles size={13} className="text-primary" />
+        <Compass size={13} className="text-primary" />
         <p className="text-xs font-black text-muted-foreground uppercase tracking-wide">
           {hour < 12 ? 'Good morning. Try these' : hour < 17 ? 'Available near you' : 'Evening picks'}
         </p>

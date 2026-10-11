@@ -1,7 +1,7 @@
 'use client'
 
 import {
-  Store, Wrench, Sparkles, Zap, Car, MessageCircle, ClipboardList, Search, Construction, ChefHat,
+  Store, Wrench, BrushCleaning, LayoutGrid, BadgeCheck, PartyPopper, Zap, Car, MessageCircle, ClipboardList, Search, Construction, ChefHat,
   CheckCircle2, Paintbrush, Bot, Wallet, Leaf, Scissors, Shirt, Camera, HardHat, Smartphone, Award,
   UserRound, Hammer, Package, Flower2, Hand, Target, Lock, Calendar, ThumbsUp, ThumbsDown, Users,
   Briefcase, GraduationCap, Headphones, Handshake, Moon, Bell, KeyRound, Lightbulb, CircleHelp, Mail,
@@ -12,11 +12,11 @@ import {
 
 // Emoji keys stay in data files; this maps each one to a clean line icon.
 const MAP: Record<string, LucideIcon> = {
-  '🏪': Store, '🛠️': Wrench, '🔧': Wrench, '🧹': Sparkles, '⚡': Zap, '🚗': Car, '💬': MessageCircle,
+  '🏪': Store, '🛠️': Wrench, '🔧': Wrench, '🧹': BrushCleaning, '⚡': Zap, '🚗': Car, '💬': MessageCircle,
   '📋': ClipboardList, '🔍': Search, '🏗️': Construction, '🚧': Construction, '🍳': ChefHat,
   '✅': CheckCircle2, '🎨': Paintbrush, '🤖': Bot, '💰': Wallet, '🌿': Leaf, '✂️': Scissors,
   '💇': Scissors, '🧵': Scissors, '👗': Shirt, '👕': Shirt, '👔': Briefcase, '📸': Camera,
-  '👷': HardHat, '📱': Smartphone, '⭐': Award, 'rating': Award, '🌟': Sparkles, '✨': Sparkles, '👩‍💼': UserRound,
+  '👷': HardHat, '📱': Smartphone, '⭐': Award, 'rating': Award, '🌟': BadgeCheck, '✨': LayoutGrid, '👩‍💼': UserRound,
   '👨‍💼': UserRound, '🧑': UserRound, '👨': UserRound, '👩': UserRound, '👤': User,
   '🪚': Hammer, '🪵': Hammer, '🧱': BrickWall, '📦': Package, '💆': Flower2, '👋': Hand,
   '🎯': Target, '🔒': Lock, '📅': Calendar, '👍': ThumbsUp, '👎': ThumbsDown, '👥': Users,
@@ -25,7 +25,7 @@ const MAP: Record<string, LucideIcon> = {
   '🚀': Rocket, '🧑‍🔧': Wrench, '👨‍🔧': Wrench, '👩‍🔧': Wrench, '⚙️': Settings, '👨‍💻': Laptop,
   '👩‍🎨': Palette, '🟢': CircleDot, '💳': CreditCard, '🖼️': ImageIcon, '🔄': RefreshCw, '🌍': Globe,
   '🚨': TriangleAlert, '✏️‍': Pencil, '🙏': HeartHandshake, '📖': BookOpen, '📌': Pin, '🏠': House,
-  '🔌': Plug, '🍽️': UtensilsCrossed, '👀': Eye, '☀️': Sun, '🏙️': Building2, '🎉': Sparkles,
+  '🔌': Plug, '🍽️': UtensilsCrossed, '👀': Eye, '☀️': Sun, '🏙️': Building2, '🎉': PartyPopper,
 }
 
 export function EmojiIcon({ e, size = 20, className = '' }: { e: string; size?: number; className?: string }) {
