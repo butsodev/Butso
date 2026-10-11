@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef } from 'react'
+import { Mail, MailCheck, Smartphone, KeyRound } from 'lucide-react'
 import { useAppStore, type UserRole } from '@/lib/store'
 import { mockJobs, mockBookings, mockNotifications, mockTransactions, mockShops } from '@/lib/mockData'
 import { supabase } from '@/lib/supabase'
@@ -153,7 +154,7 @@ export function AuthPage() {
     // dashboard. Brand-new users (no row yet) finish onboarding in profile-setup.
     const routeAfterLogin = async (userId: string) => {
         const { data: p } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
-        if (!p) { setCurrentPage('profile-setup'); return } if (!p) { setCurrentPage('profile-setup'); return }
+        if (!p) { setCurrentPage('profile-setup'); return }
         setCurrentUser({
             id: p.id,
             phone: p.phone || '',
@@ -272,7 +273,7 @@ export function AuthPage() {
             <BackBtn onClick={() => { onBack(); setOtp(['', '', '', '', '', '']); setLoginOtp(['', '', '', '', '', '']) }} />
             <div>
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 mb-4">
-                    <span className="text-2xl">🔐</span>
+                    <KeyRound size={22} className="text-primary" />
                 </div>
                 <h2 className="text-2xl font-black text-foreground mb-1 tracking-tight">Enter the code</h2>
                 <p className="text-muted-foreground text-sm">Sent to <strong>{contact}</strong></p>
@@ -327,7 +328,7 @@ export function AuthPage() {
                 onClick={() => isSignup ? setSignupMethod('email') : setLoginMethod('email')}
                 className="w-full py-3.5 flex items-center justify-center gap-3 border-2 border-border rounded-xl font-semibold text-sm text-foreground hover:bg-secondary hover:border-primary/30 transition"
             >
-                <span className="text-lg">✉️</span>
+                <Mail size={18} />
                 Continue with Email
             </motion.button>
 
@@ -360,7 +361,7 @@ export function AuthPage() {
             <BackBtn onClick={onBack} />
             <div>
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 mb-4">
-                    <span className="text-2xl">📱</span>
+                    <Smartphone size={22} className="text-primary" />
                 </div>
                 <h2 className="text-2xl font-black text-foreground mb-1 tracking-tight">Your number</h2>
                 <p className="text-muted-foreground text-sm">We'll send a 6-digit code to verify</p>
@@ -405,7 +406,7 @@ export function AuthPage() {
             <BackBtn onClick={() => { setEmailError(''); setShowPassword(false); onBack() }} />
             <div>
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 mb-4">
-                    <span className="text-2xl">✉️</span>
+                    <Mail size={22} className="text-primary" />
                 </div>
                 <h2 className="text-2xl font-black text-foreground mb-1 tracking-tight">
                     {isSignup ? 'Create your account' : 'Log in with email'}
@@ -462,7 +463,7 @@ export function AuthPage() {
             <BackBtn onClick={() => { setSignupEmailStep('input'); setInfoMsg(''); setEmailError('') }} />
             <div>
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 mb-4">
-                    <span className="text-2xl">📬</span>
+                    <MailCheck size={22} className="text-primary" />
                 </div>
                 <h2 className="text-2xl font-black text-foreground mb-1 tracking-tight">Check your inbox</h2>
                 <p className="text-muted-foreground text-sm">
