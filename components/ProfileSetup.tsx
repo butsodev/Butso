@@ -1,7 +1,10 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronRight, Briefcase, HardHat, Search, X, Check, AtSign, Shuffle } from 'lucide-react'
+import {
+  ChevronRight, Briefcase, HardHat, Search, X, Check, AtSign, Shuffle,
+  Wrench, ClipboardList, Users, UserRound, CheckCircle2, type LucideIcon,
+} from 'lucide-react'
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { useAppStore, generateUsernameFromName, isUsernameAvailable, type UserRole, type AppStore } from '@/lib/store'
 import { mockJobs, mockBookings, mockNotifications, mockTransactions, mockShops } from '@/lib/mockData'
@@ -22,42 +25,44 @@ export const ALL_SKILLS = [
 
 /* ─── Gender options ─────────────────────────────────────────────────────── */
 type Gender = 'male' | 'female' | 'other'
-const GENDER_OPTIONS: { value: Gender; emoji: string; label: string }[] = [
-  { value: 'male', emoji: '👨', label: 'Male' },
-  { value: 'female', emoji: '👩', label: 'Female' },
-  { value: 'other', emoji: '🧑', label: 'Other / Prefer not to say' },
+const GENDER_OPTIONS: { value: Gender; label: string }[] = [
+  { value: 'male', label: 'Male' },
+  { value: 'female', label: 'Female' },
+  { value: 'other', label: 'Other / Prefer not to say' },
 ]
 
 /* ─── "What now?" options ────────────────────────────────────────────────── */
-const NEXT_OPTIONS = [
-  {
-    id: 'find-work',
-    emoji: '🔍',
-    title: 'Find a job',
-    body: 'Browse jobs near you and apply with one tap.',
-    color: 'bg-primary',
-    page: 'jobs',
-    mode: 'find-work' as const,
-  },
-  {
-    id: 'post-job',
-    emoji: '📋',
-    title: 'Post a job',
-    body: 'Need someone? Post a job and get applications fast.',
-    color: 'bg-emerald-600',
-    page: 'post-job',
-    mode: 'need-help' as const,
-  },
-  {
-    id: 'find-people',
-    emoji: '👥',
-    title: 'Find a worker',
-    body: 'Browse workers by skill and hire directly.',
-    color: 'bg-violet-600',
-    page: 'people',
-    mode: 'need-help' as const,
-  },
-]
+const NEXT_OPTIONS: {
+  id: string; icon: LucideIcon; title: string; body: string; color: string; page: string; mode: 'find-work' | 'need-help'
+}[] = [
+    {
+      id: 'find-work',
+      icon: Search,
+      title: 'Find a job',
+      body: 'Browse jobs near you and apply with one tap.',
+      color: 'bg-primary',
+      page: 'jobs',
+      mode: 'find-work' as const,
+    },
+    {
+      id: 'post-job',
+      icon: ClipboardList,
+      title: 'Post a job',
+      body: 'Need someone? Post a job and get applications fast.',
+      color: 'bg-emerald-600',
+      page: 'post-job',
+      mode: 'need-help' as const,
+    },
+    {
+      id: 'find-people',
+      icon: Users,
+      title: 'Find a worker',
+      body: 'Browse workers by skill and hire directly.',
+      color: 'bg-violet-600',
+      page: 'people',
+      mode: 'need-help' as const,
+    },
+  ]
 
 /* ─── Username helpers ───────────────────────────────────────────────────── */
 function randomUsername(name: string): string {
@@ -447,9 +452,9 @@ export function ProfileSetup() {
         <p className="text-muted-foreground text-sm">Pick one. You can always do both later</p>
       </div>
       {([
-        { role: 'worker' as UserRole, emoji: '🛠️', title: 'I have a skill to offer', sub: 'Plumbing, cleaning, electrical, carpentry and more' },
-        { role: 'employer' as UserRole, emoji: '📋', title: 'I need to hire someone', sub: 'Post a job and find reliable help fast' },
-      ] as { role: UserRole; emoji: string; title: string; sub: string }[]).map(opt => (
+        { role: 'worker' as UserRole, icon: Wrench, title: 'I have a skill to offer', sub: 'Plumbing, cleaning, electrical, carpentry and more' },
+        { role: 'employer' as UserRole, icon: Briefcase, title: 'I need to hire someone', sub: 'Post a job and find reliable help fast' },
+      ] as { role: UserRole; icon: LucideIcon; title: string; sub: string }[]).map(opt => (
         <motion.button
           key={opt.role}
           whileHover={{ scale: 1.015, y: -2 }}
@@ -462,12 +467,14 @@ export function ProfileSetup() {
           className="w-full p-4 rounded-2xl border-2 border-border hover:border-primary bg-card text-left transition-all group"
         >
           <div className="flex items-center gap-4">
-            <span className="text-2xl">{opt.emoji}</span>
+            <span className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <opt.icon size={22} strokeWidth={2} />
+            </span>
             <div className="flex-1">
               <p className="font-black text-foreground text-sm">{opt.title}</p>
               <p className="text-xs text-muted-foreground mt-0.5">{opt.sub}</p>
             </div>
-            <span className="text-muted-foreground group-hover:text-primary transition text-lg">→</span>
+            <ChevronRight size={18} className="text-muted-foreground group-hover:text-primary transition" />
           </div>
         </motion.button>
       ))}
@@ -551,7 +558,7 @@ export function ProfileSetup() {
     <motion.div key="gender" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
       <div className="text-center mb-4">
         <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-2xl mb-3">
-          <span className="text-3xl">🧑</span>
+          <UserRound className="text-primary" size={28} />
         </div>
         <h1 className="text-2xl font-black text-foreground mb-1">Quick question</h1>
         <p className="text-muted-foreground text-sm">
@@ -564,12 +571,11 @@ export function ProfileSetup() {
         {GENDER_OPTIONS.map(opt => (
           <motion.button key={opt.value} whileTap={{ scale: 0.97 }}
             onClick={() => setGender(opt.value)}
-            className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all ${gender === opt.value
+            className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl border-2 text-left transition-all ${gender === opt.value
               ? 'border-primary bg-primary/8'
               : 'border-border hover:border-primary/40'
               }`}>
-            <span className="text-3xl">{opt.emoji}</span>
-            <span className="font-bold text-foreground">{opt.label}</span>
+            <span className="font-semibold text-foreground">{opt.label}</span>
             {gender === opt.value && (
               <span className="ml-auto w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
                 <Check size={12} className="text-white" />
@@ -601,7 +607,7 @@ export function ProfileSetup() {
     <motion.div key="skills" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
       <div className="text-center mb-4">
         <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-2xl mb-3">
-          <span className="text-3xl">🛠️</span>
+          <Wrench className="text-primary" size={28} />
         </div>
         <h1 className="text-2xl font-black text-foreground mb-1">What can you do?</h1>
         <p className="text-muted-foreground text-sm">Add up to 6 skills. Hirers search by these.</p>
@@ -624,9 +630,11 @@ export function ProfileSetup() {
   const StepNext = (
     <motion.div key="next" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
       <div className="text-center mb-6">
-        <div className="text-4xl mb-3">🎉</div>
+        <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-2xl mb-3">
+          <CheckCircle2 className="text-primary" size={30} />
+        </div>
         <h1 className="text-2xl font-black text-foreground mb-1">
-          You're in, {name.split(' ')[0]}!
+          You're in, {name.split(' ')[0]}
         </h1>
         <p className="text-muted-foreground text-sm">What do you want to do first?</p>
       </div>
@@ -642,7 +650,9 @@ export function ProfileSetup() {
             className={`w-full flex items-center gap-4 p-5 rounded-2xl text-left text-white transition-all shadow-md relative overflow-hidden ${opt.color} ${pressedNext === opt.id ? 'opacity-80' : ''
               }`}
           >
-            <span className="text-3xl">{opt.emoji}</span>
+            <span className="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+              <opt.icon size={22} strokeWidth={2} />
+            </span>
             <div className="flex-1">
               <p className="font-black text-base">{opt.title}</p>
               <p className="text-white/70 text-sm">{opt.body}</p>
