@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef } from 'react'
 import { Mail, MailCheck, Smartphone, KeyRound } from 'lucide-react'
-import { useAppStore, type UserRole } from '@/lib/store'
+import { useAppStore, type UserRole, goAfterAuth } from '@/lib/store'
 import { mockJobs, mockBookings, mockNotifications, mockTransactions, mockShops } from '@/lib/mockData'
 import { supabase } from '@/lib/supabase'
 
@@ -171,7 +171,7 @@ export function AuthPage() {
         // Temporary: data screens still read mock data until the Phase 2 data-layer swap.
         setJobs(mockJobs); setBookings(mockBookings); setNotifications(mockNotifications)
         setTransactions(mockTransactions); setShops(mockShops)
-        setCurrentPage('dashboard')
+        goAfterAuth()
     }
 
     const handleEmailSignup = async () => {
@@ -369,7 +369,7 @@ export function AuthPage() {
             <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">+234</span>
                 <input
-                    type="tel" placeholder="08012345678" value={value} autoFocus
+                    type="tel" inputMode="tel" autoComplete="tel" placeholder="08012345678" value={value} autoFocus
                     onChange={e => { setValue(e.target.value.replace(/\D/g, '').slice(0, 11)); setPhoneError('') }}
                     onKeyDown={e => e.key === 'Enter' && value.replace(/^0/, '').length === 10 && onNext()}
                     className="w-full pl-16 pr-4 py-4 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-base font-medium placeholder:text-muted-foreground/40 transition"

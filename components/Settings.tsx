@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion'
 import { ArrowLeft, Bell, Lock, Globe, LogOut, User, Edit2, Shield } from 'lucide-react'
 import { useState } from 'react'
-import { useAppStore } from '@/lib/store'
+import { useAppStore, goBackTo } from '@/lib/store'
 
 export function Settings() {
   const { currentUser, setCurrentPage, setCurrentUser, darkMode, toggleDarkMode } = useAppStore()
@@ -38,7 +38,7 @@ export function Settings() {
       <div className="sticky top-0 z-30 bg-background border-b border-border">
         <div className="flex items-center gap-3 px-4 py-4 sm:px-6">
           <button
-            onClick={() => setCurrentPage('dashboard')}
+            onClick={() => goBackTo('dashboard')}
             className="p-2 hover:bg-secondary rounded-lg transition"
           >
             <ArrowLeft size={24} className="text-foreground" />

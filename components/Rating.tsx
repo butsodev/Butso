@@ -7,7 +7,7 @@ import { Award } from 'lucide-react'
 //  - RatingMeter: five small bars, filled in amber up to the score
 
 const SIZES = {
-  xs: { text: 'text-[11px]', icon: 11, pad: 'px-1.5 py-0.5', gap: 'gap-0.5' },
+  xs: { text: 'text-xs', icon: 11, pad: 'px-1.5 py-0.5', gap: 'gap-0.5' },
   sm: { text: 'text-xs', icon: 13, pad: 'px-2 py-0.5', gap: 'gap-1' },
   md: { text: 'text-sm', icon: 15, pad: 'px-2.5 py-1', gap: 'gap-1.5' },
   lg: { text: 'text-lg', icon: 20, pad: 'px-3 py-1.5', gap: 'gap-2' },

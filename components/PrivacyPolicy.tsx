@@ -2,10 +2,9 @@
 
 import { motion } from 'framer-motion'
 import { ArrowLeft } from 'lucide-react'
-import { useAppStore } from '@/lib/store'
+import { goBackTo } from '@/lib/store'
 
 export function PrivacyPolicy() {
-  const { setCurrentPage } = useAppStore()
 
   return (
     <motion.div
@@ -16,7 +15,7 @@ export function PrivacyPolicy() {
       <header className="bg-background border-b border-border py-4 px-4 sm:px-6 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto flex items-center gap-4">
           <button
-            onClick={() => setCurrentPage('splash')}
+            onClick={() => goBackTo('splash')}
             className="p-2 hover:bg-secondary rounded-lg transition"
           >
             <ArrowLeft size={24} className="text-foreground" />

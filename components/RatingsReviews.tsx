@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, Heart, MessageCircle } from 'lucide-react'
 import { RatingBadge, RatingMeter } from '@/components/Rating'
 import { useState } from 'react'
-import { useAppStore } from '@/lib/store'
+import { goBackTo } from '@/lib/store'
 import { Avatar } from '@/components/Avatar'
 
 const mockReviews = [
@@ -44,7 +44,6 @@ const mockReviews = [
 ]
 
 export function RatingsReviews() {
-  const { setCurrentPage } = useAppStore()
   const [reviews, setReviews] = useState(mockReviews)
   const [likedReviews, setLikedReviews] = useState<number[]>([])
 
@@ -76,7 +75,7 @@ export function RatingsReviews() {
       <div className="sticky top-0 z-30 bg-background border-b border-border">
         <div className="flex items-center gap-3 px-4 py-4 sm:px-6">
           <button
-            onClick={() => setCurrentPage('worker-profile')}
+            onClick={() => goBackTo('worker-profile')}
             className="p-2 hover:bg-secondary rounded-lg transition"
           >
             <ArrowLeft size={24} className="text-foreground" />

@@ -9,7 +9,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, MapPin, Phone, Award, Clock, Check, ChevronRight, Share2, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
-import { useAppStore, type Shop, type ShopService } from '@/lib/store'
+import { useAppStore, type Shop, type ShopService, rememberReturnTo } from '@/lib/store'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
 import { RatingMeter } from '@/components/Rating'
@@ -26,7 +26,7 @@ function ServiceCard({ svc, onBook }: { svc: ShopService; onBook: (svc: ShopServ
                 {svc.description && <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{svc.description}</p>}
                 <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                     <span className="text-base font-black text-primary">₦{svc.price.toLocaleString()}</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${svc.pricingType === 'fixed' ? 'bg-green-500/10 text-green-600' : 'bg-amber-500/10 text-amber-600'}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${svc.pricingType === 'fixed' ? 'bg-green-500/10 text-green-600' : 'bg-amber-500/10 text-amber-600'}`}>
                         {svc.pricingType === 'fixed' ? 'Fixed price' : 'Negotiable'}
                     </span>
                     {svc.durationMinutes ? (
@@ -67,6 +67,7 @@ export function ShopPage() {
         if (!currentUser) {
             sessionStorage.setItem('bookingShopId', shop.id)
             sessionStorage.setItem('bookingServiceId', svc.id)
+            rememberReturnTo()
             setCurrentPage('phone-verification')
             return
         }
@@ -99,7 +100,7 @@ export function ShopPage() {
             {/* Header */}
             <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-sm border-b border-border">
                 <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-                    <button onClick={goBack} className="p-2 hover:bg-secondary rounded-xl transition">
+                    <button onClick={() => goBack('shops')} className="p-2 hover:bg-secondary rounded-xl transition">
                         <ArrowLeft size={20} />
                     </button>
                     <div className="flex items-center gap-2">
@@ -270,7 +271,7 @@ export function ShopPage() {
                                     return (
                                         <div key={day} className={`flex items-center justify-between px-4 py-3 ${i < 6 ? 'border-b border-border' : ''} ${isToday ? 'bg-primary/5' : ''}`}>
                                             <span className={`text-sm font-semibold ${isToday ? 'text-primary' : 'text-foreground'}`}>
-                                                {DAY_LABELS[day]}{isToday && <span className="ml-1.5 text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">Today</span>}
+                                                {DAY_LABELS[day]}{isToday && <span className="ml-1.5 text-xs bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">Today</span>}
                                             </span>
                                             {h.open
                                                 ? <span className="text-sm text-muted-foreground">{h.from} – {h.to}</span>

@@ -14,11 +14,11 @@ const navItems = [
 
 // Pages that count as "active" for each nav item
 const activeMap: Record<string, string[]> = {
-  dashboard: ['dashboard'],
+  dashboard: ['dashboard', 'bookings', 'post-job', 'job-applicants', 'payments', 'suggestions'],
   jobs: ['jobs', 'job-details', 'apply-job', 'advanced-search'],
-  shops: ['shops', 'shop', 'shop-setup', 'people', 'worker-profile'],
+  shops: ['shops', 'shop', 'shop-setup', 'people', 'worker-profile', 'booking-slots', 'booking-confirmation', 'ratings-reviews'],
   messaging: ['messaging'],
-  profile: ['profile', 'settings'],
+  profile: ['profile', 'settings', 'notifications', 'support', 'privacy', 'terms'],
 }
 
 export function BottomNav() {
@@ -42,7 +42,9 @@ export function BottomNav() {
             <button
               key={item.id}
               onClick={() => setCurrentPage(item.id)}
-              className="flex flex-col items-center gap-0.5 p-2 flex-1 rounded-xl transition group"
+              aria-label={item.label}
+              aria-current={isActive ? 'page' : undefined}
+              className="flex flex-col items-center gap-0.5 p-2 flex-1 min-h-[44px] rounded-xl transition group"
             >
               <div className={`p-1.5 rounded-xl transition-all ${isActive ? 'bg-primary/10' : 'group-hover:bg-secondary'}`}>
                 <Icon
@@ -50,7 +52,7 @@ export function BottomNav() {
                   className={`transition ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
                 />
               </div>
-              <span className={`text-[10px] font-semibold transition ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
+              <span className={`text-xs font-semibold transition ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
                 {item.label}
               </span>
             </button>

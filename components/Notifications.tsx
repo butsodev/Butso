@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion'
 import { ArrowLeft, CheckCircle, AlertCircle, Info, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { useAppStore } from '@/lib/store'
+import { goBackTo } from '@/lib/store'
 
 const mockNotifications = [
   {
@@ -57,7 +57,6 @@ const mockNotifications = [
 ]
 
 export function Notifications() {
-  const { setCurrentPage } = useAppStore()
   const [notifications, setNotifications] = useState(mockNotifications)
 
   const handleDelete = (id: number) => {
@@ -99,7 +98,7 @@ export function Notifications() {
         <div className="flex items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setCurrentPage('dashboard')}
+              onClick={() => goBackTo('dashboard')}
               className="p-2 hover:bg-secondary rounded-lg transition"
             >
               <ArrowLeft size={24} className="text-foreground" />

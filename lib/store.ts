@@ -245,7 +245,7 @@ export interface AppStore {
   pendingBooking: PendingBooking | null
   setPendingBooking: (b: PendingBooking | null) => void
   pageHistory: string[]
-  goBack: () => void
+  goBack: (fallback?: string) => void
 
   // Theme
   darkMode: boolean
@@ -337,12 +337,14 @@ export const useAppStore = create<AppStore>()(
           pageHistory: [...newHistory, state.currentPage].filter(p => p !== 'splash'),
         })
       },
-      goBack: () => {
-        const state = get()
-        if (state.pageHistory.length > 0) {
-          const newHistory = state.pageHistory.slice(0, -1)
-          const prevPage = newHistory[newHistory.length - 1] || 'dashboard'
-          set({ currentPage: prevPage, pageHistory: newHistory })
+      // Go to the screen the person came from. If this screen was opened straight from a link
+      // (nothing earlier in the app to go back to), go to `fallback` instead.
+      goBack: (fallback = 'dashboard') => {
+        const idx = typeof window !== 'undefined' ? window.history.state?.idx : undefined
+        if (typeof idx === 'number' && idx > 0) {
+          window.history.back() // the URL sync restores the previous screen
+        } else {
+          get().setCurrentPage(fallback)
         }
       },
 
@@ -513,3 +515,60 @@ export const useAppStore = create<AppStore>()(
     }
   )
 )
+
+/** Back button helper for components: goBackTo('jobs') */
+export function goBackTo(fallback: string) {
+  useAppStore.getState().goBack(fallback)
+}
+
+/* ─── Return to where you were after signing in ───────────────────────────── */
+// A signed-out visitor browses jobs / shops, taps "Join" or "Book", signs up, and should land
+// back on that screen, not the dashboard. Kept in sessionStorage so it survives the Google
+// sign-in redirect (a full page reload).
+const RETURN_KEY = 'butso-return-to'
+const RETURNABLE = ['jobs', 'people', 'shops', 'shop']
+type ReturnTo = { page: string; shopId: string | null; jobId: string | null }
+let recentReturn: { rt: ReturnTo | null; at: number } | null = null
+
+/** Call right before sending a signed-out visitor to sign in / sign up. */
+export function rememberReturnTo() {
+  if (typeof window === 'undefined') return
+  const s = useAppStore.getState()
+  try {
+    if (RETURNABLE.includes(s.currentPage)) {
+      const rt: ReturnTo = { page: s.currentPage, shopId: s.selectedShopId, jobId: s.selectedJobId }
+      sessionStorage.setItem(RETURN_KEY, JSON.stringify(rt))
+    } else {
+      sessionStorage.removeItem(RETURN_KEY)
+    }
+  } catch { /* storage blocked: just fall back to the dashboard */ }
+}
+
+function takeReturnTo(): ReturnTo | null {
+  // Sign-in can finish in two places at once; both get the same answer within a few seconds
+  if (recentReturn && Date.now() - recentReturn.at < 15000) return recentReturn.rt
+  let rt: ReturnTo | null = null
+  try {
+    const raw = sessionStorage.getItem(RETURN_KEY)
+    if (raw) rt = JSON.parse(raw)
+    sessionStorage.removeItem(RETURN_KEY)
+  } catch { /* ignore */ }
+  if (rt && !RETURNABLE.includes(rt.page)) rt = null
+  recentReturn = { rt, at: Date.now() }
+  return rt
+}
+
+/** Where to go once someone is signed in: back where they were, otherwise the dashboard. */
+export function goAfterAuth() {
+  const st = useAppStore.getState()
+  const rt = takeReturnTo()
+  if (rt) {
+    useAppStore.setState({
+      selectedShopId: rt.shopId ?? st.selectedShopId,
+      selectedJobId: rt.jobId ?? st.selectedJobId,
+    })
+    st.setCurrentPage(rt.page)
+  } else {
+    st.setCurrentPage('dashboard')
+  }
+}

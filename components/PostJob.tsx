@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion'
 import { ChevronRight, ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
-import { useAppStore } from '@/lib/store'
+import { useAppStore, goBackTo } from '@/lib/store'
 
 export function PostJob() {
   const { currentUser, setCurrentPage, addJob } = useAppStore()
@@ -70,7 +70,7 @@ export function PostJob() {
           className="max-w-4xl mx-auto"
         >
           <button
-            onClick={() => setCurrentPage('dashboard')}
+            onClick={() => goBackTo('dashboard')}
             className="mb-4 flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground transition font-semibold"
           >
             <ArrowLeft size={20} />
@@ -146,6 +146,7 @@ export function PostJob() {
             </label>
             <input
               type="number"
+              inputMode="numeric"
               name="budget"
               placeholder="Enter budget in Naira"
               value={formData.budget}

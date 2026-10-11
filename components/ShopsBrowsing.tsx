@@ -54,7 +54,7 @@ function ShopCard({ shop, onPress }: { shop: Shop; onPress: () => void }) {
                     <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                             <h3 className="font-black text-foreground text-sm leading-tight truncate">{shop.name}</h3>
-                            <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${shop.isOpen ? 'bg-green-500/10 text-green-600' : 'bg-muted text-muted-foreground'}`}>
+                            <span className={`shrink-0 text-xs font-bold px-2 py-0.5 rounded-full ${shop.isOpen ? 'bg-green-500/10 text-green-600' : 'bg-muted text-muted-foreground'}`}>
                                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-current mr-1 align-middle" />{shop.isOpen ? 'Open' : 'Closed'}
                             </span>
                         </div>
@@ -86,12 +86,12 @@ function ShopCard({ shop, onPress }: { shop: Shop; onPress: () => void }) {
                     <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
                         <div className="flex gap-1.5 flex-wrap">
                             {shop.services.slice(0, 3).map(svc => (
-                                <span key={svc.id} className="text-[10px] bg-secondary text-muted-foreground px-2 py-0.5 rounded-full font-medium">
+                                <span key={svc.id} className="text-xs bg-secondary text-muted-foreground px-2 py-0.5 rounded-full font-medium">
                                     {svc.name}
                                 </span>
                             ))}
                             {shop.services.length > 3 && (
-                                <span className="text-[10px] text-muted-foreground px-1">+{shop.services.length - 3} more</span>
+                                <span className="text-xs text-muted-foreground px-1">+{shop.services.length - 3} more</span>
                             )}
                         </div>
                         <span className="text-xs font-black text-primary shrink-0">

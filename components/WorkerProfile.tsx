@@ -3,11 +3,11 @@
 import { motion } from 'framer-motion'
 import { MapPin, Briefcase, Award, ChevronLeft, MessageCircle, Share2 } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
-import { useAppStore } from '@/lib/store'
+import { useAppStore, goBackTo } from '@/lib/store'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
 export function WorkerProfile() {
-  const { setCurrentPage, currentUser } = useAppStore()
+  const { currentUser } = useAppStore()
 
   // Sample worker data - in real app, would be fetched
   const worker = currentUser || {
@@ -69,7 +69,7 @@ export function WorkerProfile() {
           <motion.button
             whileHover={{ x: -5 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setCurrentPage('dashboard')}
+            onClick={() => goBackTo('dashboard')}
             className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground transition font-semibold mb-4"
           >
             <ChevronLeft size={20} />

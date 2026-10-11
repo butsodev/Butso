@@ -6,7 +6,7 @@ import {
   Wrench, ClipboardList, Users, UserRound, CheckCircle2, type LucideIcon,
 } from 'lucide-react'
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { useAppStore, generateUsernameFromName, isUsernameAvailable, type UserRole, type AppStore } from '@/lib/store'
+import { useAppStore, generateUsernameFromName, isUsernameAvailable, type UserRole, type AppStore, goAfterAuth } from '@/lib/store'
 import { mockJobs, mockBookings, mockNotifications, mockTransactions, mockShops } from '@/lib/mockData'
 import { supabase } from '@/lib/supabase'
 
@@ -516,7 +516,7 @@ export function ProfileSetup() {
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">+234</span>
             <input
-              type="tel" placeholder="08012345678" value={phoneInput}
+              type="tel" inputMode="tel" autoComplete="tel" placeholder="08012345678" value={phoneInput}
               onChange={e => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 11))}
               className="w-full pl-16 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-base placeholder:text-muted-foreground/40 transition"
             />
@@ -673,7 +673,7 @@ export function ProfileSetup() {
           setCurrentUser(newUser)
           setDashboardMode('find-work')
           seedData()
-          setCurrentPage('dashboard')
+          goAfterAuth()
         }}
         className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition py-2"
       >

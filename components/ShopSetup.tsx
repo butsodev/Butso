@@ -9,7 +9,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Plus, Trash2, ChevronRight, ChevronLeft, MapPin, Phone, Check } from 'lucide-react'
 import { useState } from 'react'
-import { useAppStore, DEFAULT_HOURS, isShopOpenNow, type ShopService, type OpeningHours, type DayOfWeek, type Shop } from '@/lib/store'
+import { useAppStore, DEFAULT_HOURS, isShopOpenNow, type ShopService, type OpeningHours, type DayOfWeek, type Shop, goBackTo } from '@/lib/store'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
 const SHOP_CATEGORIES = [
@@ -145,7 +145,7 @@ export function ShopSetup() {
             {/* Header */}
             <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-sm border-b border-border">
                 <div className="max-w-xl mx-auto px-4 py-3 flex items-center gap-3">
-                    <button onClick={() => stepIdx > 0 ? setStep(steps[stepIdx - 1]) : setCurrentPage('dashboard')}
+                    <button onClick={() => stepIdx > 0 ? setStep(steps[stepIdx - 1]) : goBackTo('dashboard')}
                         className="p-2 hover:bg-secondary rounded-xl transition">
                         <ArrowLeft size={20} />
                     </button>
@@ -192,7 +192,7 @@ export function ShopSetup() {
                                         <button key={cat.name} onClick={() => setCategory(cat.name)}
                                             className={`flex flex-col items-center gap-1 p-2.5 rounded-xl border-2 transition text-center ${category === cat.name ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/40'}`}>
                                             <span className="text-xl"><EmojiIcon e={cat.emoji} size={20} /></span>
-                                            <span className={`text-[10px] font-semibold leading-tight ${category === cat.name ? 'text-primary' : 'text-muted-foreground'}`}>{cat.name}</span>
+                                            <span className={`text-xs font-semibold leading-tight ${category === cat.name ? 'text-primary' : 'text-muted-foreground'}`}>{cat.name}</span>
                                         </button>
                                     ))}
                                 </div>
@@ -231,7 +231,7 @@ export function ShopSetup() {
                                 <label className="block text-sm font-bold text-foreground mb-2">Contact Number</label>
                                 <div className="relative">
                                     <Phone size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                                    <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="080XXXXXXXX" type="tel"
+                                    <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="080XXXXXXXX" type="tel" inputMode="tel" autoComplete="tel"
                                         className="w-full pl-9 pr-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-sm transition" />
                                 </div>
                             </div>
@@ -265,7 +265,7 @@ export function ShopSetup() {
                                         <p className="font-bold text-foreground text-sm">{svc.name}</p>
                                         <div className="flex items-center gap-2 mt-0.5">
                                             <span className="text-xs font-semibold text-primary">₦{svc.price.toLocaleString()}</span>
-                                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${svc.pricingType === 'fixed' ? 'bg-green-500/10 text-green-600' : 'bg-amber-500/10 text-amber-600'}`}>
+                                            <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${svc.pricingType === 'fixed' ? 'bg-green-500/10 text-green-600' : 'bg-amber-500/10 text-amber-600'}`}>
                                                 {svc.pricingType}
                                             </span>
                                             {svc.durationMinutes ? <span className="text-xs text-muted-foreground">{svc.durationMinutes}min</span> : null}
@@ -426,7 +426,7 @@ export function ShopSetup() {
                                                 <span className="text-sm text-foreground">{svc.name}</span>
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-sm font-bold text-primary">₦{svc.price.toLocaleString()}</span>
-                                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${svc.pricingType === 'fixed' ? 'bg-green-500/10 text-green-600' : 'bg-amber-500/10 text-amber-600'}`}>
+                                                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${svc.pricingType === 'fixed' ? 'bg-green-500/10 text-green-600' : 'bg-amber-500/10 text-amber-600'}`}>
                                                         {svc.pricingType}
                                                     </span>
                                                 </div>

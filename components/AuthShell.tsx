@@ -14,7 +14,7 @@
 
 import { motion } from 'framer-motion'
 import { ArrowLeft, Sun, Moon } from 'lucide-react'
-import { useAppStore } from '@/lib/store'
+import { useAppStore, goBackTo } from '@/lib/store'
 
 interface AuthShellProps {
     children: React.ReactNode
@@ -34,7 +34,7 @@ export function AuthShell({ children, back, showLogo = false }: AuthShellProps) 
                     {back && (
                         <motion.button
                             whileTap={{ scale: 0.9 }}
-                            onClick={() => setCurrentPage(back)}
+                            onClick={() => goBackTo(back)}
                             className="p-2 -ml-2 rounded-xl hover:bg-secondary transition text-foreground"
                             aria-label="Go back"
                         >

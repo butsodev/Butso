@@ -5,7 +5,7 @@ import { MapPin, Clock, User, ChevronLeft, Share2, Heart } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
 import { NairaIcon } from '@/components/NairaIcon'
 import { useState } from 'react'
-import { useAppStore } from '@/lib/store'
+import { useAppStore, goBackTo } from '@/lib/store'
 import { Avatar } from '@/components/Avatar'
 
 export function JobDetails() {
@@ -57,7 +57,7 @@ export function JobDetails() {
           <motion.button
             whileHover={{ x: -5 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setCurrentPage('jobs')}
+            onClick={() => goBackTo('jobs')}
             className="flex items-center gap-2 text-primary hover:text-primary/80 transition font-semibold"
           >
             <ChevronLeft size={20} />

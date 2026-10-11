@@ -25,6 +25,12 @@ const FLOW_ONLY: Record<string, string> = {
 // Pages that need an id in the URL
 const NEEDS_JOB = ['job-details', 'apply-job', 'job-applicants']
 
+/** How many in-app screens deep this history entry is (0 = first screen of this visit) */
+function depth(): number {
+  const i = window.history.state?.idx
+  return typeof i === 'number' ? i : 0
+}
+
 export type Target = { page: string; shopId: string | null; jobId: string | null }
 
 /** Build the URL query string for the current screen. Landing page = clean "/" */
@@ -110,7 +116,7 @@ export function useUrlSync(known: string[], ready: boolean) {
     // Signed in with Supabase but no profile yet: the bridge sent them to finish onboarding. Leave it.
     if (!state.currentUser && state.currentPage !== 'splash') return
     const r = apply(t)
-    window.history.replaceState({ butso: true }, '', toSearch(r.page, r.shopId, r.jobId) || window.location.pathname)
+    window.history.replaceState({ butso: true, idx: depth() }, '', toSearch(r.page, r.shopId, r.jobId) || window.location.pathname)
     lastSearch.current = toSearch(r.page, r.shopId, r.jobId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready])
@@ -130,8 +136,8 @@ export function useUrlSync(known: string[], ready: boolean) {
     const search = toSearch(currentPage, selectedShopId, selectedJobId)
     if (search === lastSearch.current) return
     const url = search || window.location.pathname
-    if (lastSearch.current === null) window.history.replaceState({ butso: true }, '', url)
-    else window.history.pushState({ butso: true }, '', url)
+    if (lastSearch.current === null) window.history.replaceState({ butso: true, idx: depth() }, '', url)
+    else window.history.pushState({ butso: true, idx: depth() + 1 }, '', url)
     lastSearch.current = search
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, currentPage, selectedShopId, selectedJobId, currentUser])
@@ -143,7 +149,7 @@ export function useUrlSync(known: string[], ready: boolean) {
       lastSearch.current = toSearch(r.page, r.shopId, r.jobId)
       // If we had to redirect (e.g. back onto a sign-in screen while signed in), fix the URL too
       if (lastSearch.current !== window.location.search) {
-        window.history.replaceState({ butso: true }, '', lastSearch.current || window.location.pathname)
+        window.history.replaceState({ butso: true, idx: depth() }, '', lastSearch.current || window.location.pathname)
       }
     }
     window.addEventListener('popstate', onPop)

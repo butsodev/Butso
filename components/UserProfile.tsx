@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, MapPin, Copy, Check, LogOut } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
 import { useState } from 'react'
-import { useAppStore } from '@/lib/store'
+import { useAppStore, goBackTo } from '@/lib/store'
 
 export function UserProfile() {
   const { setCurrentPage, currentUser, setCurrentUser } = useAppStore()
@@ -38,7 +38,7 @@ export function UserProfile() {
       {/* Header */}
       <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pt-8">
         <button
-          onClick={() => setCurrentPage('dashboard')}
+          onClick={() => goBackTo('dashboard')}
           className="flex items-center gap-2 mb-6 hover:opacity-80 transition"
         >
           <ArrowLeft size={20} />

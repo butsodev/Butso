@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useAppStore, type UserRole } from '@/lib/store'
+import { useAppStore, type UserRole, goAfterAuth, rememberReturnTo } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
 import { mockJobs, mockBookings, mockNotifications, mockTransactions, mockShops } from '@/lib/mockData'
 import { ThemeProvider } from '@/components/ThemeProvider'
@@ -102,7 +102,7 @@ export default function Home() {
         // Temporary until the Phase 2 data-layer swap
         setJobs(mockJobs); setBookings(mockBookings); setNotifications(mockNotifications)
         setTransactions(mockTransactions); setShops(mockShops)
-        setCurrentPage('dashboard')
+        goAfterAuth()
       }
       setAuthChecked(true)
     }
@@ -151,7 +151,7 @@ export default function Home() {
             <div className="fixed bottom-0 left-0 right-0 z-50 bg-primary text-primary-foreground px-4 py-3 flex items-center justify-between text-sm">
               <span>Sign up free to apply or post jobs</span>
               <button
-                onClick={() => setCurrentPage('auth')}
+                onClick={() => { rememberReturnTo(); setCurrentPage('auth') }}
                 className="bg-primary-foreground text-primary font-bold px-4 py-1.5 rounded-lg text-xs"
               >
                 Join Butsó

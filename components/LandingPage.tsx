@@ -110,11 +110,6 @@ const TRENDING: { emoji: string; label: string; situation: Situation }[] = [
 ]
 
 // Practical know-how — not fluff, just what actually moves the needle for workers and employers
-const GUIDES = [
-  { emoji: '🚀', tag: 'For workers', title: 'Get hired faster on Butsó', body: 'The small profile details that make employers pick you over the next person.', situation: 'have-skill' as Situation },
-  { emoji: '💰', tag: 'For workers', title: 'Price your work the right way', body: "Charge fairly and still win the job. Here's how skilled workers in Taraba set their rates.", situation: 'have-skill' as Situation },
-  { emoji: '📋', tag: 'For employers', title: 'Write a job post that gets fast replies', body: 'The details that get workers applying in minutes instead of days.', situation: 'need-done' as Situation },
-]
 
 // LinkedIn-style carousel slides: text left, circle-cropped image right
 const SLIDES = [
@@ -413,7 +408,7 @@ export function LandingPage() {
                 ))}
               </div>
               <span style={{ fontSize: '0.75rem', color: 'rgba(240,239,235,0.5)' }}>
-                <strong style={{ color: '#F5F4F0' }}>500+ workers</strong> · Free to join
+                <strong style={{ color: '#F5F4F0' }}>Free to join</strong> · No CV needed
               </span>
             </motion.div>
           </div>
@@ -467,8 +462,8 @@ export function LandingPage() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                <p style={{ fontSize: '0.75rem', fontWeight: 800, color: C.text }}>Open jobs now</p>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.green, boxShadow: `0 0 5px ${C.green}`, animation: 'ld-pulse 2s infinite', flexShrink: 0 }} />
+                <p style={{ fontSize: '0.75rem', fontWeight: 800, color: C.text }}>Example jobs</p>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.green, boxShadow: `0 0 5px ${C.green}`, flexShrink: 0 }} />
               </div>
               <button onClick={() => go('have-skill')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.7rem', color: C.green, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 3 }}>
                 Apply <ChevronRight size={11} />
@@ -488,14 +483,10 @@ export function LandingPage() {
                     <p style={{ fontSize: '0.78rem', fontWeight: 700, color: C.text, marginBottom: 3 }}>{job.title}</p>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                       <span style={{ fontSize: '0.65rem', color: C.muted }}>{job.location}</span>
-                      <span style={{ fontSize: '0.6rem', color: C.faint }}>·</span>
-                      <span style={{ fontSize: '0.65rem', color: C.faint }}>{job.ago}</span>
-                      {job.applicants === 0 && <span style={{ fontSize: '0.58rem', fontWeight: 700, color: C.orange, background: 'rgba(245,93,30,0.1)', padding: '0.1rem 0.35rem', borderRadius: 99 }}>No applicants</span>}
                     </div>
                   </div>
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
                     <p style={{ fontSize: '0.78rem', fontWeight: 800, color: C.green }}>{job.budget}</p>
-                    {job.applicants > 0 && <p style={{ fontSize: '0.62rem', color: C.faint }}>{job.applicants} applied</p>}
                   </div>
                 </motion.div>
               ))}
@@ -509,7 +500,7 @@ export function LandingPage() {
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
           <p style={{ fontSize: '0.68rem', fontWeight: 700, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Popular right now</p>
           <h2 style={{ fontSize: 'clamp(1.2rem,2.4vw,1.6rem)', fontWeight: 800, letterSpacing: '-0.02em', color: C.text, marginBottom: '1.5rem' }}>
-            What Wukari is searching for this week
+            Popular things to look for
           </h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
             {TRENDING.map(item => (
@@ -550,7 +541,6 @@ export function LandingPage() {
                     <img src={cat.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
                   </div>
                   {cat.label}
-                  <span style={{ fontSize: '0.65rem', color: C.faint }}>{cat.workers}</span>
                 </button>
               ))}
               <button onClick={() => go('need-done')} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '0.5rem 0.95rem', background: 'none', border: 'none', fontSize: '0.8rem', fontWeight: 700, color: C.green, cursor: 'pointer' }}>
@@ -566,7 +556,7 @@ export function LandingPage() {
         <div style={{ maxWidth: 1160, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
           <div>
             <h2 style={{ fontSize: 'clamp(1rem,1.8vw,1.25rem)', fontWeight: 800, color: '#F97341', marginBottom: '0.2rem' }}>Need someone fast? Post a job for free.</h2>
-            <p style={{ fontSize: '0.78rem', color: C.muted }}>500+ skilled workers in Taraba will see it instantly.</p>
+            <p style={{ fontSize: '0.78rem', color: C.muted }}>Workers nearby can see it and apply.</p>
           </div>
           <button onClick={() => go('need-done')}
             style={{ background: C.orange, color: '#fff', border: 'none', borderRadius: 10, padding: '0.72rem 1.5rem', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer', boxShadow: '0 4px 16px rgba(245,93,30,0.25)', flexShrink: 0 }}>
@@ -635,7 +625,7 @@ export function LandingPage() {
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }} className="ld-two-col">
             {[
-              { img: MEDIA.tileHire, emoji: '🔍', title: 'Find a skilled worker near you', body: 'Choose from 500+ workers in Taraba. Filter by trade, location and availability. Contact them directly.', cta: 'Find workers', situation: 'need-done' as Situation },
+              { img: MEDIA.tileHire, emoji: '🔍', title: 'Find a skilled worker near you', body: 'Browse workers in Taraba. Filter by trade, location and availability. Contact them directly.', cta: 'Find workers', situation: 'need-done' as Situation },
               { img: MEDIA.tileWork, emoji: '📋', title: 'Post your skills and start earning', body: 'No CV, no agency fees. Create your profile, list your trade, and start getting hired by people near you.', cta: 'Offer your skills', situation: 'have-skill' as Situation },
             ].map((tile, i) => (
               <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
@@ -701,7 +691,7 @@ export function LandingPage() {
       {/* ── STATS BAR ────────────────────────────────────────────────────── */}
       <div style={{ background: C.green, padding: '1.5rem' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem', textAlign: 'center' }}>
-          {[['500+', 'Skilled workers'], ['1,200+', 'Jobs completed'], ['4.8/5', 'Average rating'], ['₦0', 'To sign up']].map(([v, l], i) => (
+          {[['₦0', 'To sign up'], ['No CV', 'Needed to get hired'], ['Wukari', 'Built for Taraba'], ['Direct', 'Chat, agree a price, done']].map(([v, l], i) => (
             <div key={i}>
               <div style={{ fontSize: 'clamp(1.3rem,2.5vw,1.8rem)', fontWeight: 900, letterSpacing: '-0.03em', color: '#fff', lineHeight: 1 }}>{v}</div>
               <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.72)', marginTop: '0.25rem', fontWeight: 500 }}>{l}</div>
@@ -709,38 +699,6 @@ export function LandingPage() {
           ))}
         </div>
       </div>
-
-      {/* ── SUCCESS STORY — Fiverr case study style ──────────────────────── */}
-      <section style={{ padding: 'clamp(3rem,6vw,5rem) 1.5rem', background: C.surface, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'center' }} className="ld-story-grid">
-          {/* Photo */}
-          <div style={{ borderRadius: 20, overflow: 'hidden', aspectRatio: '4/3', background: C.card, border: `1px solid ${C.border}`, position: 'relative' }}>
-            <Img src={MEDIA.successStory} alt="Success story" emoji="" label={'Worker + client · success-story.jpg'} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-          </div>
-          {/* Story text */}
-          <div>
-            <span style={{ fontSize: '0.65rem', fontWeight: 800, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '1rem' }}>Success story</span>
-            <h2 style={{ fontSize: 'clamp(1.3rem,2.8vw,1.9rem)', fontWeight: 900, letterSpacing: '-0.03em', color: C.text, lineHeight: 1.15, marginBottom: '1.1rem' }}>
-              "I got 3 jobs in my first week on Butsó"
-            </h2>
-            <p style={{ fontSize: '0.88rem', color: C.muted, lineHeight: 1.75, marginBottom: '1.5rem' }}>
-              Wunuken had been doing plumbing in Wukari for 8 years, mostly through word of mouth. Within a week of joining Butsó, he had 3 new clients who would never have found him otherwise.
-            </p>
-            <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.75rem', flexWrap: 'wrap' }}>
-              {[['₦42,000', 'earned first month'], ['3 jobs', 'in first week'], ['4.9/5', 'client rating']].map(([v, l], i) => (
-                <div key={i}>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: C.text, letterSpacing: '-0.02em' }}>{v}</div>
-                  <div style={{ fontSize: '0.65rem', color: C.faint, marginTop: 2 }}>{l}</div>
-                </div>
-              ))}
-            </div>
-            <button onClick={() => go('have-skill')}
-              style={{ background: C.green, color: '#fff', border: 'none', borderRadius: 10, padding: '0.78rem 1.4rem', fontWeight: 800, fontSize: '0.86rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 7 }}>
-              Start earning like Wunuken <ArrowRight size={13} />
-            </button>
-          </div>
-        </div>
-      </section>
 
       {/* ── HOW IT WORKS ─────────────────────────────────────────────────── */}
       <section style={{ padding: 'clamp(3rem,6vw,5rem) 1.5rem', background: C.canvas, borderBottom: `1px solid ${C.border}` }}>
@@ -761,30 +719,6 @@ export function LandingPage() {
                 <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: C.text, marginBottom: '0.5rem', lineHeight: 1.3 }}>{s.t}</h3>
                 <p style={{ fontSize: '0.78rem', color: C.muted, lineHeight: 1.65 }}>{s.b}</p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── GUIDES — practical tips for workers and employers ────────────── */}
-      <section style={{ padding: 'clamp(3rem,6vw,5rem) 1.5rem', background: C.surface, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <p style={{ fontSize: '0.68rem', fontWeight: 700, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Guides that actually help</p>
-            <h2 style={{ fontSize: 'clamp(1.4rem,3vw,2rem)', fontWeight: 900, letterSpacing: '-0.03em', color: C.text, lineHeight: 1.1 }}>Get more out of Butsó</h2>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
-            {GUIDES.map((g, i) => (
-              <button key={i} onClick={() => go(g.situation)}
-                style={{ textAlign: 'left', background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '1.6rem', cursor: 'pointer', transition: 'border-color 0.15s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = C.green }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = C.border }}
-              >
-                <div style={{ fontSize: '1.9rem', marginBottom: '1rem' }}><EmojiIcon e={g.emoji} size={30} /></div>
-                <span style={{ fontSize: '0.65rem', fontWeight: 700, color: C.green, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{g.tag}</span>
-                <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: C.text, margin: '0.5rem 0', lineHeight: 1.3 }}>{g.title}</h3>
-                <p style={{ fontSize: '0.8rem', color: C.muted, lineHeight: 1.65 }}>{g.body}</p>
-              </button>
             ))}
           </div>
         </div>

@@ -147,11 +147,11 @@ export function BookingSlots() {
                   <motion.button key={i} whileTap={{ scale: 0.95 }}
                     onClick={() => handleDateSelect(date)}
                     className={`p-2.5 rounded-xl border-2 text-center transition ${isSelected ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}>
-                    <p className="text-[10px] font-bold text-muted-foreground">
+                    <p className="text-xs font-bold text-muted-foreground">
                       {date.toLocaleDateString('en', { weekday: 'short' })}
                     </p>
                     <p className="text-base font-black text-foreground">{date.getDate()}</p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {date.toLocaleDateString('en', { month: 'short' })}
                     </p>
                   </motion.button>

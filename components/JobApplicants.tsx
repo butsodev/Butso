@@ -4,11 +4,10 @@ import { motion } from 'framer-motion'
 import { CheckCircle, XCircle, MessageCircle, ChevronLeft } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
 import { useState } from 'react'
-import { useAppStore } from '@/lib/store'
+import { goBackTo } from '@/lib/store'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
 export function JobApplicants() {
-  const { setCurrentPage } = useAppStore()
   const [selectedApplicant, setSelectedApplicant] = useState<string | null>(null)
   const [appliedFilter, setAppliedFilter] = useState<'all' | 'accepted' | 'rejected'>('all')
 
@@ -87,7 +86,7 @@ export function JobApplicants() {
             <motion.button
               whileHover={{ x: -5 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setCurrentPage('dashboard')}
+              onClick={() => goBackTo('dashboard')}
               className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground transition font-semibold"
             >
               <ChevronLeft size={20} />

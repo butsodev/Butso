@@ -155,6 +155,8 @@ export function PhoneVerification() {
                 </div>
                 <input
                   type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
                   placeholder="08012345678"
                   value={phone}
                   onChange={(e) => {
@@ -202,6 +204,8 @@ export function PhoneVerification() {
                     ref={(el) => { otpRefs.current[index] = el }}
                     type="text"
                     inputMode="numeric"
+                    autoComplete={index === 0 ? 'one-time-code' : 'off'}
+                    aria-label={`Digit ${index + 1} of ${otp.length}`}
                     maxLength={1}
                     value={digit}
                     onChange={(e) => handleOtpChange(index, e.target.value)}

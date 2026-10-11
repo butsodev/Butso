@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, CheckCircle, Zap, FileText, ChevronDown, ChevronUp } from 'lucide-react'
 import { useState } from 'react'
-import { useAppStore } from '@/lib/store'
+import { useAppStore, goBackTo } from '@/lib/store'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
 type ApplyMode = 'choose' | 'quick' | 'detailed' | 'success'
@@ -48,7 +48,7 @@ export function ApplyJob() {
             <motion.button
               whileHover={{ x: -3 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => mode === 'choose' ? setCurrentPage('jobs') : setMode('choose')}
+              onClick={() => mode === 'choose' ? goBackTo('jobs') : setMode('choose')}
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition"
             >
               <ChevronLeft size={20} />
