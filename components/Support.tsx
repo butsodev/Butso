@@ -93,7 +93,7 @@ export function Support() {
             onClick={() => setCurrentPage('messaging')}>
             <MessageCircle size={28} className="text-primary mx-auto mb-2" />
             <p className="text-sm text-muted-foreground">Chat</p>
-            <p className="font-medium text-foreground text-sm">Live Support</p>
+            <p className="font-medium text-foreground text-sm">Message us</p>
           </div>
         </motion.div>
 

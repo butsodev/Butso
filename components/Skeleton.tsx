@@ -79,7 +79,7 @@ export function SkeletonJobsList({ count = 3 }: { count?: number }) {
   )
 }
 
-// Used in WorkerDashboard
+// Skeleton for dashboard stat cards
 export function SkeletonDashboard() {
   return (
     <div className="min-h-screen bg-background pb-20">

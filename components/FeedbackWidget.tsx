@@ -108,7 +108,14 @@ const TYPE_META: Record<FeedbackType, { emoji: string; label: string; color: str
 
 // ── Simulated AI response ─────────────────────────────────────────────────────
 
+// The AI helper is OFF. The old version called api.anthropic.com straight from the browser,
+// which can't work in production (no key, and a key must never ship in client code).
+// To bring it back: create app/api/assist/route.ts that holds the key server-side, call that
+// route from here instead, then set AI_ENABLED to true.
+const AI_ENABLED = false
+
 async function getAIAnswer(question: string): Promise<string> {
+    if (!AI_ENABLED) throw new Error('AI helper is disabled')
     const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -294,10 +301,9 @@ export function FeedbackWidget() {
                                 <ChevronRight size={15} className="ml-auto text-muted-foreground shrink-0" />
                             </motion.button>
                         ))}
-                        <button onClick={() => setStage('ai-input')}
-                            className="w-full py-3 rounded-2xl border-2 border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition font-semibold mt-1">
-                            My question isn't here, ask AI
-                        </button>
+                        <a href="mailto:support@butso.ng?subject=Question%20about%20But%C3%B3" className="w-full py-3 rounded-2xl border-2 border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition font-semibold mt-1 block text-center">
+                            My question isn't here, email us
+                        </a>
                     </motion.div>
                 )
 
@@ -315,10 +321,9 @@ export function FeedbackWidget() {
                                 className="py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 transition">
                                 Yes, thanks!
                             </motion.button>
-                            <motion.button whileTap={{ scale: 0.97 }} onClick={() => setStage('ai-input')}
-                                className="py-2.5 rounded-xl border-2 border-border font-bold text-sm text-foreground hover:border-primary/40 transition">
-                                Ask AI instead
-                            </motion.button>
+                            <a href="mailto:support@butso.ng?subject=Question%20about%20But%C3%B3" className="py-2.5 rounded-xl border-2 border-border font-bold text-sm text-foreground hover:border-primary/40 transition text-center">
+                                Email us instead
+                            </a>
                         </div>
                     </motion.div>
                 )

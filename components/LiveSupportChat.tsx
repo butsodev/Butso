@@ -16,7 +16,7 @@ const INITIAL_MESSAGES: SupportMessage[] = [
     {
         id: '1',
         sender: 'bot',
-        text: 'Hi there! Welcome to Butsó Support. How can we help you today?',
+        text: "Hi! This is Butsó's automated help. I can point you in the right direction, but I can't look up bookings or payments. For that, email support@butso.ng and a person will reply.",
         time: 'now',
     },
 ]
@@ -53,7 +53,7 @@ export function LiveSupportChat() {
             const reply = getSupportReply(userText)
             const newMsg: SupportMessage = {
                 id: Date.now().toString(),
-                sender: 'support',
+                sender: 'bot',
                 text: reply,
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             }
@@ -67,19 +67,20 @@ export function LiveSupportChat() {
 
     const getSupportReply = (text: string): string => {
         const lower = text.toLowerCase()
+        const email = "To get this looked at by a person, email support@butso.ng and include your booking or job details."
         if (lower.includes('payment') || lower.includes('money')) {
-            return 'I can help with that! Payment issues are usually resolved within 24 hours. Can you share your booking ID so I can look into it?'
+            return `I can't see payments from here. ${email}`
         }
         if (lower.includes('dispute')) {
-            return 'I\'m sorry to hear that. Our team handles disputes fairly and quickly. Please describe what happened and we\'ll investigate right away.'
+            return `Sorry about that. Disputes are reviewed by a person, not by this chat. ${email} Describe what happened and attach any screenshots.`
         }
         if (lower.includes('booking') || lower.includes('book')) {
-            return 'Let me help you find your booking. Can you tell me the job title or the date you made the booking?'
+            return `You can see your bookings under Bookings in the menu. If one is missing, ${email.charAt(0).toLowerCase() + email.slice(1)}`
         }
         if (lower.includes('account')) {
-            return 'For account issues, can you tell me more? Is it a login problem, verification issue, or something else?'
+            return `For login or verification problems, ${email.charAt(0).toLowerCase() + email.slice(1)}`
         }
-        return 'Thanks for reaching out! A support agent will be with you shortly. In the meantime, is there anything else you can tell me about your issue?'
+        return `I'm an automated helper and can't answer that one. ${email}`
     }
 
     const handleSend = (text?: string) => {
@@ -152,10 +153,10 @@ export function LiveSupportChat() {
                                     <MessageCircle size={18} className="text-white" />
                                 </div>
                                 <div>
-                                    <p className="font-black text-white text-sm">Butsó Support</p>
+                                    <p className="font-black text-white text-sm">Butsó Help</p>
                                     <div className="flex items-center gap-1.5">
-                                        <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                                        <span className="text-white/70 text-xs">Live · Usually replies in minutes</span>
+                                        <span className="w-2 h-2 bg-white/60 rounded-full" />
+                                        <span className="text-white/70 text-xs">Automated · Email us for a person</span>
                                     </div>
                                 </div>
                             </div>

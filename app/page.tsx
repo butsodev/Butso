@@ -46,6 +46,7 @@ import { ShopPage } from '@/components/ShopPage'
 import { ShopSetup } from '@/components/ShopSetup'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
+import { useUrlSync } from '@/lib/urlSync'
 const KNOWN_PAGES = [
   'dashboard', 'jobs', 'people', 'bookings', 'post-job', 'job-details', 'apply-job',
   'worker-profile', 'job-applicants', 'booking-slots', 'messaging', 'settings',
@@ -63,6 +64,9 @@ export default function Home() {
   } = useAppStore()
   const [authChecked, setAuthChecked] = useState(false)
 
+  // Keep the address bar in step with the screen: Back button, shared links, refresh
+  useUrlSync(KNOWN_PAGES, authChecked)
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [currentPage])
@@ -76,8 +80,7 @@ export default function Home() {
     const bridge = async (userId: string | null) => {
       if (!userId) { if (!cancelled) setAuthChecked(true); return }
       if (useAppStore.getState().currentUser) { if (!cancelled) setAuthChecked(true); return }
-      const { data: p, error: pErr } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
-      console.log('[bridge] profile', p, pErr)
+      const { data: p } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
       if (cancelled) return
       if (!p) {
         // Signed in but no profile yet: finish onboarding
@@ -104,8 +107,7 @@ export default function Home() {
       setAuthChecked(true)
     }
 
-    supabase.auth.getSession().then(({ data, error }) => {
-      console.log('[bridge] session', data.session?.user.id, error)
+    supabase.auth.getSession().then(({ data }) => {
       bridge(data.session?.user.id ?? null)
     })
 

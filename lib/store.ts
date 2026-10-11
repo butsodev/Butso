@@ -489,6 +489,27 @@ export const useAppStore = create<AppStore>()(
       getRankedCategories: (allCategories) =>
         rankCategories(get().preferences, allCategories),
     }),
-    { name: 'butso-store' }
+    {
+      name: 'butso-store',
+      // Only keep real user preferences on the device. Everything else (current page,
+      // selected IDs, mock data, the signed-in user) is rebuilt on load. Supabase is the
+      // source of truth for who is signed in, and the URL decides which screen opens.
+      version: 1,
+      partialize: (state) => ({
+        darkMode: state.darkMode,
+        dashboardMode: state.dashboardMode,
+        preferences: state.preferences,
+      }),
+      // Old saved copies (version 0) contain the whole store. Keep only the fields above
+      // so stale pages and sample data never come back from localStorage.
+      migrate: (persisted: unknown) => {
+        const p = (persisted ?? {}) as Record<string, unknown>
+        const keep: Record<string, unknown> = {}
+        for (const k of ['darkMode', 'dashboardMode', 'preferences']) {
+          if (p[k] !== undefined) keep[k] = p[k]
+        }
+        return keep as never
+      },
+    }
   )
 )
