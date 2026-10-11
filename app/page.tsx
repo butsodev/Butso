@@ -75,7 +75,8 @@ export default function Home() {
     const bridge = async (userId: string | null) => {
       if (!userId) { if (!cancelled) setAuthChecked(true); return }
       if (useAppStore.getState().currentUser) { if (!cancelled) setAuthChecked(true); return }
-      const { data: p } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
+      const { data: p, error: pErr } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
+      console.log('[bridge] profile', p, pErr)
       if (cancelled) return
       if (!p) {
         // Signed in but no profile yet: finish onboarding
@@ -102,7 +103,10 @@ export default function Home() {
       setAuthChecked(true)
     }
 
-    supabase.auth.getSession().then(({ data }) => bridge(data.session?.user.id ?? null))
+    supabase.auth.getSession().then(({ data, error }) => {
+      console.log('[bridge] session', data.session?.user.id, error)
+      bridge(data.session?.user.id ?? null)
+    })
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
