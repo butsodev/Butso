@@ -232,40 +232,33 @@ export function ProfileSetup() {
   const [gender, setGender] = useState<Gender | null>(null)
   const [skills, setSkills] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  // step is initialized in allSteps logic below
   const [pressedNext, setPressedNext] = useState<string | null>(null)
 
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(
     () => (sessionStorage.getItem('selectedRole') as UserRole | null)
   )
-
-  // ── Real Supabase auth session (replaces the old sessionStorage-based phone) ──
-  const [authUser, setAuthUser] = useState<{ id: string; phone: string | null; email: string | null } | null>(null)
-  const [authLoading, setAuthLoading] = useState(true)
+  // The real, authenticated Supabase user, fetched on mount. Phone-only
+  // sign-ins already have `phone` set here. Email and Google sign-ins arrive
+  // without one, so phone is optional and can be typed in below.
+  const [authUserId, setAuthUserId] = useState<string | null>(null)
+  const [authPhone, setAuthPhone] = useState<string | null>(null)
+  const [phoneInput, setPhoneInput] = useState('')
   const [submitError, setSubmitError] = useState('')
 
-  // ── Phone collection for users who signed up via Google (no phone on file) ──
-  const [collectedPhone, setCollectedPhone] = useState('')
-  const [phoneVerified, setPhoneVerified] = useState(false)
-  const [phoneOtpSent, setPhoneOtpSent] = useState(false)
-  const [phoneOtp, setPhoneOtp] = useState(['', '', '', '', '', ''])
-  const phoneOtpRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null, null, null])
-  const [phoneError, setPhoneError] = useState('')
-
   useEffect(() => {
-    supabase.auth.getUser().then(({ data, error }) => {
-      if (error || !data.user) {
-        // No active session — bounce back to auth instead of letting them
-        // create a profile with no real user behind it.
-        setCurrentPage('auth')
-        return
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        setAuthUserId(data.user.id)
+        setAuthPhone(data.user.phone ? `+${data.user.phone.replace(/^\+/, '')}` : null)
       }
-      setAuthUser({ id: data.user.id, phone: data.user.phone || null, email: data.user.email || null })
-      setAuthLoading(false)
     })
   }, [])
 
-  const needsPhone = authUser !== null && !authUser.phone && !phoneVerified
+  const phoneDigits = phoneInput.replace(/^0/, '')
+  const phone = authPhone ?? (phoneDigits ? `+234${phoneDigits}` : '')
+  const needsPhoneInput = !authPhone
+  // Optional: empty is fine, but if something is typed it must be a full number
+  const phoneOk = !needsPhoneInput || phoneInput === '' || phoneDigits.length === 10
   const role: UserRole = selectedRole ?? 'worker'
   const isWorker = role === 'worker'
 
@@ -295,100 +288,48 @@ export function ProfileSetup() {
     }
   }, [name])
 
-  // Saves the real profile row keyed on the Supabase auth user's UUID
-  // (not a random local id) — required for the `profiles` FK and every
-  // RLS policy that checks auth.uid() against employer_id/worker_id etc.
-  const saveProfile = async () => {
-    if (!authUser) return null
-
-    const finalPhone = authUser.phone || collectedPhone || null
-
-    const row = {
-      id: authUser.id,
-      phone: finalPhone,
+  const createUser = async () => {
+    if (!authUserId) {
+      setSubmitError('You appear to be signed out. Please log in again.')
+      return null
+    }
+    const profileData = {
+      id: authUserId,
+      phone: phone || null,
       name: name.trim(),
       username: username.trim(),
       role,
       bio: bio.trim() || null,
       gender: gender ?? null,
       skills: isWorker && skills.length > 0 ? skills : [],
-      rating: 5,
-      completed_jobs: 0,
     }
-
-    const { error } = await supabase.from('profiles').upsert(row)
+    const { data, error } = await supabase.from('profiles').insert(profileData).select().single()
     if (error) {
-      setSubmitError(
-        error.code === '23505'
-          ? 'That username is already taken — go back and pick another.'
-          : error.message
-      )
+      // 23505 = unique constraint violation (username or phone already taken)
+      if (error.code === '23505') {
+        setSubmitError(
+          error.message.includes('username')
+            ? 'That username was just taken. Please pick another.'
+            : 'That phone number is already registered to another account.'
+        )
+      } else {
+        setSubmitError(error.message)
+      }
       return null
     }
-
     return {
-      id: row.id,
-      phone: row.phone || '',
-      name: row.name,
-      username: row.username,
-      role: row.role,
-      bio: row.bio ?? undefined,
-      gender: row.gender ?? undefined,
-      skills: row.skills.length > 0 ? row.skills : undefined,
-      rating: row.rating,
-      completedJobs: row.completed_jobs,
+      id: data.id,
+      phone: data.phone ?? undefined,
+      name: data.name,
+      username: data.username,
+      role: data.role,
+      bio: data.bio ?? undefined,
+      gender: data.gender ?? undefined,
+      skills: data.skills?.length ? data.skills : undefined,
+      rating: data.rating ?? 5,
+      completedJobs: data.completed_jobs ?? 0,
     }
   }
-
-  // ── Phone collection (Google sign-in has no phone yet) ──────────────────
-  const sendPhoneOtp = async () => {
-    const normalized = collectedPhone.replace(/^0/, '')
-    if (normalized.length !== 10) { setPhoneError('Enter a valid Nigerian number'); return }
-    setPhoneError('')
-    setIsLoading(true)
-    const { error } = await supabase.auth.updateUser({ phone: `+234${normalized}` })
-    setIsLoading(false)
-    if (error) { setPhoneError(error.message); return }
-    setPhoneOtpSent(true)
-  }
-
-  const verifyPhoneOtp = async (code: string) => {
-    const normalized = collectedPhone.replace(/^0/, '')
-    setIsLoading(true)
-    const { error } = await supabase.auth.verifyOtp({ phone: `+234${normalized}`, token: code, type: 'phone_change' })
-    setIsLoading(false)
-    if (error) { setPhoneError(error.message); return }
-    setPhoneVerified(true)
-  }
-
-  const renderOtpBoxes = (
-    arr: string[], setArr: (v: string[]) => void,
-    refs: React.MutableRefObject<(HTMLInputElement | null)[]>,
-    onComplete: (finalCode: string) => void
-  ) => (
-    <div className="flex gap-3 justify-center">
-      {arr.map((digit, i) => (
-        <input
-          key={i}
-          ref={el => { refs.current[i] = el }}
-          type="text" inputMode="numeric" maxLength={1} value={digit}
-          onChange={e => {
-            const d = e.target.value.replace(/\D/g, '').slice(-1)
-            const next = [...arr]; next[i] = d; setArr(next)
-            if (d && i < 5) requestAnimationFrame(() => refs.current[i + 1]?.focus())
-            if (next.every(x => x !== '')) setTimeout(() => onComplete(next.join('')), 150)
-          }}
-          onKeyDown={e => {
-            if ((e.key === 'Backspace' || e.key === 'Delete') && !arr[i] && i > 0) {
-              requestAnimationFrame(() => refs.current[i - 1]?.focus())
-            }
-          }}
-          className={`w-12 h-12 border-2 rounded-xl text-center text-xl font-black focus:outline-none focus:ring-4 focus:ring-primary/40 transition
-            ${digit ? 'border-primary bg-primary/5 text-primary' : 'border-border text-foreground focus:border-primary'}`}
-        />
-      ))}
-    </div>
-  )
 
   const seedData = () => {
     setJobs(mockJobs)
@@ -403,9 +344,11 @@ export function ProfileSetup() {
   const handleNext = async (option: typeof NEXT_OPTIONS[0]) => {
     setPressedNext(option.id)
     setIsLoading(true)
-    const newUser = await saveProfile()
+    setSubmitError('')
+    const newUser = await createUser()
     setIsLoading(false)
-    if (!newUser) { setPressedNext(null); return }
+    setPressedNext(null)
+    if (!newUser) return // submitError is already set; stay on this screen
     setCurrentUser(newUser)
     setDashboardMode(option.mode)
     seedData()
@@ -472,6 +415,28 @@ export function ProfileSetup() {
         />
       </div>
 
+      {needsPhoneInput && (
+        <div>
+          <label className="block text-sm font-bold text-foreground mb-2">
+            Phone Number <span className="text-muted-foreground font-normal">(optional)</span>
+          </label>
+          <p className="text-xs text-muted-foreground mb-2">
+            Helps employers and workers reach you directly. You can add it later.
+          </p>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">+234</span>
+            <input
+              type="tel" placeholder="08012345678" value={phoneInput}
+              onChange={e => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 11))}
+              className="w-full pl-16 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-base placeholder:text-muted-foreground/40 transition"
+            />
+          </div>
+          {phoneInput !== '' && !phoneOk && (
+            <p className="text-xs text-destructive mt-1">Enter a full 11-digit number, or clear it to skip.</p>
+          )}
+        </div>
+      )}
+
       <UsernameField value={username}
         onChange={(v, valid) => { setUsername(v); setUsernameValid(valid) }}
         allUsers={allUsers}
@@ -491,7 +456,7 @@ export function ProfileSetup() {
 
       <motion.button whileTap={{ scale: 0.98 }}
         onClick={() => setStep('gender')}
-        disabled={!name.trim() || !usernameValid}
+        disabled={!name.trim() || !usernameValid || !phoneOk}
         className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition disabled:opacity-40 flex items-center justify-center gap-2 text-base">
         Next <ChevronRight size={20} />
       </motion.button>
@@ -582,103 +547,49 @@ export function ProfileSetup() {
         <p className="text-muted-foreground text-sm">What do you want to do first?</p>
       </div>
 
-      {submitError && (
-        <p className="text-center text-sm text-destructive bg-destructive/10 rounded-xl py-2 px-3">{submitError}</p>
-      )}
+      <div className="space-y-3">
+        {NEXT_OPTIONS.map(opt => (
+          <motion.button
+            key={opt.id}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => handleNext(opt)}
+            disabled={isLoading}
+            className={`w-full flex items-center gap-4 p-5 rounded-2xl text-left text-white transition-all shadow-md relative overflow-hidden ${opt.color} ${pressedNext === opt.id ? 'opacity-80' : ''
+              }`}
+          >
+            <span className="text-3xl">{opt.emoji}</span>
+            <div className="flex-1">
+              <p className="font-black text-base">{opt.title}</p>
+              <p className="text-white/70 text-sm">{opt.body}</p>
+            </div>
+            {pressedNext === opt.id
+              ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
+              : <ChevronRight size={20} className="text-white/70 shrink-0" />
+            }
+          </motion.button>
+        ))}
+      </div>
 
-      {needsPhone ? (
-        <div className="space-y-4">
-          {!phoneOtpSent ? (
-            <>
-              <p className="text-center text-sm text-muted-foreground">
-                You signed up with Google, so add a phone number too — it's how hirers and workers reach you.
-              </p>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">+234</span>
-                <input
-                  type="tel" placeholder="08012345678" value={collectedPhone} autoFocus
-                  onChange={e => { setCollectedPhone(e.target.value.replace(/\D/g, '').slice(0, 11)); setPhoneError('') }}
-                  className="w-full pl-16 pr-4 py-4 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-base font-medium placeholder:text-muted-foreground/40 transition"
-                />
-              </div>
-              {phoneError && <p className="text-destructive text-sm">{phoneError}</p>}
-              <motion.button whileTap={{ scale: 0.97 }} onClick={sendPhoneOtp}
-                disabled={isLoading || collectedPhone.replace(/^0/, '').length !== 10}
-                className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition disabled:opacity-40 flex items-center justify-center gap-2 text-sm">
-                {isLoading ? 'Sending code...' : 'Send Code →'}
-              </motion.button>
-              <button onClick={() => setPhoneVerified(true)}
-                className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition py-1">
-                Skip for now
-              </button>
-            </>
-          ) : (
-            <>
-              <p className="text-center text-sm text-muted-foreground">
-                Code sent to <strong>+234{collectedPhone.replace(/^0/, '')}</strong>
-              </p>
-              {renderOtpBoxes(phoneOtp, setPhoneOtp, phoneOtpRefs, verifyPhoneOtp)}
-              {phoneError && <p className="text-destructive text-sm text-center">{phoneError}</p>}
-              {isLoading && <p className="text-center text-sm text-primary">Verifying...</p>}
-              <button onClick={() => { setPhoneOtpSent(false); setPhoneOtp(['', '', '', '', '', '']) }}
-                className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition py-1">
-                ← Back
-              </button>
-            </>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {NEXT_OPTIONS.map(opt => (
-            <motion.button
-              key={opt.id}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => handleNext(opt)}
-              disabled={isLoading}
-              className={`w-full flex items-center gap-4 p-5 rounded-2xl text-left text-white transition-all shadow-md relative overflow-hidden ${opt.color} ${pressedNext === opt.id ? 'opacity-80' : ''
-                }`}
-            >
-              <span className="text-3xl">{opt.emoji}</span>
-              <div className="flex-1">
-                <p className="font-black text-base">{opt.title}</p>
-                <p className="text-white/70 text-sm">{opt.body}</p>
-              </div>
-              {pressedNext === opt.id
-                ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
-                : <ChevronRight size={20} className="text-white/70 shrink-0" />
-              }
-            </motion.button>
-          ))}
-        </div>
-      )}
-
-      {!needsPhone && <button
+      <button
         onClick={async () => {
-          setIsLoading(true)
-          const newUser = await saveProfile()
-          setIsLoading(false)
+          setSubmitError('')
+          const newUser = await createUser()
           if (!newUser) return
           setCurrentUser(newUser)
           setDashboardMode('find-work')
           seedData()
           setCurrentPage('dashboard')
         }}
-        disabled={isLoading}
-        className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition py-2 disabled:opacity-50"
+        className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition py-2"
       >
         Just take me to my dashboard
-      </button>}
+      </button>
+      {submitError && (
+        <p className="text-center text-sm text-destructive">{submitError}</p>
+      )}
     </motion.div>
   )
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-      </div>
-    )
-  }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}

@@ -1,7 +1,9 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useAppStore } from '@/lib/store'
+import { useEffect, useState } from 'react'
+import { useAppStore, type UserRole } from '@/lib/store'
+import { supabase } from '@/lib/supabase'
+import { mockJobs, mockBookings, mockNotifications, mockTransactions, mockShops } from '@/lib/mockData'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { AuthShell } from '@/components/AuthShell'
 import { Header } from '@/components/Header'
@@ -54,11 +56,77 @@ const KNOWN_PAGES = [
 const AUTH_PAGES = ['role-select', 'phone-verification', 'auth', 'profile-setup', 'explore-onboarding', 'privacy', 'terms']
 
 export default function Home() {
-  const { currentPage, currentUser, setCurrentPage } = useAppStore()
+  const {
+    currentPage, currentUser, setCurrentPage, setCurrentUser, setDashboardMode,
+    setJobs, setBookings, setNotifications, setTransactions, setShops,
+  } = useAppStore()
+  const [authChecked, setAuthChecked] = useState(false)
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [currentPage])
+
+  // ── Session bridge ────────────────────────────────────────────────────────
+  // Supabase is the source of truth for who is logged in. Covers the return
+  // from Google, the email confirmation link, and a plain page refresh.
+  useEffect(() => {
+    let cancelled = false
+
+    const bridge = async (userId: string | null) => {
+      if (!userId) { if (!cancelled) setAuthChecked(true); return }
+      if (useAppStore.getState().currentUser) { if (!cancelled) setAuthChecked(true); return }
+      const { data: p } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
+      if (cancelled) return
+      if (!p) {
+        // Signed in but no profile yet: finish onboarding
+        setCurrentPage('profile-setup')
+      } else {
+        setCurrentUser({
+          id: p.id,
+          phone: p.phone || '',
+          name: p.name,
+          username: p.username,
+          role: p.role as UserRole,
+          bio: p.bio ?? undefined,
+          gender: p.gender ?? undefined,
+          skills: p.skills?.length ? p.skills : undefined,
+          rating: Number(p.rating ?? 5),
+          completedJobs: p.completed_jobs ?? 0,
+        })
+        setDashboardMode(p.role === 'employer' ? 'need-help' : 'find-work')
+        // Temporary until the Phase 2 data-layer swap
+        setJobs(mockJobs); setBookings(mockBookings); setNotifications(mockNotifications)
+        setTransactions(mockTransactions); setShops(mockShops)
+        setCurrentPage('dashboard')
+      }
+      setAuthChecked(true)
+    }
+
+    supabase.auth.getSession().then(({ data }) => bridge(data.session?.user.id ?? null))
+
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        // Defer: don't call supabase inside the auth callback itself
+        setTimeout(() => bridge(session.user.id), 0)
+      }
+      if (event === 'SIGNED_OUT') {
+        setCurrentUser(null)
+      }
+    })
+
+    return () => { cancelled = true; sub.subscription.unsubscribe() }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  if (!authChecked && !currentUser) {
+    return (
+      <ThemeProvider>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <span className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+        </div>
+      </ThemeProvider>
+    )
+  }
 
   // ── Unauthenticated ───────────────────────────────────────────────────────
   if (!currentUser) {
