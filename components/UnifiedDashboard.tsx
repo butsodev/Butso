@@ -18,7 +18,7 @@ const item = {
 }
 
 export function UnifiedDashboard() {
-  const { currentUser, dashboardMode, setDashboardMode, setCurrentPage, jobs } = useAppStore()
+  const { currentUser, dashboardMode, setDashboardMode, setCurrentPage, setSelectedJobId, jobs } = useAppStore()
   const [loading, setLoading] = useState(true)
   const [prevMode, setPrevMode] = useState<DashboardMode>(dashboardMode)
 
@@ -291,7 +291,7 @@ export function UnifiedDashboard() {
         ) : (
           <div className="space-y-3">
             {myPostedJobs.slice(0, 3).map(job => (
-              <motion.div key={job.id} whileHover={{ x: 4 }} onClick={() => setCurrentPage('job-details')}
+              <motion.div key={job.id} whileHover={{ x: 4 }} onClick={() => { setSelectedJobId(job.id); setCurrentPage('job-details') }}
                 className="p-4 border border-border rounded-xl hover:bg-secondary/40 transition cursor-pointer">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">

@@ -1,40 +1,29 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { MapPin, Clock, User, ChevronLeft, Share2, Heart } from 'lucide-react'
+import { MapPin, Clock, User, ChevronLeft, Share2, Heart, Briefcase } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
 import { NairaIcon } from '@/components/NairaIcon'
-import { useState } from 'react'
+import { EmptyState } from '@/components/EmptyState'
+import { useState, useEffect } from 'react'
 import { useAppStore, goBackTo } from '@/lib/store'
+import { fetchProfile, timeAgo, type PublicProfile } from '@/lib/data'
 import { Avatar } from '@/components/Avatar'
 
 export function JobDetails() {
-  const { setCurrentPage, jobs, currentUser } = useAppStore()
+  const { setCurrentPage, jobs, jobsStatus, selectedJobId, currentUser } = useAppStore()
   const [isFavorite, setIsFavorite] = useState(false)
   const [isApplying, setIsApplying] = useState(false)
+  const [employer, setEmployer] = useState<PublicProfile | null>(null)
 
-  // Get first open job as example
-  const job = jobs.find(j => j.status === 'open') || {
-    id: '1',
-    title: 'Bathroom Renovation',
-    description: 'Complete bathroom renovation including tiling, fixtures, and painting. Need experienced professional with references.',
-    category: 'Construction',
-    budget: 250000,
-    location: 'Central Wukari',
-    employerId: 'emp1',
-    status: 'open' as const,
-    applicants: ['worker1', 'worker2'],
-    createdAt: new Date().toISOString(),
-  }
+  const job = jobs.find(j => j.id === selectedJobId)
 
-  const employer = {
-    id: 'emp1',
-    name: 'Mr. Okafor',
-    avatar: '',
-    rating: 4.8,
-    completedJobs: 12,
-    bio: 'Professional property developer with over 10 years of experience',
-  }
+  useEffect(() => {
+    if (!job) return
+    let cancelled = false
+    fetchProfile(job.employerId).then(p => { if (!cancelled) setEmployer(p) })
+    return () => { cancelled = true }
+  }, [job?.employerId])
 
   const handleApply = () => {
     setIsApplying(true)
@@ -43,6 +32,28 @@ export function JobDetails() {
       setIsApplying(false)
     }, 800)
   }
+
+  if (!job) {
+    if (jobsStatus === 'idle' || jobsStatus === 'loading') {
+      return (
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <span className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+        </div>
+      )
+    }
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        <EmptyState
+          icon={Briefcase}
+          title="This job is no longer available"
+          description="It may have been filled or removed."
+          action={{ label: 'Browse jobs', onClick: () => setCurrentPage('jobs') }}
+        />
+      </div>
+    )
+  }
+
+  const isOwnJob = currentUser?.id === job.employerId
 
   return (
     <motion.div
@@ -125,14 +136,16 @@ export function JobDetails() {
                 <Clock className="text-primary" size={20} />
                 <div>
                   <p className="text-xs text-muted-foreground">Posted</p>
-                  <p className="font-semibold text-foreground">2 days ago</p>
+                  <p className="font-semibold text-foreground">{timeAgo(job.createdAt)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <User className="text-accent" size={20} />
                 <div>
-                  <p className="text-xs text-muted-foreground">Type</p>
-                  <p className="font-semibold text-foreground">One-time</p>
+                  <p className="text-xs text-muted-foreground">Deadline</p>
+                  <p className="font-semibold text-foreground">
+                    {job.deadline ? new Date(job.deadline).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Flexible'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -142,56 +155,40 @@ export function JobDetails() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <h2 className="text-2xl font-bold text-foreground mb-4">About This Job</h2>
             <p className="text-foreground leading-relaxed mb-4">{job.description}</p>
-
-            <div className="space-y-3 text-sm">
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                <span className="text-foreground">Professional with experience in similar projects required</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                <span className="text-foreground">References or portfolio needed</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                <span className="text-foreground">Start within 1 week preferred</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                <span className="text-foreground">Flexible timeline for completion</span>
-              </div>
-            </div>
           </div>
 
           {/* Employer Card */}
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <h2 className="text-2xl font-bold text-foreground mb-4">About the Employer</h2>
-            <div className="flex items-start justify-between">
+          {employer && (
+            <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
+              <h2 className="text-2xl font-bold text-foreground mb-4">About the Employer</h2>
               <div className="flex items-center gap-4">
                 <Avatar name={employer.name} size={56} />
                 <div>
                   <h3 className="text-xl font-bold text-foreground">{employer.name}</h3>
-                  <p className="text-muted-foreground text-sm">{employer.bio}</p>
+                  {employer.bio && <p className="text-muted-foreground text-sm">{employer.bio}</p>}
                   <div className="flex items-center gap-4 mt-2 text-sm">
-                    <div className="flex items-center gap-1">
-                      <RatingBadge value={employer.rating} size="sm" />
-                    </div>
+                    {employer.rating != null
+                      ? <RatingBadge value={employer.rating} size="sm" />
+                      : <span className="text-muted-foreground">No reviews yet</span>}
                     <span className="text-muted-foreground">{employer.completedJobs} jobs completed</span>
                   </div>
                 </div>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-6 py-2 border border-primary text-primary font-semibold rounded-lg hover:bg-primary/10 transition"
-              >
-                Contact
-              </motion.button>
             </div>
-          </div>
+          )}
 
           {/* Apply Button */}
-          {currentUser?.role === 'worker' && (
+          {isOwnJob && (
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setCurrentPage('job-applicants')}
+              className="w-full py-4 px-6 bg-primary text-primary-foreground font-bold text-lg rounded-lg hover:bg-primary/90 transition shadow-lg"
+            >
+              View applicants ({job.applicants.length})
+            </motion.button>
+          )}
+
+          {!isOwnJob && currentUser?.role === 'worker' && (
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}

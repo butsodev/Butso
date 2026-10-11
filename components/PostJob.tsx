@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { ChevronRight, ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useAppStore, goBackTo } from '@/lib/store'
+import { createJob } from '@/lib/data'
 
 export function PostJob() {
   const { currentUser, setCurrentPage, addJob } = useAppStore()
@@ -16,6 +17,7 @@ export function PostJob() {
     deadline: '',
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const categories = ['Construction', 'Plumbing', 'Electrical', 'Cleaning', 'Repairs', 'Other']
 
@@ -24,34 +26,32 @@ export function PostJob() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!formData.title.trim() || !formData.description.trim() || !formData.budget) {
-      alert('Please fill in all required fields')
+    setError('')
+
+    const budget = Number(formData.budget)
+    if (!formData.title.trim() || !formData.description.trim() || !budget) {
+      setError('Please fill in the title, description and budget.')
       return
     }
+    if (budget < 0) { setError('Budget cannot be negative.'); return }
+    if (!currentUser) { setError('You appear to be signed out. Please log in again.'); return }
 
     setIsLoading(true)
-    setTimeout(() => {
-      const newJob = {
-        id: Math.random().toString(36).substr(2, 9),
-        title: formData.title,
-        description: formData.description,
-        category: formData.category,
-        budget: parseInt(formData.budget),
-        location: formData.location,
-        employerId: currentUser?.id || '',
-        status: 'open' as const,
-        applicants: [],
-        createdAt: new Date().toISOString(),
-        deadline: formData.deadline || undefined,
-      }
-      
-      addJob(newJob)
-      setCurrentPage('dashboard')
-      setIsLoading(false)
-    }, 1000)
+    const { job, error: saveError } = await createJob({
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      category: formData.category,
+      budget,
+      location: formData.location.trim() || 'Wukari',
+      employerId: currentUser.id,
+      deadline: formData.deadline || undefined,
+    })
+    setIsLoading(false)
+    if (saveError || !job) { setError(saveError ?? 'Could not post the job. Try again.'); return }
+    addJob(job)
+    setCurrentPage('dashboard')
   }
 
   return (
@@ -187,6 +187,8 @@ export function PostJob() {
               className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-foreground"
             />
           </div>
+
+          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
           {/* Buttons */}
           <div className="flex gap-4 pt-4">

@@ -258,6 +258,8 @@ export interface AppStore {
 
   // Jobs
   jobs: Job[]
+  jobsStatus: 'idle' | 'loading' | 'ready' | 'error'
+  setJobsStatus: (s: 'idle' | 'loading' | 'ready' | 'error') => void
   setJobs: (jobs: Job[]) => void
   addJob: (job: Job) => void
 
@@ -356,6 +358,8 @@ export const useAppStore = create<AppStore>()(
       setDashboardMode: (mode) => set({ dashboardMode: mode }),
 
       jobs: [],
+      jobsStatus: 'idle',
+      setJobsStatus: (jobsStatus) => set({ jobsStatus }),
       setJobs: (jobs) => set({ jobs }),
       addJob: (job) => set((state) => ({ jobs: [job, ...state.jobs] })),
 

@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useAppStore, type UserRole, goAfterAuth, rememberReturnTo } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
-import { mockJobs, mockBookings, mockNotifications, mockTransactions, mockShops } from '@/lib/mockData'
+import { refreshJobs } from '@/lib/data'
+import { mockBookings, mockNotifications, mockTransactions, mockShops } from '@/lib/mockData'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { AuthShell } from '@/components/AuthShell'
 import { Header } from '@/components/Header'
@@ -60,7 +61,7 @@ const AUTH_PAGES = ['role-select', 'phone-verification', 'auth', 'profile-setup'
 export default function Home() {
   const {
     currentPage, currentUser, setCurrentPage, setCurrentUser, setDashboardMode,
-    setJobs, setBookings, setNotifications, setTransactions, setShops,
+    setBookings, setNotifications, setTransactions, setShops,
   } = useAppStore()
   const [authChecked, setAuthChecked] = useState(false)
 
@@ -70,6 +71,9 @@ export default function Home() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [currentPage])
+
+  // Jobs are public, so load them for guests and signed-in users alike
+  useEffect(() => { refreshJobs() }, [])
 
   // ── Session bridge ────────────────────────────────────────────────────────
   // Supabase is the source of truth for who is logged in. Covers the return
@@ -100,7 +104,7 @@ export default function Home() {
         })
         setDashboardMode(p.role === 'employer' ? 'need-help' : 'find-work')
         // Temporary until the Phase 2 data-layer swap
-        setJobs(mockJobs); setBookings(mockBookings); setNotifications(mockNotifications)
+        setBookings(mockBookings); setNotifications(mockNotifications)
         setTransactions(mockTransactions); setShops(mockShops)
         goAfterAuth()
       }

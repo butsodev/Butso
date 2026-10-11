@@ -1,10 +1,12 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Clock, SlidersHorizontal } from 'lucide-react'
+import { Search, MapPin, Clock, SlidersHorizontal, Briefcase, RefreshCw } from 'lucide-react'
 import { NairaIcon } from '@/components/NairaIcon'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
+import { refreshJobs } from '@/lib/data'
+import { EmptyState } from '@/components/EmptyState'
 import { SkeletonJobsList } from '@/components/Skeleton'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
@@ -33,16 +35,10 @@ const categories = [
 ]
 
 export function JobsBrowsing() {
-  const { jobs, setCurrentPage } = useAppStore()
+  const { jobs, jobsStatus, setCurrentPage, setSelectedJobId, currentUser } = useAppStore()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
-  // PHASE 5+6: Skeleton on mount
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 800)
-    return () => clearTimeout(t)
-  }, [])
+  const loading = jobsStatus === 'idle' || (jobsStatus === 'loading' && jobs.length === 0)
 
   const filteredJobs = jobs.filter((job) => {
     const matchesSearch =
@@ -126,6 +122,20 @@ export function JobsBrowsing() {
         {/* Jobs list — PHASE 5: skeleton while loading */}
         {loading ? (
           <SkeletonJobsList count={4} />
+        ) : jobsStatus === 'error' && jobs.length === 0 ? (
+          <EmptyState
+            icon={RefreshCw}
+            title="Could not load jobs"
+            description="Check your connection and try again."
+            action={{ label: 'Try again', onClick: () => { refreshJobs() } }}
+          />
+        ) : jobs.filter(j => j.status === 'open').length === 0 ? (
+          <EmptyState
+            icon={Briefcase}
+            title="No jobs posted yet"
+            description="Jobs people post in Wukari will show up here."
+            action={currentUser?.role === 'employer' ? { label: 'Post a job', onClick: () => setCurrentPage('post-job') } : undefined}
+          />
         ) : filteredJobs.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -151,7 +161,7 @@ export function JobsBrowsing() {
                   key={job.id}
                   variants={cardVariants}
                   whileHover={{ y: -3, transition: { type: 'spring', stiffness: 400 } }}
-                  onClick={() => setCurrentPage('job-details')}
+                  onClick={() => { setSelectedJobId(job.id); setCurrentPage('job-details') }}
                   className="bg-card border border-border rounded-2xl p-5 shadow-sm hover:shadow-md cursor-pointer transition-shadow"
                 >
                   <div className="flex items-start justify-between gap-3 mb-3">
