@@ -48,7 +48,7 @@ export function AdvancedSearch() {
     searchQuery && `Search: ${searchQuery}`,
     selectedCategory && `Category: ${selectedCategory}`,
     selectedBudget && `Budget: ${selectedBudget}`,
-    minRating > 0 && `Rating: ${minRating}★+`,
+    minRating > 0 && `Rating: ${minRating}+`,
   ].filter((f): f is string => Boolean(f))
 
   return (
@@ -152,7 +152,7 @@ export function AdvancedSearch() {
             {/* Minimum Rating */}
             <div>
               <h3 className="font-bold text-foreground mb-3">
-                Minimum Rating: {minRating}★
+                Minimum Rating: {minRating}+
               </h3>
               <input
                 type="range"
@@ -164,8 +164,8 @@ export function AdvancedSearch() {
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                <span>0★</span>
-                <span>5★</span>
+                <span>0</span>
+                <span>5</span>
               </div>
             </div>
           </motion.div>

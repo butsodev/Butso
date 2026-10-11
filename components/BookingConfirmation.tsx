@@ -1,9 +1,11 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowLeft, CheckCircle, Clock, DollarSign, MapPin, Calendar, User } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Clock, MapPin, Calendar, User } from 'lucide-react'
+import { NairaIcon } from '@/components/NairaIcon'
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
+import { Avatar } from '@/components/Avatar'
 
 export function BookingConfirmation() {
   const { setCurrentPage } = useAppStore()
@@ -115,13 +117,13 @@ export function BookingConfirmation() {
                   Worker
                 </p>
                 <div className="flex items-center gap-3">
-                  <div className="text-4xl">{bookingDetails.worker.avatar}</div>
+                  <Avatar name={bookingDetails.worker.name} size={48} />
                   <div>
                     <p className="font-bold text-foreground">
                       {bookingDetails.worker.name}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      ★ {bookingDetails.worker.rating} ({bookingDetails.worker.reviews} reviews)
+                      Rated {bookingDetails.worker.rating}/5 ({bookingDetails.worker.reviews} reviews)
                     </p>
                   </div>
                 </div>
@@ -132,7 +134,7 @@ export function BookingConfirmation() {
                   Employer
                 </p>
                 <div className="flex items-center gap-3">
-                  <div className="text-4xl">{bookingDetails.employer.avatar}</div>
+                  <Avatar name={bookingDetails.employer.name} size={48} />
                   <div>
                     <p className="font-bold text-foreground">
                       {bookingDetails.employer.name}

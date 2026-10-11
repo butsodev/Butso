@@ -7,7 +7,8 @@
  */
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Star, X, SlidersHorizontal, Store, Users } from 'lucide-react'
+import { Search, MapPin, X, SlidersHorizontal, Store, Users } from 'lucide-react'
+import { RatingBadge } from '@/components/Rating'
 import { useState, useMemo } from 'react'
 import { useAppStore, type Shop } from '@/lib/store'
 import { PeopleSearch } from '@/components/PeopleSearch'
@@ -54,7 +55,7 @@ function ShopCard({ shop, onPress }: { shop: Shop; onPress: () => void }) {
                         <div className="flex items-start justify-between gap-2">
                             <h3 className="font-black text-foreground text-sm leading-tight truncate">{shop.name}</h3>
                             <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${shop.isOpen ? 'bg-green-500/10 text-green-600' : 'bg-muted text-muted-foreground'}`}>
-                                {shop.isOpen ? '● Open' : '● Closed'}
+                                <span className="inline-block w-1.5 h-1.5 rounded-full bg-current mr-1 align-middle" />{shop.isOpen ? 'Open' : 'Closed'}
                             </span>
                         </div>
 
@@ -63,9 +64,8 @@ function ShopCard({ shop, onPress }: { shop: Shop; onPress: () => void }) {
                         <div className="flex items-center gap-3 mt-2 flex-wrap">
                             {/* Rating */}
                             {shop.reviewCount > 0 ? (
-                                <div className="flex items-center gap-1">
-                                    <Star size={11} className="text-amber-500 fill-amber-500" />
-                                    <span className="text-xs font-bold text-foreground">{shop.rating.toFixed(1)}</span>
+                                <div className="flex items-center gap-1.5">
+                                    <RatingBadge value={shop.rating} size="xs" />
                                     <span className="text-xs text-muted-foreground">({shop.reviewCount})</span>
                                 </div>
                             ) : (

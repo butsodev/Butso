@@ -1,9 +1,11 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowLeft, Star, Heart, MessageCircle } from 'lucide-react'
+import { ArrowLeft, Heart, MessageCircle } from 'lucide-react'
+import { RatingBadge, RatingMeter } from '@/components/Rating'
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
+import { Avatar } from '@/components/Avatar'
 
 const mockReviews = [
   {
@@ -96,14 +98,8 @@ export function RatingsReviews() {
               <div className="text-5xl font-bold text-primary mb-2">
                 {averageRating}
               </div>
-              <div className="flex justify-center gap-1 mb-2">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={20}
-                    className={i < Math.floor(parseFloat(averageRating)) ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}
-                  />
-                ))}
+              <div className="flex justify-center mb-2">
+                <RatingMeter value={parseFloat(averageRating)} />
               </div>
               <p className="text-sm text-muted-foreground">
                 Based on {reviews.length} reviews
@@ -115,11 +111,11 @@ export function RatingsReviews() {
               {ratingCounts.map((item) => (
                 <div key={item.rating} className="flex items-center gap-3 mb-3">
                   <span className="text-sm font-medium text-foreground w-8">
-                    {item.rating}★
+                    {item.rating}
                   </span>
                   <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-primary transition-all"
+                      className="h-full bg-amber-500 transition-all"
                       style={{
                         width: `${(item.count / reviews.length) * 100}%`,
                       }}
@@ -153,21 +149,13 @@ export function RatingsReviews() {
               {/* Header */}
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3 flex-1">
-                  <div className="text-4xl">{review.avatar}</div>
+                  <Avatar name={review.author} size={44} />
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-foreground">{review.author}</p>
                     <p className="text-xs text-muted-foreground">{review.date}</p>
                   </div>
                 </div>
-                <div className="flex gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={16}
-                      className={i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}
-                    />
-                  ))}
-                </div>
+                <RatingBadge value={review.rating} size="sm" />
               </div>
 
               {/* Review Content */}

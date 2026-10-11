@@ -75,7 +75,7 @@ export function Settings() {
               <div className="mt-4">
                 <p className="text-sm text-muted-foreground">Rating</p>
                 <p className="text-lg font-bold text-primary">
-                  ★ {currentUser.rating || 5.0}
+                  {Number(currentUser.rating || 5).toFixed(1)} / 5
                 </p>
               </div>
             )}

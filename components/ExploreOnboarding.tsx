@@ -17,6 +17,7 @@ import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
+import { Check } from 'lucide-react'
 const ALL_CATEGORIES = [
     { emoji: '🔧', name: 'Plumbing' },
     { emoji: '⚡', name: 'Electrical' },
@@ -156,7 +157,7 @@ export function ExploreOnboarding() {
                                     animate={{ scale: 1 }}
                                     style={{ position: 'absolute', top: 6, right: 6, width: 14, height: 14, background: '#1B9E6E', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 >
-                                    <span style={{ color: '#fff', fontSize: 9, fontWeight: 900 }}>✓</span>
+                                    <Check size={9} color="#fff" strokeWidth={4} />
                                 </motion.div>
                             )}
                         </motion.button>

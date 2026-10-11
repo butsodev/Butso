@@ -2,7 +2,8 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect, useRef } from 'react'
-import { Star, ChevronRight, MapPin, ArrowRight, CheckCircle } from 'lucide-react'
+import { ChevronRight, MapPin, ArrowRight, CheckCircle, Award } from 'lucide-react'
+
 import { useAppStore } from '@/lib/store'
 import { HeroSlideshow } from '@/components/HeroSlideshow'
 import { IMAGES } from '@/lib/cloudinary'
@@ -364,7 +365,7 @@ export function LandingPage() {
             {/* Eyebrow */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.68rem', fontWeight: 700, color: C.green, background: C.greenBg, border: `1px solid rgba(27,158,110,0.25)`, padding: '0.25rem 0.8rem', borderRadius: 99, marginBottom: '1.25rem' }}>
-                🇳🇬 "Butsó" means work in Jukun · Starting in Wukari, built for Taraba
+                "Butsó" means work in Jukun · Starting in Wukari, built for Taraba
               </span>
             </motion.div>
 
@@ -449,7 +450,7 @@ export function LandingPage() {
                   </div>
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 3, justifyContent: 'flex-end', marginBottom: 2 }}>
-                      <Star size={9} fill="#F59E0B" color="#F59E0B" />
+                      <Award size={11} color="#F59E0B" strokeWidth={2.2} />
                       <span style={{ fontSize: '0.72rem', fontWeight: 700, color: C.text }}>{w.rating}</span>
                     </div>
                     <span style={{ fontSize: '0.65rem', color: C.faint }}>{w.rate}</span>
@@ -677,7 +678,7 @@ export function LandingPage() {
                   onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = C.faqHover; el.style.color = C.text }}
                   onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = C.faqBase; el.style.color = C.mid }}
                 >
-                  <span>{item.icon}&nbsp;&nbsp;{item.label}</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}><EmojiIcon e={item.icon} size={18} />{item.label}</span>
                   <ChevronRight size={15} style={{ color: C.faint, flexShrink: 0 }} />
                 </button>
               ))}
@@ -700,7 +701,7 @@ export function LandingPage() {
       {/* ── STATS BAR ────────────────────────────────────────────────────── */}
       <div style={{ background: C.green, padding: '1.5rem' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem', textAlign: 'center' }}>
-          {[['500+', 'Skilled workers'], ['1,200+', 'Jobs completed'], ['4.8★', 'Average rating'], ['₦0', 'To sign up']].map(([v, l], i) => (
+          {[['500+', 'Skilled workers'], ['1,200+', 'Jobs completed'], ['4.8/5', 'Average rating'], ['₦0', 'To sign up']].map(([v, l], i) => (
             <div key={i}>
               <div style={{ fontSize: 'clamp(1.3rem,2.5vw,1.8rem)', fontWeight: 900, letterSpacing: '-0.03em', color: '#fff', lineHeight: 1 }}>{v}</div>
               <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.72)', marginTop: '0.25rem', fontWeight: 500 }}>{l}</div>
@@ -726,7 +727,7 @@ export function LandingPage() {
               Wunuken had been doing plumbing in Wukari for 8 years, mostly through word of mouth. Within a week of joining Butsó, he had 3 new clients who would never have found him otherwise.
             </p>
             <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.75rem', flexWrap: 'wrap' }}>
-              {[['₦42,000', 'earned first month'], ['3 jobs', 'in first week'], ['4.9★', 'client rating']].map(([v, l], i) => (
+              {[['₦42,000', 'earned first month'], ['3 jobs', 'in first week'], ['4.9/5', 'client rating']].map(([v, l], i) => (
                 <div key={i}>
                   <div style={{ fontSize: '1.25rem', fontWeight: 900, color: C.text, letterSpacing: '-0.02em' }}>{v}</div>
                   <div style={{ fontSize: '0.65rem', color: C.faint, marginTop: 2 }}>{l}</div>
@@ -756,7 +757,7 @@ export function LandingPage() {
               { e: '', t: 'Get it done', b: 'Work happens, payment tracked. Leave a rating when done.' },
             ].map((s, i) => (
               <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '1.6rem' }}>
-                <div style={{ fontSize: '1.9rem', marginBottom: '1rem' }}>{s.e}</div>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: C.greenBg, color: C.green, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.95rem', fontWeight: 900, marginBottom: '1rem' }}>{i + 1}</div>
                 <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: C.text, marginBottom: '0.5rem', lineHeight: 1.3 }}>{s.t}</h3>
                 <p style={{ fontSize: '0.78rem', color: C.muted, lineHeight: 1.65 }}>{s.b}</p>
               </div>

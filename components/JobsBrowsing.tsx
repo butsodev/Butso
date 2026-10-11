@@ -1,7 +1,8 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, DollarSign, Clock, SlidersHorizontal } from 'lucide-react'
+import { Search, MapPin, Clock, SlidersHorizontal } from 'lucide-react'
+import { NairaIcon } from '@/components/NairaIcon'
 import { useState, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 import { SkeletonJobsList } from '@/components/Skeleton'
@@ -165,7 +166,7 @@ export function JobsBrowsing() {
 
                   <div className="flex items-center gap-x-4 gap-y-1.5 mb-4 text-xs flex-wrap">
                     <div className="flex items-center gap-1.5 text-muted-foreground shrink-0">
-                      <DollarSign size={13} className="text-emerald-600" />
+                      <NairaIcon size={13} className="text-emerald-600" />
                       <span className="font-semibold text-foreground">₦{job.budget.toLocaleString()}</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-muted-foreground min-w-0">

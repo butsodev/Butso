@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
+import { Avatar } from '@/components/Avatar'
 type Message = { id: string; sender: 'me' | 'other'; text: string; time: string }
 type Conversation = {
   id: string; name: string; avatar: string; lastMessage: string
@@ -129,9 +130,7 @@ export function Messaging() {
           >
             <div className="flex items-start gap-3">
               <div className="relative shrink-0">
-                <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-xl">
-                  {conv.avatar}
-                </div>
+                <Avatar name={conv.name} size={44} />
                 {conv.isOnline && (
                   <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
                 )}
@@ -172,9 +171,7 @@ export function Messaging() {
             <ArrowLeft size={20} className="text-foreground" />
           </button>
           <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-xl">
-              {selectedConv.avatar}
-            </div>
+            <Avatar name={selectedConv.name} size={40} />
             {selectedConv.isOnline && (
               <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-background" />
             )}

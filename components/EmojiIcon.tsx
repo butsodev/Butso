@@ -2,7 +2,7 @@
 
 import {
   Store, Wrench, Sparkles, Zap, Car, MessageCircle, ClipboardList, Search, Construction, ChefHat,
-  CheckCircle2, Paintbrush, Bot, Wallet, Leaf, Scissors, Shirt, Camera, HardHat, Smartphone, Star,
+  CheckCircle2, Paintbrush, Bot, Wallet, Leaf, Scissors, Shirt, Camera, HardHat, Smartphone, Award,
   UserRound, Hammer, Package, Flower2, Hand, Target, Lock, Calendar, ThumbsUp, ThumbsDown, Users,
   Briefcase, GraduationCap, Headphones, Handshake, Moon, Bell, KeyRound, Lightbulb, CircleHelp, Mail,
   MailCheck, Rocket, Settings, BrickWall, Laptop, Palette, CircleDot, CreditCard, Image as ImageIcon,
@@ -16,7 +16,7 @@ const MAP: Record<string, LucideIcon> = {
   '📋': ClipboardList, '🔍': Search, '🏗️': Construction, '🚧': Construction, '🍳': ChefHat,
   '✅': CheckCircle2, '🎨': Paintbrush, '🤖': Bot, '💰': Wallet, '🌿': Leaf, '✂️': Scissors,
   '💇': Scissors, '🧵': Scissors, '👗': Shirt, '👕': Shirt, '👔': Briefcase, '📸': Camera,
-  '👷': HardHat, '📱': Smartphone, '⭐': Star, '🌟': Sparkles, '✨': Sparkles, '👩‍💼': UserRound,
+  '👷': HardHat, '📱': Smartphone, '⭐': Award, 'rating': Award, '🌟': Sparkles, '✨': Sparkles, '👩‍💼': UserRound,
   '👨‍💼': UserRound, '🧑': UserRound, '👨': UserRound, '👩': UserRound, '👤': User,
   '🪚': Hammer, '🪵': Hammer, '🧱': BrickWall, '📦': Package, '💆': Flower2, '👋': Hand,
   '🎯': Target, '🔒': Lock, '📅': Calendar, '👍': ThumbsUp, '👎': ThumbsDown, '👥': Users,

@@ -1,7 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Star, Briefcase, DollarSign, Clock, ArrowRight, Bell } from 'lucide-react'
+import { Award, Briefcase, Clock, ArrowRight, Bell, Search, Calendar, MessageCircle, Wallet } from 'lucide-react'
+import { NairaIcon } from '@/components/NairaIcon'
 import { useState, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 import { SkeletonDashboard } from '@/components/Skeleton'
@@ -36,16 +37,16 @@ export function WorkerDashboard() {
 
   const stats = [
     { icon: Briefcase, label: 'Jobs Done', value: currentUser?.completedJobs || 0, color: 'text-primary', bg: 'bg-primary/10' },
-    { icon: Star, label: 'Rating', value: `${currentUser?.rating || '5.0'}★`, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-    { icon: DollarSign, label: 'Earned', value: '₦0', color: 'text-emerald-600', bg: 'bg-emerald-500/10' },
+    { icon: Award, label: 'Rating', value: Number(currentUser?.rating || 5).toFixed(1), color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    { icon: NairaIcon, label: 'Earned', value: '₦0', color: 'text-emerald-600', bg: 'bg-emerald-500/10' },
     { icon: Clock, label: 'Status', value: 'Active', color: 'text-primary', bg: 'bg-primary/10' },
   ]
 
   const quickActions = [
-    { label: 'Browse Jobs', sub: 'Find work near you', icon: '🔍', page: 'jobs', primary: true },
-    { label: 'My Bookings', sub: 'View scheduled work', icon: '📅', page: 'bookings', primary: false },
-    { label: 'Messages', sub: 'Chat with employers', icon: '💬', page: 'messaging', primary: false },
-    { label: 'Payments', sub: 'Track your earnings', icon: '💰', page: 'payments', primary: false },
+    { label: 'Browse Jobs', sub: 'Find work near you', icon: Search, page: 'jobs', primary: true },
+    { label: 'My Bookings', sub: 'View scheduled work', icon: Calendar, page: 'bookings', primary: false },
+    { label: 'Messages', sub: 'Chat with employers', icon: MessageCircle, page: 'messaging', primary: false },
+    { label: 'Payments', sub: 'Track your earnings', icon: Wallet, page: 'payments', primary: false },
   ]
 
   return (
@@ -95,7 +96,7 @@ export function WorkerDashboard() {
                 ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 col-span-2'
                 : 'bg-card border border-border hover:border-primary/40'
                 }`}>
-              <span className="text-2xl">{action.icon}</span>
+              <span className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${action.primary ? 'bg-white/15 text-primary-foreground' : 'bg-primary/10 text-primary'}`}><action.icon size={20} strokeWidth={2} /></span>
               <div className="flex-1 min-w-0">
                 <p className={`font-bold text-sm ${action.primary ? 'text-primary-foreground' : 'text-foreground'}`}>{action.label}</p>
                 <p className={`text-xs truncate ${action.primary ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>{action.sub}</p>

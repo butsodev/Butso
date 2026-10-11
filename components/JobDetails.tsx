@@ -1,9 +1,12 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { MapPin, DollarSign, Clock, User, Star, ChevronLeft, Share2, Heart } from 'lucide-react'
+import { MapPin, Clock, User, ChevronLeft, Share2, Heart } from 'lucide-react'
+import { RatingBadge } from '@/components/Rating'
+import { NairaIcon } from '@/components/NairaIcon'
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
+import { Avatar } from '@/components/Avatar'
 
 export function JobDetails() {
   const { setCurrentPage, jobs, currentUser } = useAppStore()
@@ -165,14 +168,13 @@ export function JobDetails() {
             <h2 className="text-2xl font-bold text-foreground mb-4">About the Employer</h2>
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
-                <div className="text-5xl">{employer.avatar}</div>
+                <Avatar name={employer.name} size={56} />
                 <div>
                   <h3 className="text-xl font-bold text-foreground">{employer.name}</h3>
                   <p className="text-muted-foreground text-sm">{employer.bio}</p>
                   <div className="flex items-center gap-4 mt-2 text-sm">
                     <div className="flex items-center gap-1">
-                      <Star className="text-accent" size={16} fill="currentColor" />
-                      <span className="font-semibold text-foreground">{employer.rating}</span>
+                      <RatingBadge value={employer.rating} size="sm" />
                     </div>
                     <span className="text-muted-foreground">{employer.completedJobs} jobs completed</span>
                   </div>

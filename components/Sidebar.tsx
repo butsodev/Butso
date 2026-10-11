@@ -1,17 +1,8 @@
 'use client'
 
 import { useAppStore } from '@/lib/store'
-import {
-  Home,
-  Briefcase,
-  Zap,
-  MessageSquare,
-  Calendar,
-  DollarSign,
-  HelpCircle,
-  Settings as SettingsIcon,
-  LogOut
-} from 'lucide-react'
+import { Home, Briefcase, Zap, MessageSquare, Calendar, HelpCircle, Settings as SettingsIcon, LogOut } from 'lucide-react'
+import { NairaIcon } from '@/components/NairaIcon'
 
 interface NavItem {
   page: string
@@ -27,7 +18,7 @@ export function Sidebar() {
     { page: 'dashboard', label: 'Dashboard', icon: <Home size={20} />, roles: ['worker'] },
     { page: 'jobs', label: 'Browse Jobs', icon: <Briefcase size={20} />, roles: ['worker'] },
     { page: 'bookings', label: 'My Bookings', icon: <Calendar size={20} />, roles: ['worker'] },
-    { page: 'payments', label: 'Earnings', icon: <DollarSign size={20} />, roles: ['worker'] },
+    { page: 'payments', label: 'Earnings', icon: <NairaIcon size={20} />, roles: ['worker'] },
     { page: 'messaging', label: 'Messages', icon: <MessageSquare size={20} /> },
     { page: 'support', label: 'Help', icon: <HelpCircle size={20} /> },
     { page: 'settings', label: 'Settings', icon: <SettingsIcon size={20} /> },
@@ -37,7 +28,7 @@ export function Sidebar() {
     { page: 'dashboard', label: 'Dashboard', icon: <Home size={20} />, roles: ['employer'] },
     { page: 'post-job', label: 'Post Job', icon: <Zap size={20} />, roles: ['employer'] },
     { page: 'bookings', label: 'Bookings', icon: <Calendar size={20} />, roles: ['employer'] },
-    { page: 'payments', label: 'Payments', icon: <DollarSign size={20} />, roles: ['employer'] },
+    { page: 'payments', label: 'Payments', icon: <NairaIcon size={20} />, roles: ['employer'] },
     { page: 'messaging', label: 'Messages', icon: <MessageSquare size={20} /> },
     { page: 'support', label: 'Help', icon: <HelpCircle size={20} /> },
     { page: 'settings', label: 'Settings', icon: <SettingsIcon size={20} /> },

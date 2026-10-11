@@ -1,7 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Star, MapPin, Briefcase, Award, ChevronLeft, MessageCircle, Share2 } from 'lucide-react'
+import { MapPin, Briefcase, Award, ChevronLeft, MessageCircle, Share2 } from 'lucide-react'
+import { RatingBadge } from '@/components/Rating'
 import { useAppStore } from '@/lib/store'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
@@ -95,8 +96,7 @@ export function WorkerProfile() {
 
                 <div className="flex items-center gap-6 mb-4">
                   <div className="flex items-center gap-2">
-                    <Star className="text-accent" size={20} fill="currentColor" />
-                    <span className="font-bold text-lg text-foreground">{worker.rating}</span>
+                    <RatingBadge value={worker.rating ?? 5} size="lg" />
                     <span className="text-muted-foreground">(from {reviews.length} reviews)</span>
                   </div>
                   <div className="text-center">
@@ -202,7 +202,7 @@ export function WorkerProfile() {
           className="bg-card rounded-lg border border-border p-6 shadow-sm"
         >
           <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
-            <Star size={24} className="text-accent" />
+            <MessageCircle size={24} className="text-primary" />
             Client Reviews
           </h2>
           <div className="space-y-4">
@@ -218,16 +218,7 @@ export function WorkerProfile() {
                   <h3 className="font-bold text-foreground">{review.author}</h3>
                   <span className="text-xs text-muted-foreground">{review.date}</span>
                 </div>
-                <div className="flex items-center gap-1 mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={16}
-                      className={i < review.rating ? 'text-accent' : 'text-border'}
-                      fill={i < review.rating ? 'currentColor' : 'none'}
-                    />
-                  ))}
-                </div>
+                <div className="mb-2"><RatingBadge value={review.rating} size="xs" /></div>
                 <p className="text-foreground text-sm">{review.comment}</p>
               </motion.div>
             ))}

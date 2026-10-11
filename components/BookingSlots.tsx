@@ -170,8 +170,8 @@ export function BookingSlots() {
             </h2>
             <p className="text-sm text-muted-foreground mb-5">{formattedDate}</p>
             {duration && (
-              <p className="text-xs text-muted-foreground mb-4 bg-secondary rounded-lg px-3 py-2">
-                ⏱ This service takes ~{duration} minutes. Pick one slot.
+              <p className="text-xs text-muted-foreground mb-4 bg-secondary rounded-lg px-3 py-2 flex items-center gap-1.5">
+                <Clock size={13} className="shrink-0" /> This service takes ~{duration} minutes. Pick one slot.
               </p>
             )}
             <div className="grid grid-cols-2 gap-3 mb-6">

@@ -1,7 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowLeft, CreditCard, DollarSign, TrendingUp, Wallet, ArrowRight } from 'lucide-react'
+import { ArrowLeft, CreditCard, TrendingUp, Wallet, ArrowRight } from 'lucide-react'
+import { NairaIcon } from '@/components/NairaIcon'
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
 
@@ -77,7 +78,7 @@ export function PaymentsEarnings() {
       case 'withdrawal':
         return <ArrowRight size={20} className="text-destructive" />
       default:
-        return <DollarSign size={20} className="text-primary" />
+        return <NairaIcon size={20} className="text-primary" />
     }
   }
 

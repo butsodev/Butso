@@ -1,7 +1,8 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { Star, Briefcase, DollarSign, Clock, ArrowRight, Bell, Plus, Users, Sparkles } from 'lucide-react'
+import { Award, Briefcase, Clock, ArrowRight, Bell, Plus, Users, Sparkles, Search, Calendar, MessageCircle, Wallet, Store, Pin, User } from 'lucide-react'
+import { NairaIcon } from '@/components/NairaIcon'
 import { useState, useEffect } from 'react'
 import { useAppStore, type DashboardMode } from '@/lib/store'
 import { SkeletonDashboard } from '@/components/Skeleton'
@@ -142,8 +143,8 @@ export function UnifiedDashboard() {
       <motion.div variants={item} className="grid grid-cols-2 gap-3">
         {[
           { icon: Briefcase, label: 'Jobs Done', value: currentUser?.completedJobs || 0, color: 'text-primary', bg: 'bg-primary/10' },
-          { icon: Star, label: 'Rating', value: `${currentUser?.rating ?? 5.0}★`, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-          { icon: DollarSign, label: 'Earned', value: '₦0', color: 'text-emerald-600', bg: 'bg-emerald-500/10' },
+          { icon: Award, label: 'Rating', value: Number(currentUser?.rating ?? 5).toFixed(1), color: 'text-amber-500', bg: 'bg-amber-500/10' },
+          { icon: NairaIcon, label: 'Earned', value: '₦0', color: 'text-emerald-600', bg: 'bg-emerald-500/10' },
           { icon: Clock, label: 'Status', value: 'Active', color: 'text-primary', bg: 'bg-primary/10' },
         ].map(stat => {
           const Icon = stat.icon
@@ -177,15 +178,15 @@ export function UnifiedDashboard() {
       {/* Secondary actions */}
       <motion.div variants={item} className="grid grid-cols-2 gap-3">
         {[
-          { label: 'My Bookings', sub: 'Scheduled work', icon: '📅', page: 'bookings' },
-          { label: 'Messages', sub: 'Chat with hirers', icon: '💬', page: 'messaging' },
-          { label: 'My Earnings', sub: 'Track payments', icon: '💰', page: 'payments' },
-          { label: 'My Shop', sub: 'Manage your services', icon: '🏪', page: 'shop-setup' },
+          { label: 'My Bookings', sub: 'Scheduled work', icon: Calendar, page: 'bookings' },
+          { label: 'Messages', sub: 'Chat with hirers', icon: MessageCircle, page: 'messaging' },
+          { label: 'My Earnings', sub: 'Track payments', icon: Wallet, page: 'payments' },
+          { label: 'My Shop', sub: 'Manage your services', icon: Store, page: 'shop-setup' },
         ].map(action => (
           <motion.button key={action.label} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}
             onClick={() => setCurrentPage(action.page)}
             className="flex items-center gap-3 p-4 bg-card border border-border rounded-2xl text-left hover:border-primary/40 transition">
-            <span className="text-xl">{action.icon}</span>
+            <span className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0"><action.icon size={20} strokeWidth={2} /></span>
             <div className="min-w-0">
               <p className="font-bold text-sm text-foreground truncate">{action.label}</p>
               <p className="text-xs text-muted-foreground truncate">{action.sub}</p>
@@ -254,15 +255,15 @@ export function UnifiedDashboard() {
       {/* Secondary actions */}
       <motion.div variants={item} className="grid grid-cols-2 gap-3">
         {[
-          { label: 'My Jobs', sub: 'View posted jobs', icon: '📌', page: 'bookings' },
-          { label: 'Messages', sub: 'Chat with workers', icon: '💬', page: 'messaging' },
-          { label: 'Browse Shops', sub: 'Book a service', icon: '🏪', page: 'shops' },
-          { label: 'My Profile', sub: 'Edit your info', icon: '👤', page: 'profile' },
+          { label: 'My Jobs', sub: 'View posted jobs', icon: Pin, page: 'bookings' },
+          { label: 'Messages', sub: 'Chat with workers', icon: MessageCircle, page: 'messaging' },
+          { label: 'Browse Shops', sub: 'Book a service', icon: Store, page: 'shops' },
+          { label: 'My Profile', sub: 'Edit your info', icon: User, page: 'profile' },
         ].map(action => (
           <motion.button key={action.label} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}
             onClick={() => setCurrentPage(action.page)}
             className="flex items-center gap-3 p-4 bg-card border border-border rounded-2xl text-left hover:border-emerald-500/40 transition">
-            <span className="text-xl">{action.icon}</span>
+            <span className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0"><action.icon size={20} strokeWidth={2} /></span>
             <div className="min-w-0">
               <p className="font-bold text-sm text-foreground truncate">{action.label}</p>
               <p className="text-xs text-muted-foreground truncate">{action.sub}</p>

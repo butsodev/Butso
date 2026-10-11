@@ -1,7 +1,8 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Star, MapPin, Zap, SlidersHorizontal, X } from 'lucide-react'
+import { Search, MapPin, Zap, SlidersHorizontal, X } from 'lucide-react'
+import { RatingBadge } from '@/components/Rating'
 import { useState, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 import { mockWorkers } from '@/lib/mockData'
@@ -111,10 +112,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                   <MapPin size={13} /> {selectedWorker.location}
                 </p>
                 <div className="flex items-center gap-3 text-sm">
-                  <span className="flex items-center gap-1 font-bold">
-                    <Star size={14} fill="currentColor" className="text-yellow-300" />
-                    {selectedWorker.rating.toFixed(1)}
-                  </span>
+                  <RatingBadge value={selectedWorker.rating} size="sm" onDark />
                   <span className="text-primary-foreground/60">·</span>
                   <span className="text-primary-foreground/80">{selectedWorker.completedJobs} jobs done</span>
                   <span className="text-primary-foreground/60">·</span>
@@ -155,7 +153,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
               className="grid grid-cols-3 gap-3"
             >
               {[
-                { label: 'Rating', value: selectedWorker.rating.toFixed(1), icon: '⭐' },
+                { label: 'Rating', value: selectedWorker.rating.toFixed(1), icon: 'rating' },
                 { label: 'Jobs Done', value: selectedWorker.completedJobs, icon: '✅' },
                 { label: 'Rate/hr', value: `₦${(selectedWorker.hourlyRate / 1000).toFixed(0)}k`, icon: '💰' },
               ].map(stat => (
@@ -271,8 +269,8 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                   ))}
                 </div>
                 <div className="flex items-center justify-between text-xs pt-2 border-t border-border">
-                  <span className="flex items-center gap-1 font-bold text-foreground">
-                    <Star size={11} fill="currentColor" className="text-yellow-500" />{worker.rating.toFixed(1)}
+                  <span className="flex items-center gap-1.5 font-bold text-foreground">
+                    <RatingBadge value={worker.rating} size="xs" />
                     <span className="text-muted-foreground font-normal">({worker.completedJobs})</span>
                   </span>
                   <span className="font-bold text-primary">₦{worker.hourlyRate.toLocaleString()}/hr</span>
@@ -449,9 +447,8 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
 
                   {/* Footer */}
                   <div className="flex items-center justify-between gap-2 text-xs pt-3 border-t border-border flex-wrap">
-                    <span className="flex items-center gap-1 font-bold text-foreground min-w-0">
-                      <Star size={12} fill="currentColor" className="text-yellow-500 shrink-0" />
-                      {worker.rating.toFixed(1)}
+                    <span className="flex items-center gap-1.5 font-bold text-foreground min-w-0">
+                      <RatingBadge value={worker.rating} size="xs" className="shrink-0" />
                       <span className="text-muted-foreground font-normal ml-0.5 truncate">({worker.completedJobs} jobs)</span>
                     </span>
                     <span className="font-bold text-primary shrink-0">₦{worker.hourlyRate.toLocaleString()}/hr</span>

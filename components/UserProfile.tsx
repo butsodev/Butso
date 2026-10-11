@@ -1,7 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowLeft, Star, MapPin, Copy, Check, LogOut } from 'lucide-react'
+import { ArrowLeft, MapPin, Copy, Check, LogOut } from 'lucide-react'
+import { RatingBadge } from '@/components/Rating'
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
 
@@ -71,8 +72,7 @@ export function UserProfile() {
                 </button>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Star size={16} className="text-accent" fill="currentColor" />
-                <span className="font-semibold">{((currentUser.rating ?? 5).toFixed(1))}</span>
+                <RatingBadge value={currentUser.rating ?? 5} size="sm" />
                 <span>({currentUser.completedJobs} jobs completed)</span>
               </div>
             </div>

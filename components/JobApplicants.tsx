@@ -1,7 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Star, CheckCircle, XCircle, MessageCircle, ChevronLeft } from 'lucide-react'
+import { CheckCircle, XCircle, MessageCircle, ChevronLeft } from 'lucide-react'
+import { RatingBadge } from '@/components/Rating'
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
 
@@ -150,8 +151,7 @@ export function JobApplicants() {
                       )}
                     </div>
                     <div className="flex items-center gap-1 mb-1">
-                      <Star className="text-accent" size={12} fill="currentColor" />
-                      <span className="text-xs font-semibold text-foreground">{applicant.rating}</span>
+                      <RatingBadge value={applicant.rating} size="xs" />
                       <span className="text-xs text-muted-foreground">• {applicant.completedJobs} jobs</span>
                     </div>
                     <p className="text-xs text-muted-foreground">{applicant.appliedDate}</p>
@@ -202,8 +202,7 @@ export function JobApplicants() {
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Rating</p>
                       <div className="flex items-center gap-2">
-                        <Star className="text-accent" size={16} fill="currentColor" />
-                        <span className="font-bold text-lg text-foreground">{selectedData.rating}</span>
+                        <RatingBadge value={selectedData.rating} size="md" />
                       </div>
                     </div>
                     <div>

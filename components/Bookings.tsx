@@ -1,7 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Calendar, DollarSign, User, ChevronRight } from 'lucide-react'
+import { Calendar, User, ChevronRight } from 'lucide-react'
+import { NairaIcon } from '@/components/NairaIcon'
 import { useAppStore } from '@/lib/store'
 
 export function Bookings() {
@@ -116,7 +117,7 @@ export function Bookings() {
                           <span>{new Date(booking.date).toLocaleDateString()}</span>
                         </div>
                         <div className="flex items-center gap-2 text-muted-foreground">
-                          <DollarSign size={16} />
+                          <NairaIcon size={16} />
                           <span className="font-semibold">₦{booking.totalPrice}</span>
                         </div>
                         <div className="flex items-center gap-2 text-muted-foreground">

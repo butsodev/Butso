@@ -7,11 +7,12 @@
  */
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, MapPin, Phone, Star, Clock, Check, ChevronRight, Share2, MessageCircle } from 'lucide-react'
+import { ArrowLeft, MapPin, Phone, Award, Clock, Check, ChevronRight, Share2, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
 import { useAppStore, type Shop, type ShopService } from '@/lib/store'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
+import { RatingMeter } from '@/components/Rating'
 const DAY_LABELS: Record<string, string> = {
     mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
 }
@@ -42,15 +43,7 @@ function ServiceCard({ svc, onBook }: { svc: ShopService; onBook: (svc: ShopServ
 }
 
 function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
-    return (
-        <div className="flex items-center gap-0.5">
-            {[1, 2, 3, 4, 5].map(i => (
-                <svg key={i} width={size} height={size} viewBox="0 0 20 20" fill={i <= Math.round(rating) ? '#F59E0B' : 'none'} stroke="#F59E0B" strokeWidth="1.5">
-                    <polygon points="10,2 12.9,7 18.5,7.6 14.3,11.5 15.6,17 10,14.1 4.4,17 5.7,11.5 1.5,7.6 7.1,7" />
-                </svg>
-            ))}
-        </div>
-    )
+    return <RatingMeter value={rating} size={size >= 16 ? 'md' : 'sm'} />
 }
 
 export function ShopPage() {
@@ -146,7 +139,7 @@ export function ShopPage() {
                                     {shop.reviewCount > 0 && <span className="text-xs text-muted-foreground">({shop.reviewCount})</span>}
                                 </div>
                                 <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${shop.isOpen ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-500'}`}>
-                                    {shop.isOpen ? '● Open now' : '● Closed'}
+                                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-current mr-1 align-middle" />{shop.isOpen ? 'Open now' : 'Closed'}
                                 </span>
                             </div>
                         </div>
@@ -239,7 +232,7 @@ export function ShopPage() {
 
                             {shop.reviews.length === 0 ? (
                                 <div className="text-center py-10">
-                                    <p className="text-3xl mb-2"><EmojiIcon e="⭐" size={28} /></p>
+                                    <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-amber-500/15 text-amber-600 flex items-center justify-center"><Award size={24} /></div>
                                     <p className="font-semibold text-foreground mb-1">No reviews yet</p>
                                     <p className="text-sm text-muted-foreground">Be the first to book and leave a review</p>
                                 </div>
