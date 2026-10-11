@@ -2,7 +2,8 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef } from 'react'
-import { useAppStore } from '@/lib/store'
+import { useAppStore, type UserRole } from '@/lib/store'
+import { mockJobs, mockBookings, mockNotifications, mockTransactions, mockShops } from '@/lib/mockData'
 import { supabase } from '@/lib/supabase'
 
 type Panel = 'signup' | 'login'
@@ -20,23 +21,26 @@ const GoogleIcon = () => (
 )
 
 export function AuthPage() {
-    const { setCurrentPage } = useAppStore()
+    const { setCurrentPage, setCurrentUser, setDashboardMode, setJobs, setBookings, setNotifications, setTransactions, setShops } = useAppStore()
     const [panel, setPanel] = useState<Panel>('signup')
 
     // Shared method state per panel
     const [signupMethod, setSignupMethod] = useState<Method>(null)
     const [signupPhoneStep, setSignupPhoneStep] = useState<'input' | 'otp'>('input')
-    const [signupEmailStep, setSignupEmailStep] = useState<'input' | 'otp'>('input')
+    const [signupEmailStep, setSignupEmailStep] = useState<'input' | 'confirm'>('input')
 
     const [loginMethod, setLoginMethod] = useState<Method>(null)
     const [loginPhoneStep, setLoginPhoneStep] = useState<'input' | 'otp'>('input')
-    const [loginEmailStep, setLoginEmailStep] = useState<'input' | 'otp'>('input')
 
     // Field values
     const [signupPhone, setSignupPhone] = useState('')
     const [signupEmail, setSignupEmail] = useState('')
     const [loginPhone, setLoginPhone] = useState('')
     const [loginEmail, setLoginEmail] = useState('')
+    const [signupPassword, setSignupPassword] = useState('')
+    const [loginPassword, setLoginPassword] = useState('')
+    const [showPassword, setShowPassword] = useState(false)
+    const [infoMsg, setInfoMsg] = useState('')
 
     const [phoneError, setPhoneError] = useState('')
     const [emailError, setEmailError] = useState('')
@@ -93,10 +97,7 @@ export function AuthPage() {
         if (pasted.length === 6) setTimeout(() => onComplete(next.join('')), 150)
     }
 
-    // Note: no `profiles` table exists yet (that's Phase 2), so we can't yet tell
-    // apart a brand-new signup from a returning user. Every successful verification
-    // routes to profile-setup for now — this is a known, temporary limitation until
-    // the real schema exists.
+    // Phone OTP path is kept for later but hidden from the UI for now.
     const verifyAndProceed = async (
         contact: string,
         code: string,
@@ -138,6 +139,81 @@ export function AuthPage() {
             if (error) { setEmailError(error.message); return }
             onSuccess()
         }
+    }
+
+    // ── Email + password auth ────────────────────────────────────────────────
+    const friendlyAuthError = (msg: string) =>
+        msg === 'Invalid login credentials'
+            ? 'Incorrect email or password.'
+            : msg.toLowerCase().includes('email not confirmed')
+                ? 'Please confirm your email first. Check your inbox for the link.'
+                : msg
+
+    // Returning users already have a profiles row: load it and go straight to the
+    // dashboard. Brand-new users (no row yet) finish onboarding in profile-setup.
+    const routeAfterLogin = async (userId: string) => {
+        const { data: p } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
+        if (!p) { setCurrentPage('profile-setup'); return }
+        setCurrentUser({
+            id: p.id,
+            phone: p.phone || '',
+            name: p.name,
+            username: p.username,
+            role: p.role as UserRole,
+            bio: p.bio ?? undefined,
+            gender: p.gender ?? undefined,
+            skills: p.skills?.length ? p.skills : undefined,
+            rating: Number(p.rating ?? 5),
+            completedJobs: p.completed_jobs ?? 0,
+        })
+        setDashboardMode(p.role === 'employer' ? 'need-help' : 'find-work')
+        // Temporary: data screens still read mock data until the Phase 2 data-layer swap.
+        setJobs(mockJobs); setBookings(mockBookings); setNotifications(mockNotifications)
+        setTransactions(mockTransactions); setShops(mockShops)
+        setCurrentPage('dashboard')
+    }
+
+    const handleEmailSignup = async () => {
+        const email = signupEmail.trim()
+        if (!email.includes('@')) { setEmailError('Enter a valid email address'); return }
+        if (signupPassword.length < 8) { setEmailError('Password must be at least 8 characters'); return }
+        setEmailError(''); setInfoMsg(''); setIsLoading(true)
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password: signupPassword,
+            options: { emailRedirectTo: window.location.origin },
+        })
+        setIsLoading(false)
+        if (error) { setEmailError(friendlyAuthError(error.message)); return }
+        // For an already-registered email Supabase returns a user with no identities and no error.
+        if (data.user && data.user.identities?.length === 0) {
+            setEmailError('An account with this email already exists. Try logging in.')
+            return
+        }
+        if (data.session) { setCurrentPage('profile-setup'); return } // email confirmation is off
+        setSignupEmailStep('confirm') // email confirmation is on: tell them to check their inbox
+    }
+
+    const handleEmailLogin = async () => {
+        const email = loginEmail.trim()
+        if (!email.includes('@')) { setEmailError('Enter a valid email address'); return }
+        setEmailError(''); setIsLoading(true)
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password: loginPassword })
+        if (error || !data.user) {
+            setIsLoading(false)
+            setEmailError(friendlyAuthError(error?.message ?? 'Could not log in'))
+            return
+        }
+        await routeAfterLogin(data.user.id)
+        setIsLoading(false)
+    }
+
+    const resendConfirmation = async () => {
+        setInfoMsg(''); setEmailError(''); setIsLoading(true)
+        const { error } = await supabase.auth.resend({ type: 'signup', email: signupEmail.trim() })
+        setIsLoading(false)
+        if (error) setEmailError(error.message)
+        else setInfoMsg('Confirmation email sent again.')
     }
 
     // ── Shared UI ─────────────────────────────────────────────────────────────
@@ -245,16 +321,6 @@ export function AuthPage() {
 
             <Divider />
 
-            {/* Phone */}
-            <motion.button
-                whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
-                onClick={() => isSignup ? setSignupMethod('phone') : setLoginMethod('phone')}
-                className="w-full py-3.5 flex items-center justify-center gap-3 border-2 border-border rounded-xl font-semibold text-sm text-foreground hover:bg-secondary hover:border-primary/30 transition"
-            >
-                <span className="text-lg">📱</span>
-                Continue with Phone Number
-            </motion.button>
-
             {/* Email */}
             <motion.button
                 whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
@@ -297,7 +363,7 @@ export function AuthPage() {
                     <span className="text-2xl">📱</span>
                 </div>
                 <h2 className="text-2xl font-black text-foreground mb-1 tracking-tight">Your number</h2>
-                <p className="text-muted-foreground text-sm">We'll send a 4-digit code to verify</p>
+                <p className="text-muted-foreground text-sm">We'll send a 6-digit code to verify</p>
             </div>
             <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">+234</span>
@@ -322,44 +388,107 @@ export function AuthPage() {
         </motion.div>
     )
 
-    // ── Email input screen ────────────────────────────────────────────────────
-    const renderEmailInput = (
-        value: string,
-        setValue: (v: string) => void,
+    // ── Email + password form ─────────────────────────────────────────────────
+    const renderEmailForm = (
+        isSignup: boolean,
+        email: string, setEmail: (v: string) => void,
+        password: string, setPassword: (v: string) => void,
         onBack: () => void,
-        onNext: () => void
+        onSubmit: () => void
     ) => (
         <motion.div
-            key="email-input"
+            key="email-form"
             initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.25, ease }}
             className="space-y-4"
         >
-            <BackBtn onClick={onBack} />
+            <BackBtn onClick={() => { setEmailError(''); setShowPassword(false); onBack() }} />
             <div>
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 mb-4">
                     <span className="text-2xl">✉️</span>
                 </div>
-                <h2 className="text-2xl font-black text-foreground mb-1 tracking-tight">Your email</h2>
-                <p className="text-muted-foreground text-sm">We'll send a verification code</p>
+                <h2 className="text-2xl font-black text-foreground mb-1 tracking-tight">
+                    {isSignup ? 'Create your account' : 'Log in with email'}
+                </h2>
+                <p className="text-muted-foreground text-sm">
+                    {isSignup ? 'Use your email and choose a password' : 'Enter your email and password'}
+                </p>
             </div>
             <input
-                type="email" placeholder="you@example.com" value={value} autoFocus
-                onChange={e => { setValue(e.target.value); setEmailError('') }}
-                onKeyDown={e => e.key === 'Enter' && onNext()}
+                type="email" placeholder="you@example.com" value={email} autoFocus autoComplete="email"
+                onChange={e => { setEmail(e.target.value); setEmailError('') }}
                 className="w-full px-4 py-4 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-base placeholder:text-muted-foreground/40 transition"
             />
+            <div className="relative">
+                <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder={isSignup ? 'Password (min 8 characters)' : 'Password'}
+                    value={password}
+                    autoComplete={isSignup ? 'new-password' : 'current-password'}
+                    onChange={e => { setPassword(e.target.value); setEmailError('') }}
+                    onKeyDown={e => e.key === 'Enter' && onSubmit()}
+                    className="w-full px-4 py-4 pr-16 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-base placeholder:text-muted-foreground/40 transition"
+                />
+                <button
+                    type="button"
+                    onClick={() => setShowPassword(v => !v)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground hover:text-foreground transition"
+                >
+                    {showPassword ? 'Hide' : 'Show'}
+                </button>
+            </div>
             {emailError && <p className="text-destructive text-sm">{emailError}</p>}
             <motion.button
                 whileTap={{ scale: 0.97 }}
-                onClick={onNext}
-                disabled={isLoading || !value.includes('@')}
+                onClick={onSubmit}
+                disabled={isLoading || !email.includes('@') || password.length < (isSignup ? 8 : 1)}
                 className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition disabled:opacity-40 flex items-center justify-center gap-2 text-sm"
             >
                 {isLoading
-                    ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Sending code...</>
-                    : 'Send Code →'}
+                    ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> {isSignup ? 'Creating account...' : 'Logging in...'}</>
+                    : (isSignup ? 'Create account' : 'Log in')}
             </motion.button>
+        </motion.div>
+    )
+
+    // ── "Check your inbox" screen (only shown when email confirmation is on) ──
+    const renderConfirmEmail = () => (
+        <motion.div
+            key="email-confirm"
+            initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
+            transition={{ duration: 0.25, ease }}
+            className="space-y-4"
+        >
+            <BackBtn onClick={() => { setSignupEmailStep('input'); setInfoMsg(''); setEmailError('') }} />
+            <div>
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 mb-4">
+                    <span className="text-2xl">📬</span>
+                </div>
+                <h2 className="text-2xl font-black text-foreground mb-1 tracking-tight">Check your inbox</h2>
+                <p className="text-muted-foreground text-sm">
+                    We sent a confirmation link to <strong>{signupEmail.trim()}</strong>. Click it, then come back here and log in.
+                </p>
+            </div>
+            {infoMsg && <p className="text-sm text-green-600">{infoMsg}</p>}
+            {emailError && <p className="text-destructive text-sm">{emailError}</p>}
+            <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => {
+                    setLoginEmail(signupEmail.trim()); setLoginPassword('')
+                    setSignupEmailStep('input'); setSignupMethod(null)
+                    setPanel('login'); setLoginMethod('email')
+                    setInfoMsg(''); setEmailError('')
+                }}
+                className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition text-sm"
+            >
+                I've confirmed, log me in
+            </motion.button>
+            <p className="text-center text-sm text-muted-foreground">
+                Didn't get it?{' '}
+                <button onClick={resendConfirmation} disabled={isLoading} className="text-primary font-bold hover:underline disabled:opacity-50">
+                    Resend
+                </button>
+            </p>
         </motion.div>
     )
 
@@ -433,21 +562,16 @@ export function AuthPage() {
                                     )}
 
                                     {signupMethod === 'email' && signupEmailStep === 'input' &&
-                                        renderEmailInput(
+                                        renderEmailForm(
+                                            true,
                                             signupEmail, setSignupEmail,
+                                            signupPassword, setSignupPassword,
                                             () => setSignupMethod(null),
-                                            () => sendCode(signupEmail, 'email', () => setSignupEmailStep('otp'))
+                                            handleEmailSignup
                                         )
                                     }
 
-                                    {signupMethod === 'email' && signupEmailStep === 'otp' && (
-                                        <OtpStep
-                                            contact={signupEmail}
-                                            arr={otp} setArr={setOtp} refs={otpRefs}
-                                            onBack={() => setSignupEmailStep('input')}
-                                            type="email"
-                                        />
-                                    )}
+                                    {signupMethod === 'email' && signupEmailStep === 'confirm' && renderConfirmEmail()}
                                 </AnimatePresence>
                             </motion.div>
                         )}
@@ -482,22 +606,15 @@ export function AuthPage() {
                                         />
                                     )}
 
-                                    {loginMethod === 'email' && loginEmailStep === 'input' &&
-                                        renderEmailInput(
+                                    {loginMethod === 'email' &&
+                                        renderEmailForm(
+                                            false,
                                             loginEmail, setLoginEmail,
+                                            loginPassword, setLoginPassword,
                                             () => setLoginMethod(null),
-                                            () => sendCode(loginEmail, 'email', () => setLoginEmailStep('otp'))
+                                            handleEmailLogin
                                         )
                                     }
-
-                                    {loginMethod === 'email' && loginEmailStep === 'otp' && (
-                                        <OtpStep
-                                            contact={loginEmail}
-                                            arr={loginOtp} setArr={setLoginOtp} refs={loginOtpRefs}
-                                            onBack={() => setLoginEmailStep('input')}
-                                            type="email"
-                                        />
-                                    )}
                                 </AnimatePresence>
                             </motion.div>
                         )}
