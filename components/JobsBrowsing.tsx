@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 import { SkeletonJobsList } from '@/components/Skeleton'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 const containerVariants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.06 } },
@@ -114,7 +115,7 @@ export function JobsBrowsing() {
                   : 'bg-card border border-border text-foreground hover:border-primary/50'
                   }`}
               >
-                <span>{cat.emoji}</span>
+                <span><EmojiIcon e={cat.emoji} size={20} /></span>
                 {cat.label}
               </motion.button>
             )
@@ -130,7 +131,7 @@ export function JobsBrowsing() {
             animate={{ opacity: 1 }}
             className="bg-card border border-border rounded-2xl p-12 text-center"
           >
-            <div className="text-4xl mb-3">🔍</div>
+            <div className="text-4xl mb-3"><EmojiIcon e="🔍" size={34} /></div>
             <p className="font-bold text-foreground mb-1">No jobs found</p>
             <p className="text-sm text-muted-foreground">Try a different category or search term</p>
           </motion.div>

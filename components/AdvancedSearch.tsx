@@ -49,7 +49,7 @@ export function AdvancedSearch() {
     selectedCategory && `Category: ${selectedCategory}`,
     selectedBudget && `Budget: ${selectedBudget}`,
     minRating > 0 && `Rating: ${minRating}★+`,
-  ].filter(Boolean)
+  ].filter((f): f is string => Boolean(f))
 
   return (
     <motion.div
@@ -119,11 +119,10 @@ export function AdvancedSearch() {
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
-                    className={`p-3 rounded-lg text-left transition ${
-                      selectedCategory === cat
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-card text-foreground hover:bg-opacity-80'
-                    }`}
+                    className={`p-3 rounded-lg text-left transition ${selectedCategory === cat
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card text-foreground hover:bg-opacity-80'
+                      }`}
                   >
                     {cat}
                   </button>
@@ -139,11 +138,10 @@ export function AdvancedSearch() {
                   <button
                     key={range.label}
                     onClick={() => setSelectedBudget(selectedBudget === range.label ? null : range.label)}
-                    className={`w-full p-3 rounded-lg text-left transition ${
-                      selectedBudget === range.label
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-card text-foreground hover:bg-opacity-80'
-                    }`}
+                    className={`w-full p-3 rounded-lg text-left transition ${selectedBudget === range.label
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card text-foreground hover:bg-opacity-80'
+                      }`}
                   >
                     {range.label}
                   </button>

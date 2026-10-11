@@ -11,6 +11,7 @@ import { ArrowLeft, Plus, Trash2, ChevronRight, ChevronLeft, MapPin, Phone, Chec
 import { useState } from 'react'
 import { useAppStore, DEFAULT_HOURS, isShopOpenNow, type ShopService, type OpeningHours, type DayOfWeek, type Shop } from '@/lib/store'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 const SHOP_CATEGORIES = [
     { emoji: '✂️', name: 'Barbing' },
     { emoji: '👗', name: 'Tailoring' },
@@ -190,7 +191,7 @@ export function ShopSetup() {
                                     {SHOP_CATEGORIES.map(cat => (
                                         <button key={cat.name} onClick={() => setCategory(cat.name)}
                                             className={`flex flex-col items-center gap-1 p-2.5 rounded-xl border-2 transition text-center ${category === cat.name ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/40'}`}>
-                                            <span className="text-xl">{cat.emoji}</span>
+                                            <span className="text-xl"><EmojiIcon e={cat.emoji} size={20} /></span>
                                             <span className={`text-[10px] font-semibold leading-tight ${category === cat.name ? 'text-primary' : 'text-muted-foreground'}`}>{cat.name}</span>
                                         </button>
                                     ))}
@@ -331,7 +332,7 @@ export function ShopSetup() {
                                                     {(['fixed', 'negotiable'] as const).map(t => (
                                                         <button key={t} onClick={() => setEditingSvc(s => ({ ...s, pricingType: t }))}
                                                             className={`py-2.5 rounded-xl font-semibold text-sm border-2 transition capitalize ${editingSvc.pricingType === t ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-primary/40'}`}>
-                                                            {t === 'fixed' ? '✅ Fixed price' : '🤝 Negotiable'}
+                                                            {t === 'fixed' ? 'Fixed price' : 'Negotiable'}
                                                         </button>
                                                     ))}
                                                 </div>
@@ -404,7 +405,7 @@ export function ShopSetup() {
                             <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
                                 <div className="flex items-start gap-3">
                                     <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
-                                        {SHOP_CATEGORIES.find(c => c.name === category)?.emoji ?? '🏪'}
+                                        <EmojiIcon e={SHOP_CATEGORIES.find(c => c.name === category)?.emoji ?? ''} size={24} />
                                     </div>
                                     <div>
                                         <h3 className="font-black text-foreground text-lg leading-tight">{name}</h3>
@@ -463,7 +464,7 @@ export function ShopSetup() {
                         ) : (
                             <motion.button whileTap={{ scale: 0.98 }} onClick={handleSave} disabled={saving}
                                 className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:bg-primary/90 transition disabled:opacity-50">
-                                {saving ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Publishing...</> : '🚀 Publish Shop'}
+                                {saving ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Publishing...</> : 'Publish Shop'}
                             </motion.button>
                         )}
                     </div>

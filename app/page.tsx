@@ -45,6 +45,7 @@ import { ShopsBrowsing } from '@/components/ShopsBrowsing'
 import { ShopPage } from '@/components/ShopPage'
 import { ShopSetup } from '@/components/ShopSetup'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 const KNOWN_PAGES = [
   'dashboard', 'jobs', 'people', 'bookings', 'post-job', 'job-details', 'apply-job',
   'worker-profile', 'job-applicants', 'booking-slots', 'messaging', 'settings',
@@ -230,7 +231,7 @@ export default function Home() {
             {!KNOWN_PAGES.includes(currentPage) && (
               <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="text-center">
-                  <p className="text-4xl mb-3">🚧</p>
+                  <p className="text-4xl mb-3"><EmojiIcon e="🚧" size={34} /></p>
                   <h1 className="text-2xl font-black text-foreground mb-2">Coming Soon</h1>
                   <p className="text-muted-foreground text-sm">This page is under development</p>
                 </div>

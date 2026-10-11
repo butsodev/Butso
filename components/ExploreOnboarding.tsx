@@ -16,6 +16,7 @@ import { ArrowRight, X } from 'lucide-react'
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 const ALL_CATEGORIES = [
     { emoji: '🔧', name: 'Plumbing' },
     { emoji: '⚡', name: 'Electrical' },
@@ -145,7 +146,7 @@ export function ExploreOnboarding() {
                             transition={{ delay: 0.08 + i * 0.03, duration: 0.3, ease: 'easeOut' }}
                             whileTap={{ scale: 0.94 }}
                         >
-                            <span style={{ fontSize: '1.6rem', lineHeight: 1 }}>{cat.emoji}</span>
+                            <span style={{ fontSize: '1.6rem', lineHeight: 1 }}><EmojiIcon e={cat.emoji} size={26} /></span>
                             <span className="ob-cat-name" style={{ fontSize: '0.68rem', fontWeight: 600, color: '#8A8980', textAlign: 'center', lineHeight: 1.3, transition: 'color 0.15s' }}>
                                 {cat.name}
                             </span>

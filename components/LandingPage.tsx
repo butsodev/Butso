@@ -7,6 +7,7 @@ import { useAppStore } from '@/lib/store'
 import { HeroSlideshow } from '@/components/HeroSlideshow'
 import { IMAGES } from '@/lib/cloudinary'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 // ─── MEDIA SLOTS ──────────────────────────────────────────────────────────────
 // All images now served from Cloudinary — see lib/cloudinary.ts.
 // Everything shows a clean placeholder until real media arrives.
@@ -45,16 +46,16 @@ const MEDIA = {
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const TICKER = [
-  '🔧 Plumber needed · Wukari GRA · ₦8,000',
-  '⚡ Electrician · 3-day job · ₦15,000',
-  '🧹 Office cleaner · Weekly · ₦5,000',
-  '🏗️ Carpenter needed · Furniture build',
-  '🎨 House painter · 4 rooms · ₦20,000',
-  '🌿 Gardener · Monthly · ₦6,000',
-  '🍳 Event cook · Saturday · ₦12,000',
-  '🚗 Driver · School run · Daily',
-  '🛠️ Welder · Gate repair · North Wukari',
-  '👷 Bricklayer · Extension job · Urgent',
+  'Plumber needed · Wukari GRA · ₦8,000',
+  'Electrician · 3-day job · ₦15,000',
+  'Office cleaner · Weekly · ₦5,000',
+  'Carpenter needed · Furniture build',
+  'House painter · 4 rooms · ₦20,000',
+  'Gardener · Monthly · ₦6,000',
+  'Event cook · Saturday · ₦12,000',
+  'Driver · School run · Daily',
+  'Welder · Gate repair · North Wukari',
+  'Bricklayer · Extension job · Urgent',
 ]
 
 const WORKERS = [
@@ -167,7 +168,7 @@ function Img({ src, alt, emoji, label, style, className, eager }: {
       gap: 8, background: 'rgba(27,158,110,0.07)', border: '1.5px dashed rgba(27,158,110,0.25)',
       borderRadius: 12, padding: '1rem', textAlign: 'center', color: '#1B9E6E', ...style,
     }} className={className}>
-      <span style={{ fontSize: '2rem' }}>{emoji}</span>
+      <span style={{ display: 'inline-flex' }}>{emoji ? <EmojiIcon e={emoji} size={32} /> : null}</span>
       <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.7 }}>{label}</span>
     </div>
   )
@@ -312,7 +313,7 @@ export function LandingPage() {
             </div>
             <button onClick={toggleDarkMode} aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, padding: '0.4rem', borderRadius: 6, fontSize: '0.9rem', display: 'flex', alignItems: 'center' }}>
-              {darkMode ? '☀️' : '🌙'}
+              {darkMode ? '' : ''}
             </button>
             {/* Google placeholder — small, nav-width */}
             <button
@@ -516,7 +517,7 @@ export function LandingPage() {
                 onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = C.green; el.style.color = C.green; el.style.background = C.greenBg }}
                 onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = C.border; el.style.color = C.mid; el.style.background = C.card }}
               >
-                <span>{item.emoji}</span>{item.label}
+                <span><EmojiIcon e={item.emoji} size={20} /></span>{item.label}
               </button>
             ))}
           </div>
@@ -688,7 +689,7 @@ export function LandingPage() {
             <Img
               src={MEDIA.whoFor}
               alt="Who is Butsó for?"
-              emoji="🧑‍🤝‍🧑"
+              emoji=""
               label={'600×720px · who-for.jpg'}
               style={{ width: '100%', height: 480, objectFit: 'cover', borderRadius: 20, display: 'block' }}
             />
@@ -713,7 +714,7 @@ export function LandingPage() {
         <div style={{ maxWidth: 1160, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'center' }} className="ld-story-grid">
           {/* Photo */}
           <div style={{ borderRadius: 20, overflow: 'hidden', aspectRatio: '4/3', background: C.card, border: `1px solid ${C.border}`, position: 'relative' }}>
-            <Img src={MEDIA.successStory} alt="Success story" emoji="📸" label={'Worker + client · success-story.jpg'} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <Img src={MEDIA.successStory} alt="Success story" emoji="" label={'Worker + client · success-story.jpg'} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </div>
           {/* Story text */}
           <div>
@@ -749,10 +750,10 @@ export function LandingPage() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '1.25rem' }}>
             {[
-              { e: '📱', t: 'Sign up free', b: 'Just your phone number. No CV, no documents or fees. Ever.' },
-              { e: '🔍', t: 'Browse or post', b: 'Find skilled workers nearby or post your own skills and get hired.' },
-              { e: '💬', t: 'Chat & agree', b: 'Message directly, agree on price. No middleman taking a cut.' },
-              { e: '✅', t: 'Get it done', b: 'Work happens, payment tracked. Leave a rating when done.' },
+              { e: '', t: 'Sign up free', b: 'Just your phone number. No CV, no documents or fees. Ever.' },
+              { e: '', t: 'Browse or post', b: 'Find skilled workers nearby or post your own skills and get hired.' },
+              { e: '', t: 'Chat & agree', b: 'Message directly, agree on price. No middleman taking a cut.' },
+              { e: '', t: 'Get it done', b: 'Work happens, payment tracked. Leave a rating when done.' },
             ].map((s, i) => (
               <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '1.6rem' }}>
                 <div style={{ fontSize: '1.9rem', marginBottom: '1rem' }}>{s.e}</div>
@@ -778,7 +779,7 @@ export function LandingPage() {
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = C.green }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = C.border }}
               >
-                <div style={{ fontSize: '1.9rem', marginBottom: '1rem' }}>{g.emoji}</div>
+                <div style={{ fontSize: '1.9rem', marginBottom: '1rem' }}><EmojiIcon e={g.emoji} size={30} /></div>
                 <span style={{ fontSize: '0.65rem', fontWeight: 700, color: C.green, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{g.tag}</span>
                 <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: C.text, margin: '0.5rem 0', lineHeight: 1.3 }}>{g.title}</h3>
                 <p style={{ fontSize: '0.8rem', color: C.muted, lineHeight: 1.65 }}>{g.body}</p>
@@ -791,7 +792,7 @@ export function LandingPage() {
       {/* ── BOTTOM CTA — LinkedIn "Join your colleagues" with bg image ─── */}
       <section style={{ position: 'relative', overflow: 'hidden', minHeight: 300 }}>
         {/* Background image — LinkedIn's after: pseudo approach */}
-        <Img src={MEDIA.bottomBg} alt="" emoji="🏙️" label="bottom-bg.jpg" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+        <Img src={MEDIA.bottomBg} alt="" emoji="" label="bottom-bg.jpg" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
         {/* Dark overlay — text floats on top */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(10,10,10,0.72) 0%, rgba(10,10,10,0.55) 50%, rgba(10,10,10,0.2) 100%)' }} />
 

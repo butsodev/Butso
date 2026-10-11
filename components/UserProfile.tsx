@@ -155,7 +155,7 @@ export function UserProfile() {
           onClick={() => setCurrentPage('settings')}
           className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition py-2 lg:hidden"
         >
-          ⚙️ Settings
+          Settings
         </motion.button>
       </div>
     </motion.div>

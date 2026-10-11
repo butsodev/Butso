@@ -12,6 +12,7 @@ import { useState, useMemo } from 'react'
 import { useAppStore, type Shop } from '@/lib/store'
 import { PeopleSearch } from '@/components/PeopleSearch'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 const CATEGORIES = [
     { emoji: '✂️', name: 'Barbing' },
     { emoji: '👗', name: 'Tailoring' },
@@ -27,7 +28,7 @@ const CATEGORIES = [
     { emoji: '🌿', name: 'Gardening' },
 ]
 
-const getCategoryEmoji = (cat: string) => CATEGORIES.find(c => c.name === cat)?.emoji ?? '🏪'
+const getCategoryEmoji = (cat: string) => CATEGORIES.find(c => c.name === cat)?.emoji ?? ''
 
 function ShopCard({ shop, onPress }: { shop: Shop; onPress: () => void }) {
     const minPrice = shop.services.length > 0 ? Math.min(...shop.services.map(s => s.price)) : 0
@@ -46,7 +47,7 @@ function ShopCard({ shop, onPress }: { shop: Shop; onPress: () => void }) {
                 <div className="flex items-start gap-3">
                     {/* Icon */}
                     <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 border border-primary/15">
-                        {getCategoryEmoji(shop.category)}
+                        <EmojiIcon e={getCategoryEmoji(shop.category)} size={22} />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -228,7 +229,7 @@ export function ShopsBrowsing() {
                                 {sortedCategories.map(cat => (
                                     <button key={cat.name} onClick={() => setSelectedCat(selectedCat === cat.name ? null : cat.name)}
                                         className={`shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold border-2 transition ${selectedCat === cat.name ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary/40'}`}>
-                                        <span>{cat.emoji}</span> {cat.name}
+                                        <span><EmojiIcon e={cat.emoji} size={20} /></span> {cat.name}
                                     </button>
                                 ))}
                             </div>
@@ -246,7 +247,7 @@ export function ShopsBrowsing() {
                         {/* Shop grid */}
                         {filtered.length === 0 ? (
                             <div className="text-center py-16">
-                                <p className="text-4xl mb-3">🏪</p>
+                                <p className="text-4xl mb-3"><EmojiIcon e="🏪" size={34} /></p>
                                 <p className="font-bold text-foreground mb-1">No shops found</p>
                                 <p className="text-sm text-muted-foreground mb-4">
                                     {query ? `No results for "${query}"` : 'No shops in this category yet'}
@@ -272,7 +273,7 @@ export function ShopsBrowsing() {
                         {/* Empty state CTA for workers */}
                         {shops.length === 0 && (
                             <div className="mt-8 p-5 bg-primary/5 border border-primary/20 rounded-2xl text-center">
-                                <p className="text-2xl mb-2">🏪</p>
+                                <p className="text-2xl mb-2"><EmojiIcon e="🏪" size={24} /></p>
                                 <p className="font-bold text-foreground mb-1">Be the first to open a shop</p>
                                 <p className="text-sm text-muted-foreground mb-4">Set up your shop and start getting bookings today</p>
                                 <button onClick={() => setCurrentPage('shop-setup')}

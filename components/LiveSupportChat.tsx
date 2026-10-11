@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MessageCircle, X, Send, Minimize2, ChevronDown } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 type SupportMessage = {
     id: string
     sender: 'user' | 'support' | 'bot'
@@ -15,7 +16,7 @@ const INITIAL_MESSAGES: SupportMessage[] = [
     {
         id: '1',
         sender: 'bot',
-        text: '👋 Hi there! Welcome to Butsó Support. How can we help you today?',
+        text: 'Hi there! Welcome to Butsó Support. How can we help you today?',
         time: 'now',
     },
 ]
@@ -194,9 +195,7 @@ export function LiveSupportChat() {
                                                 className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                                             >
                                                 {msg.sender !== 'user' && (
-                                                    <div className="w-7 h-7 bg-primary/10 rounded-full flex items-center justify-center text-sm mr-2 shrink-0 mt-auto">
-                                                        🎧
-                                                    </div>
+                                                    <div className="w-7 h-7 bg-primary/10 rounded-full flex items-center justify-center text-sm mr-2 shrink-0 mt-auto"><EmojiIcon e="🎧" size={14} /></div>
                                                 )}
                                                 <div className={`max-w-[78%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${msg.sender === 'user'
                                                     ? 'bg-primary text-primary-foreground rounded-br-sm'
@@ -213,7 +212,7 @@ export function LiveSupportChat() {
                                         {/* Typing indicator */}
                                         {isTyping && (
                                             <div className="flex items-end gap-2">
-                                                <div className="w-7 h-7 bg-primary/10 rounded-full flex items-center justify-center text-sm shrink-0">🎧</div>
+                                                <div className="w-7 h-7 bg-primary/10 rounded-full flex items-center justify-center text-sm shrink-0"><EmojiIcon e="🎧" size={14} /></div>
                                                 <div className="bg-background border border-border px-4 py-3 rounded-2xl rounded-bl-sm">
                                                     <div className="flex gap-1 items-center">
                                                         {[0, 1, 2].map(i => (

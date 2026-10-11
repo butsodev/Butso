@@ -27,7 +27,7 @@ export function JobDetails() {
   const employer = {
     id: 'emp1',
     name: 'Mr. Okafor',
-    avatar: '👨‍💼',
+    avatar: '',
     rating: 4.8,
     completedJobs: 12,
     bio: 'Professional property developer with over 10 years of experience',
@@ -65,11 +65,10 @@ export function JobDetails() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsFavorite(!isFavorite)}
-              className={`p-2 rounded-lg transition ${
-                isFavorite
-                  ? 'bg-destructive/15 text-destructive'
-                  : 'bg-secondary text-muted-foreground hover:text-foreground'
-              }`}
+              className={`p-2 rounded-lg transition ${isFavorite
+                ? 'bg-destructive/15 text-destructive'
+                : 'bg-secondary text-muted-foreground hover:text-foreground'
+                }`}
             >
               <Heart size={20} fill={isFavorite ? 'currentColor' : 'none'} />
             </motion.button>
@@ -140,7 +139,7 @@ export function JobDetails() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <h2 className="text-2xl font-bold text-foreground mb-4">About This Job</h2>
             <p className="text-foreground leading-relaxed mb-4">{job.description}</p>
-            
+
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>

@@ -11,6 +11,7 @@ import { ArrowLeft, MapPin, Phone, Star, Clock, Check, ChevronRight, Share2, Mes
 import { useState } from 'react'
 import { useAppStore, type Shop, type ShopService } from '@/lib/store'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 const DAY_LABELS: Record<string, string> = {
     mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
 }
@@ -25,7 +26,7 @@ function ServiceCard({ svc, onBook }: { svc: ShopService; onBook: (svc: ShopServ
                 <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                     <span className="text-base font-black text-primary">₦{svc.price.toLocaleString()}</span>
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${svc.pricingType === 'fixed' ? 'bg-green-500/10 text-green-600' : 'bg-amber-500/10 text-amber-600'}`}>
-                        {svc.pricingType === 'fixed' ? '✅ Fixed price' : '🤝 Negotiable'}
+                        {svc.pricingType === 'fixed' ? 'Fixed price' : 'Negotiable'}
                     </span>
                     {svc.durationMinutes ? (
                         <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock size={10} />{svc.durationMinutes}min</span>
@@ -62,7 +63,7 @@ export function ShopPage() {
     if (!shop) return (
         <div className="min-h-screen bg-background flex items-center justify-center">
             <div className="text-center">
-                <p className="text-4xl mb-3">🏪</p>
+                <p className="text-4xl mb-3"><EmojiIcon e="🏪" size={34} /></p>
                 <p className="font-bold text-foreground mb-1">Shop not found</p>
                 <button onClick={() => setCurrentPage('shops')} className="text-primary text-sm font-semibold hover:underline">Browse shops</button>
             </div>
@@ -126,7 +127,7 @@ export function ShopPage() {
                     <div className="flex items-start gap-4 mb-4">
                         {/* Shop avatar */}
                         <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0 border border-primary/20">
-                            {shop.category === 'Barbing' ? '✂️' : shop.category === 'Cleaning' ? '🧹' : shop.category === 'Tailoring' ? '👗' : shop.category === 'Cooking' ? '🍳' : shop.category === 'Auto Repair' ? '🚗' : '🏪'}
+                            {shop.category === 'Barbing' ? '' : shop.category === 'Cleaning' ? '' : shop.category === 'Tailoring' ? '' : shop.category === 'Cooking' ? '' : shop.category === 'Auto Repair' ? '' : ''}
                         </div>
                         <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2">
@@ -238,7 +239,7 @@ export function ShopPage() {
 
                             {shop.reviews.length === 0 ? (
                                 <div className="text-center py-10">
-                                    <p className="text-3xl mb-2">⭐</p>
+                                    <p className="text-3xl mb-2"><EmojiIcon e="⭐" size={28} /></p>
                                     <p className="font-semibold text-foreground mb-1">No reviews yet</p>
                                     <p className="text-sm text-muted-foreground">Be the first to book and leave a review</p>
                                 </div>

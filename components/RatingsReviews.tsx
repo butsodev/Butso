@@ -9,7 +9,7 @@ const mockReviews = [
   {
     id: 1,
     author: 'Wando Agishi',
-    avatar: '👩‍💼',
+    avatar: '',
     rating: 5,
     date: '2 days ago',
     title: 'Excellent work!',
@@ -20,7 +20,7 @@ const mockReviews = [
   {
     id: 2,
     author: 'Isa Tarfa',
-    avatar: '👨‍💻',
+    avatar: '',
     rating: 5,
     date: '1 week ago',
     title: 'Perfect service',
@@ -31,7 +31,7 @@ const mockReviews = [
   {
     id: 3,
     author: 'Ashu Pwajok',
-    avatar: '👩‍🎨',
+    avatar: '',
     rating: 4,
     date: '2 weeks ago',
     title: 'Good quality work',

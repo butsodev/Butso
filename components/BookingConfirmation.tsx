@@ -16,11 +16,11 @@ export function BookingConfirmation() {
       name: 'Jinatswen Daka',
       rating: 4.8,
       reviews: 127,
-      avatar: '🧑‍🔧'
+      avatar: ''
     },
     employer: {
       name: 'Amaka Nwosu',
-      avatar: '👩‍💼'
+      avatar: ''
     },
     date: 'March 15, 2024',
     time: '9:00 AM - 2:00 PM',

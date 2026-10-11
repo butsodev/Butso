@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { useAppStore, type DashboardMode } from '@/lib/store'
 import { SkeletonDashboard } from '@/components/Skeleton'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 const container = {
   hidden: {},
   show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
@@ -69,7 +70,7 @@ export function UnifiedDashboard() {
             onClick={() => setCurrentPage(s.page)}
             className="flex items-center gap-2 shrink-0 px-3 py-2 bg-card border border-border rounded-2xl hover:border-primary/40 hover:bg-primary/5 transition-all"
           >
-            <span className="text-base leading-none">{s.emoji}</span>
+            <span className="text-base leading-none"><EmojiIcon e={s.emoji} size={16} /></span>
             <span className="text-xs font-semibold text-foreground whitespace-nowrap">{s.text}</span>
           </motion.button>
         ))}
@@ -91,7 +92,7 @@ export function UnifiedDashboard() {
           : 'bg-card border-2 border-border hover:border-primary/40'
           }`}
       >
-        <div className="text-2xl mb-2">🛠️</div>
+        <div className="text-2xl mb-2"><EmojiIcon e="🛠️" size={24} /></div>
         <p className={`font-black text-sm leading-tight ${isLooking ? 'text-white' : 'text-foreground'}`}>
           Find Work
         </p>
@@ -115,7 +116,7 @@ export function UnifiedDashboard() {
           : 'bg-card border-2 border-border hover:border-emerald-500/40'
           }`}
       >
-        <div className="text-2xl mb-2">📋</div>
+        <div className="text-2xl mb-2"><EmojiIcon e="📋" size={24} /></div>
         <p className={`font-black text-sm leading-tight ${!isLooking ? 'text-white' : 'text-foreground'}`}>
           Hire Someone
         </p>
@@ -165,7 +166,7 @@ export function UnifiedDashboard() {
       <motion.button variants={item} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
         onClick={() => setCurrentPage('jobs')}
         className="w-full flex items-center gap-4 p-5 bg-primary text-primary-foreground rounded-2xl shadow-md shadow-primary/20">
-        <span className="text-3xl">🔍</span>
+        <span className="text-3xl"><EmojiIcon e="🔍" size={28} /></span>
         <div className="flex-1 text-left">
           <p className="font-black text-base">Browse Available Jobs</p>
           <p className="text-primary-foreground/70 text-sm">Find work near you in Taraba</p>
@@ -200,7 +201,7 @@ export function UnifiedDashboard() {
           <button onClick={() => setCurrentPage('bookings')} className="text-xs text-primary font-semibold hover:underline">See all</button>
         </div>
         <div className="text-center py-6">
-          <div className="text-4xl mb-2">🎯</div>
+          <div className="text-4xl mb-2"><EmojiIcon e="🎯" size={34} /></div>
           <p className="font-semibold text-foreground mb-1">No activity yet</p>
           <p className="text-sm text-muted-foreground mb-4">Apply for your first job to get started</p>
           <motion.button whileTap={{ scale: 0.97 }} onClick={() => setCurrentPage('jobs')}
@@ -242,7 +243,7 @@ export function UnifiedDashboard() {
       <motion.button variants={item} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
         onClick={() => setCurrentPage('post-job')}
         className="w-full flex items-center gap-4 p-5 bg-emerald-600 text-white rounded-2xl shadow-md shadow-emerald-600/20">
-        <span className="text-3xl">📋</span>
+        <span className="text-3xl"><EmojiIcon e="📋" size={28} /></span>
         <div className="flex-1 text-left">
           <p className="font-black text-base">Post a New Job</p>
           <p className="text-white/70 text-sm">Get applications within minutes</p>
@@ -278,7 +279,7 @@ export function UnifiedDashboard() {
         </div>
         {myPostedJobs.length === 0 ? (
           <div className="text-center py-6">
-            <div className="text-4xl mb-2">📭</div>
+            <div className="text-4xl mb-2"><EmojiIcon e="📭" size={34} /></div>
             <p className="font-semibold text-foreground mb-1">No jobs posted yet</p>
             <p className="text-sm text-muted-foreground mb-4">Post your first job and get help fast</p>
             <motion.button whileTap={{ scale: 0.97 }} onClick={() => setCurrentPage('post-job')}
@@ -326,7 +327,7 @@ export function UnifiedDashboard() {
         }`}>
         <div className="max-w-4xl mx-auto flex items-start justify-between gap-3">
           <motion.div initial={{ x: -12, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
-            <p className="text-white/65 text-sm font-medium mb-0.5">Good day 👋</p>
+            <p className="text-white/65 text-sm font-medium mb-0.5">Good day</p>
             <h1 className="text-2xl sm:text-3xl font-black">{currentUser?.name}</h1>
           </motion.div>
           <motion.button

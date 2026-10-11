@@ -5,6 +5,7 @@ import { ChevronLeft, CheckCircle, Zap, FileText, ChevronDown, ChevronUp } from 
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 type ApplyMode = 'choose' | 'quick' | 'detailed' | 'success'
 
 export function ApplyJob() {
@@ -71,7 +72,7 @@ export function ApplyJob() {
             >
               {/* Job Summary */}
               <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-4 mb-8">
-                <div className="text-3xl">🏗️</div>
+                <div className="text-3xl"><EmojiIcon e="🏗️" size={28} /></div>
                 <div className="flex-1">
                   <h3 className="font-black text-foreground text-lg">Bathroom Renovation</h3>
                   <p className="text-muted-foreground text-sm">₦250,000 · Central Wukari · Posted 2 days ago</p>
@@ -135,7 +136,7 @@ export function ApplyJob() {
               exit={{ opacity: 0, y: -20 }}
             >
               <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-4 mb-8">
-                <div className="text-3xl">🏗️</div>
+                <div className="text-3xl"><EmojiIcon e="🏗️" size={28} /></div>
                 <div>
                   <h3 className="font-black text-foreground">Bathroom Renovation</h3>
                   <p className="text-sm text-muted-foreground">₦250,000 · Central Wukari</p>
@@ -149,9 +150,7 @@ export function ApplyJob() {
               <div className="bg-card border border-border rounded-2xl p-5 mb-6">
                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-3">Your Profile</p>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-2xl">
-                    👷
-                  </div>
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-2xl"><EmojiIcon e="👷" size={24} /></div>
                   <div>
                     <p className="font-black text-foreground text-lg">{currentUser?.name || 'Your Name'}</p>
                     <p className="text-muted-foreground text-sm">{currentUser?.phone}</p>
@@ -165,7 +164,7 @@ export function ApplyJob() {
                       </div>
                     )}
                     {currentUser?.rating && (
-                      <p className="text-sm mt-1">⭐ {currentUser.rating} · {currentUser.completedJobs || 0} jobs done</p>
+                      <p className="text-sm mt-1">{currentUser.rating} · {currentUser.completedJobs || 0} jobs done</p>
                     )}
                   </div>
                 </div>
@@ -202,7 +201,7 @@ export function ApplyJob() {
               exit={{ opacity: 0, y: -20 }}
             >
               <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-4 mb-8">
-                <div className="text-3xl">🏗️</div>
+                <div className="text-3xl"><EmojiIcon e="🏗️" size={28} /></div>
                 <div>
                   <h3 className="font-black text-foreground">Bathroom Renovation</h3>
                   <p className="text-sm text-muted-foreground">₦250,000 · Central Wukari</p>
@@ -283,9 +282,7 @@ export function ApplyJob() {
 
                 {/* Profile reminder */}
                 <div className="bg-secondary/50 border border-border rounded-xl p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-xl shrink-0">
-                    👷
-                  </div>
+                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-xl shrink-0"><EmojiIcon e="👷" size={20} /></div>
                   <div>
                     <p className="font-bold text-foreground text-sm">{currentUser?.name || 'Your Name'}</p>
                     <p className="text-xs text-muted-foreground">Your profile will be included automatically</p>
@@ -327,7 +324,7 @@ export function ApplyJob() {
                 <CheckCircle className="text-primary" size={48} />
               </motion.div>
 
-              <h2 className="text-3xl font-black text-foreground mb-2">Application Sent! 🎉</h2>
+              <h2 className="text-3xl font-black text-foreground mb-2">Application Sent!</h2>
               <p className="text-muted-foreground mb-8 max-w-xs mx-auto">
                 The employer will see your profile and get back to you soon.
               </p>

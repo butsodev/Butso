@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Star, MapPin, Briefcase, Award, ChevronLeft, MessageCircle, Share2 } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 export function WorkerProfile() {
   const { setCurrentPage, currentUser } = useAppStore()
 
@@ -87,7 +88,7 @@ export function WorkerProfile() {
         >
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-start gap-6">
-              <div className="text-7xl">👨‍🔧</div>
+              <div className="text-7xl"><EmojiIcon e="👨‍🔧" size={64} /></div>
               <div>
                 <h1 className="text-4xl font-bold text-foreground mb-2">{worker.name}</h1>
                 <p className="text-muted-foreground mb-4">Professional Service Provider</p>

@@ -5,6 +5,7 @@ import { X, Send, Check, ChevronRight, ArrowLeft, Loader2 } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 type FeedbackType = 'love' | 'broken' | 'suggestion' | 'confused'
 
 // ── Content per type ──────────────────────────────────────────────────────────
@@ -217,7 +218,7 @@ export function FeedbackWidget() {
                             <motion.button key={id} whileTap={{ scale: 0.98 }}
                                 onClick={() => handleSelectType(id)}
                                 className="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-border hover:border-primary/40 hover:bg-primary/5 transition text-left">
-                                <span className="text-2xl">{m.emoji}</span>
+                                <span className="text-2xl"><EmojiIcon e={m.emoji} size={24} /></span>
                                 <span className="font-bold text-foreground">{m.label}</span>
                                 <ChevronRight size={16} className="ml-auto text-muted-foreground" />
                             </motion.button>
@@ -235,13 +236,13 @@ export function FeedbackWidget() {
                                 <motion.button key={t.label} whileTap={{ scale: 0.95 }}
                                     onClick={() => handleSelectTopic(t.label)}
                                     className="flex items-center gap-2 px-3.5 py-2 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition text-sm font-semibold text-foreground">
-                                    <span>{t.emoji}</span> {t.label}
+                                    <span><EmojiIcon e={t.emoji} size={20} /></span> {t.label}
                                 </motion.button>
                             ))}
                         </div>
                         <button onClick={() => setStage('text-input')}
                             className="w-full py-3 rounded-2xl border-2 border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition font-semibold">
-                            ✏️ Skip, just let me write
+                            Skip, just let me write
                         </button>
                     </motion.div>
                 )
@@ -288,14 +289,14 @@ export function FeedbackWidget() {
                             <motion.button key={faq.question} whileTap={{ scale: 0.98 }}
                                 onClick={() => { setSelectedFaq(faq); setStage('faq-answer') }}
                                 className="w-full flex items-center gap-3 p-3.5 rounded-2xl border-2 border-border hover:border-primary/40 hover:bg-primary/5 transition text-left">
-                                <span className="text-xl shrink-0">{faq.emoji}</span>
+                                <span className="text-xl shrink-0"><EmojiIcon e={faq.emoji} size={20} /></span>
                                 <span className="text-sm font-semibold text-foreground leading-snug">{faq.question}</span>
                                 <ChevronRight size={15} className="ml-auto text-muted-foreground shrink-0" />
                             </motion.button>
                         ))}
                         <button onClick={() => setStage('ai-input')}
                             className="w-full py-3 rounded-2xl border-2 border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition font-semibold mt-1">
-                            🤖 My question isn't here, ask AI
+                            My question isn't here, ask AI
                         </button>
                     </motion.div>
                 )
@@ -312,11 +313,11 @@ export function FeedbackWidget() {
                         <div className="grid grid-cols-2 gap-2">
                             <motion.button whileTap={{ scale: 0.97 }} onClick={() => { setStage('sent'); setTimeout(reset, 2500) }}
                                 className="py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 transition">
-                                👍 Yes, thanks!
+                                Yes, thanks!
                             </motion.button>
                             <motion.button whileTap={{ scale: 0.97 }} onClick={() => setStage('ai-input')}
                                 className="py-2.5 rounded-xl border-2 border-border font-bold text-sm text-foreground hover:border-primary/40 transition">
-                                🤖 Ask AI instead
+                                Ask AI instead
                             </motion.button>
                         </div>
                     </motion.div>
@@ -327,7 +328,7 @@ export function FeedbackWidget() {
                 return (
                     <motion.div key="ai-input" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-3">
                         <div className="flex items-center gap-2 px-3 py-2 bg-primary/8 rounded-xl">
-                            <span className="text-lg">🤖</span>
+                            <span className="text-lg"><EmojiIcon e="🤖" size={18} /></span>
                             <span className="text-xs text-muted-foreground">Ask anything about Butsó, AI will answer instantly</span>
                         </div>
                         <textarea
@@ -363,7 +364,7 @@ export function FeedbackWidget() {
                 return (
                     <motion.div key="ai-answer" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-4">
                         <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/20 rounded-2xl">
-                            <span className="text-xl shrink-0">🤖</span>
+                            <span className="text-xl shrink-0"><EmojiIcon e="🤖" size={20} /></span>
                             <p className="text-sm text-foreground leading-relaxed">
                                 {aiError
                                     ? "Sorry, I couldn't get an answer right now. Need help? Chat with our support team and get answers fast."
@@ -374,7 +375,7 @@ export function FeedbackWidget() {
                         <div className="grid grid-cols-2 gap-2">
                             <motion.button whileTap={{ scale: 0.97 }} onClick={() => { setStage('sent'); setTimeout(reset, 2500) }}
                                 className="py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 transition">
-                                👍 Yes, sorted!
+                                Yes, sorted!
                             </motion.button>
                             <motion.button whileTap={{ scale: 0.97 }} onClick={() => {
                                 // Escalate to live support
@@ -383,7 +384,7 @@ export function FeedbackWidget() {
                                 // Just close this and let them tap it
                             }}
                                 className="py-2.5 rounded-xl border-2 border-border font-bold text-sm text-foreground hover:border-primary/40 transition">
-                                💬 Live support
+                                Live support
                             </motion.button>
                         </div>
                     </motion.div>
@@ -398,7 +399,7 @@ export function FeedbackWidget() {
                             <Check size={28} className="text-primary" />
                         </div>
                         <p className="font-black text-foreground">
-                            {type === 'confused' ? 'Glad we could help!' : 'Got it, thank you! 🙏'}
+                            {type === 'confused' ? 'Glad we could help!' : 'Got it, thank you!'}
                         </p>
                         <p className="text-sm text-muted-foreground text-center">
                             {type === 'confused'
@@ -414,14 +415,14 @@ export function FeedbackWidget() {
 
     const headerTitle = () => {
         if (stage === 'type-select') return "What's on your mind?"
-        if (stage === 'sent') return type === 'confused' ? '✅ All sorted' : '✅ Feedback sent'
-        if (stage === 'faq-list') return '❓ What are you confused about?'
-        if (stage === 'faq-answer') return '📖 Answer'
-        if (stage === 'ai-input') return '🤖 Ask AI'
-        if (stage === 'ai-thinking') return '🤖 Thinking...'
-        if (stage === 'ai-answer') return '🤖 AI Answer'
-        if (stage === 'topic-select') return `${meta?.emoji} ${meta?.label}`
-        if (stage === 'text-input') return `${meta?.emoji} ${meta?.label}`
+        if (stage === 'sent') return type === 'confused' ? 'All sorted' : 'Feedback sent'
+        if (stage === 'faq-list') return 'What are you confused about?'
+        if (stage === 'faq-answer') return 'Answer'
+        if (stage === 'ai-input') return 'Ask AI'
+        if (stage === 'ai-thinking') return 'Thinking...'
+        if (stage === 'ai-answer') return 'AI Answer'
+        if (stage === 'topic-select') return `${meta?.label}`
+        if (stage === 'text-input') return `${meta?.label}`
         return "What's on your mind?"
     }
 
@@ -450,7 +451,7 @@ export function FeedbackWidget() {
                         className="fixed bottom-20 left-4 md:bottom-6 md:left-6 z-40 w-12 h-12 bg-card border-2 border-border shadow-lg rounded-full flex items-center justify-center text-xl hover:border-primary/50 hover:shadow-xl transition-all"
                         aria-label="Share feedback"
                     >
-                        💡
+
                     </motion.button>
                 )}
             </AnimatePresence>

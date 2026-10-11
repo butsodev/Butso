@@ -108,7 +108,7 @@ export function BookingSlots() {
           )}
           <p className="text-primary-foreground/70 text-sm font-medium mb-1">{shopName}</p>
           <h1 className="text-2xl font-black">
-            {step === 'success' ? '🎉 Booking Confirmed!' : `Book ${serviceName}`}
+            {step === 'success' ? 'Booking Confirmed!' : `Book ${serviceName}`}
           </h1>
           <p className="text-primary-foreground/75 text-sm mt-1">
             {step === 'date' && 'Pick a date'}
@@ -248,7 +248,7 @@ export function BookingSlots() {
             className="bg-card border border-border rounded-2xl p-8 text-center">
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: 'spring', stiffness: 300 }}
-              className="text-6xl mb-4">✅</motion.div>
+              className="text-6xl mb-4"></motion.div>
             <h2 className="text-2xl font-black text-foreground mb-2">You're booked!</h2>
             <p className="text-muted-foreground text-sm mb-6">
               {shopName} will confirm shortly. Check your bookings for updates.

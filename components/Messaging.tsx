@@ -5,6 +5,7 @@ import { Send, Phone, Video, Info, Search, ArrowLeft, MoreVertical } from 'lucid
 import { useState, useRef, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 type Message = { id: string; sender: 'me' | 'other'; text: string; time: string }
 type Conversation = {
   id: string; name: string; avatar: string; lastMessage: string
@@ -13,10 +14,10 @@ type Conversation = {
 }
 
 const conversations: Conversation[] = [
-  { id: 'conv1', name: 'Wunuken Danladi', avatar: '👷', lastMessage: 'Can you start on Monday?', timestamp: '2h ago', unread: 2, isOnline: true, job: 'Bathroom Renovation', workerId: 'worker1' },
-  { id: 'conv2', name: 'Zando Ishaku', avatar: '👩‍🔧', lastMessage: 'I can do that!', timestamp: '4h ago', unread: 0, isOnline: true, job: 'Electrical Work', workerId: 'worker5' },
-  { id: 'conv3', name: 'Chidonku Agbu', avatar: '👨‍💼', lastMessage: 'What time works best for you?', timestamp: '1d ago', unread: 0, isOnline: false, job: 'Plumbing Repair', workerId: 'worker3' },
-  { id: 'conv4', name: 'Fatima Abdullahi', avatar: '👩‍💼', lastMessage: 'Thank you for the opportunity', timestamp: '2d ago', unread: 0, isOnline: false, job: 'House Cleaning', workerId: 'worker2' },
+  { id: 'conv1', name: 'Wunuken Danladi', avatar: '', lastMessage: 'Can you start on Monday?', timestamp: '2h ago', unread: 2, isOnline: true, job: 'Bathroom Renovation', workerId: 'worker1' },
+  { id: 'conv2', name: 'Zando Ishaku', avatar: '', lastMessage: 'I can do that!', timestamp: '4h ago', unread: 0, isOnline: true, job: 'Electrical Work', workerId: 'worker5' },
+  { id: 'conv3', name: 'Chidonku Agbu', avatar: '', lastMessage: 'What time works best for you?', timestamp: '1d ago', unread: 0, isOnline: false, job: 'Plumbing Repair', workerId: 'worker3' },
+  { id: 'conv4', name: 'Fatima Abdullahi', avatar: '', lastMessage: 'Thank you for the opportunity', timestamp: '2d ago', unread: 0, isOnline: false, job: 'House Cleaning', workerId: 'worker2' },
 ]
 
 const allMessages: Record<string, Message[]> = {
@@ -180,7 +181,7 @@ export function Messaging() {
           </div>
           <div>
             <button onClick={() => selectedConv.workerId && viewWorkerProfile(selectedConv.workerId)} className="font-black text-foreground text-sm hover:text-primary transition text-left">{selectedConv.name}</button>
-            <p className="text-xs text-muted-foreground">{selectedConv.isOnline ? '🟢 Online' : selectedConv.job}</p>
+            <p className="text-xs text-muted-foreground">{selectedConv.isOnline ? 'Online' : selectedConv.job}</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -241,7 +242,7 @@ export function Messaging() {
     // Desktop empty state
     <div className="flex-1 flex items-center justify-center text-center p-8">
       <div>
-        <div className="text-5xl mb-4">💬</div>
+        <div className="text-5xl mb-4"><EmojiIcon e="💬" size={44} /></div>
         <p className="font-bold text-foreground mb-1">Select a conversation</p>
         <p className="text-muted-foreground text-sm">Choose someone from the list to start chatting</p>
       </div>

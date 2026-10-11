@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { useAppStore, type UserRole } from '@/lib/store'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 export function RoleSelection() {
   const { setCurrentPage } = useAppStore()
 
@@ -78,7 +79,7 @@ export function RoleSelection() {
               className={`bg-gradient-to-br ${opt.gradient} p-6 rounded-2xl shadow-lg text-left group`}
             >
               <div className="flex items-start gap-4">
-                <span className="text-4xl leading-none mt-0.5">{opt.emoji}</span>
+                <span className="text-4xl leading-none mt-0.5"><EmojiIcon e={opt.emoji} size={34} /></span>
                 <div className="flex-1">
                   <h2 className="text-xl font-black text-white mb-1">{opt.title}</h2>
                   <p className="text-white/80 text-sm leading-relaxed mb-3">{opt.description}</p>

@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 import { SkeletonDashboard } from '@/components/Skeleton'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 const containerVariants = {
   hidden: {},
   show: {
@@ -57,7 +58,7 @@ export function WorkerDashboard() {
       <div className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground px-4 sm:px-6 pt-8 pb-12">
         <div className="max-w-4xl mx-auto flex items-start justify-between gap-4">
           <motion.div initial={{ x: -16, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1, type: 'spring', stiffness: 260 }}>
-            <p className="text-primary-foreground/70 text-sm font-medium mb-1">Good day 👋</p>
+            <p className="text-primary-foreground/70 text-sm font-medium mb-1">Good day</p>
             <h1 className="text-2xl sm:text-3xl font-black mb-1">{currentUser?.name}</h1>
             <p className="text-primary-foreground/75 text-sm">Ready to find work today?</p>
           </motion.div>
@@ -90,11 +91,10 @@ export function WorkerDashboard() {
           {quickActions.map((action) => (
             <motion.button key={action.label} variants={itemVariants} whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.97 }}
               onClick={() => setCurrentPage(action.page)}
-              className={`flex items-center gap-3 p-4 rounded-2xl text-left transition ${
-                action.primary
-                  ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 col-span-2'
-                  : 'bg-card border border-border hover:border-primary/40'
-              }`}>
+              className={`flex items-center gap-3 p-4 rounded-2xl text-left transition ${action.primary
+                ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 col-span-2'
+                : 'bg-card border border-border hover:border-primary/40'
+                }`}>
               <span className="text-2xl">{action.icon}</span>
               <div className="flex-1 min-w-0">
                 <p className={`font-bold text-sm ${action.primary ? 'text-primary-foreground' : 'text-foreground'}`}>{action.label}</p>
@@ -111,7 +111,7 @@ export function WorkerDashboard() {
             <button onClick={() => setCurrentPage('bookings')} className="text-xs text-primary font-semibold hover:underline">See all</button>
           </div>
           <div className="text-center py-8">
-            <div className="text-4xl mb-3">🎯</div>
+            <div className="text-4xl mb-3"><EmojiIcon e="🎯" size={34} /></div>
             <p className="font-semibold text-foreground mb-1">No activity yet</p>
             <p className="text-sm text-muted-foreground mb-4">Browse jobs and send your first application</p>
             <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setCurrentPage('jobs')}

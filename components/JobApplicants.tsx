@@ -5,6 +5,7 @@ import { Star, CheckCircle, XCircle, MessageCircle, ChevronLeft } from 'lucide-r
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 export function JobApplicants() {
   const { setCurrentPage } = useAppStore()
   const [selectedApplicant, setSelectedApplicant] = useState<string | null>(null)
@@ -174,7 +175,7 @@ export function JobApplicants() {
                 <div className="bg-card rounded-lg border border-border shadow-sm p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-start gap-4">
-                      <div className="text-5xl">👷</div>
+                      <div className="text-5xl"><EmojiIcon e="👷" size={44} /></div>
                       <div>
                         <h2 className="text-2xl font-bold text-foreground">{selectedData.name}</h2>
                         <p className="text-muted-foreground text-sm">{selectedData.bio}</p>

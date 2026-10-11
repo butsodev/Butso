@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 import { mockWorkers } from '@/lib/mockData'
 
+import { EmojiIcon } from '@/components/EmojiIcon'
 const skillFilters = [
   { id: 'all', label: 'Everyone', emoji: '👥' },
   { id: 'Barbing', label: 'Barbing', emoji: '✂️' },
@@ -159,7 +160,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                 { label: 'Rate/hr', value: `₦${(selectedWorker.hourlyRate / 1000).toFixed(0)}k`, icon: '💰' },
               ].map(stat => (
                 <div key={stat.label} className="bg-card border border-border rounded-2xl p-4 text-center">
-                  <div className="text-2xl mb-1">{stat.icon}</div>
+                  <div className="text-2xl mb-1"><EmojiIcon e={stat.icon} size={24} /></div>
                   <p className="text-xl font-black text-foreground">{stat.value}</p>
                   <p className="text-xs text-muted-foreground">{stat.label}</p>
                 </div>
@@ -182,14 +183,14 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                   onClick={() => setCurrentPage('messaging')}
                   className="flex-1 py-3 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition text-sm"
                 >
-                  💬 Send Message
+                  Send Message
                 </motion.button>
                 <motion.button
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setCurrentPage('post-job')}
                   className="flex-1 py-3 bg-secondary text-foreground font-bold rounded-xl hover:bg-secondary/80 transition text-sm border border-border"
                 >
-                  📋 Hire for Job
+                  Hire for Job
                 </motion.button>
               </div>
             </motion.div>
@@ -237,13 +238,13 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
           {visibleFilters.map(f => (
             <motion.button key={f.id} whileTap={{ scale: 0.93 }} onClick={() => setSelectedSkill(f.id)}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full whitespace-nowrap font-semibold text-sm transition-colors shrink-0 ${selectedSkill === f.id ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20' : 'bg-card border border-border text-foreground hover:border-primary/50'}`}>
-              <span>{f.emoji}</span>{f.label}
+              <span><EmojiIcon e={f.emoji} size={20} /></span>{f.label}
             </motion.button>
           ))}
         </div>
         {filtered.length === 0 ? (
           <div className="bg-card border border-border rounded-2xl p-12 text-center">
-            <div className="text-4xl mb-3">🔍</div>
+            <div className="text-4xl mb-3"><EmojiIcon e="🔍" size={34} /></div>
             <p className="font-bold text-foreground mb-1">Nobody found</p>
             <p className="text-sm text-muted-foreground">Try a different skill or remove the filter</p>
           </div>
@@ -357,7 +358,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                 : 'bg-card border border-border text-foreground hover:border-primary/50'
                 }`}
             >
-              <span>{f.emoji}</span>
+              <span><EmojiIcon e={f.emoji} size={20} /></span>
               {f.label}
             </motion.button>
           ))}
@@ -392,7 +393,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className="bg-card border border-border rounded-2xl p-12 text-center"
           >
-            <div className="text-4xl mb-3">🔍</div>
+            <div className="text-4xl mb-3"><EmojiIcon e="🔍" size={34} /></div>
             <p className="font-bold text-foreground mb-1">Nobody found</p>
             <p className="text-sm text-muted-foreground">Try a different skill or remove the filter</p>
           </motion.div>
