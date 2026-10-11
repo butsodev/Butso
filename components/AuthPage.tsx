@@ -152,9 +152,7 @@ export function AuthPage() {
     // Returning users already have a profiles row: load it and go straight to the
     // dashboard. Brand-new users (no row yet) finish onboarding in profile-setup.
     const routeAfterLogin = async (userId: string) => {
-        const { data: p, error: pErr } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
-        console.log('[bridge] profile', p, pErr)
-        if (!p) { setCurrentPage('profile-setup'); return }
+        const { data: p } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()        if (!p) { setCurrentPage('profile-setup'); return }
         setCurrentUser({
             id: p.id,
             phone: p.phone || '',
