@@ -5,7 +5,7 @@ import { Search, MapPin, Zap, SlidersHorizontal, X } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
 import { useState, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
-import { mockWorkers } from '@/lib/mockData'
+import { fetchWorkers, type PublicWorker } from '@/lib/data'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
 const skillFilters = [
@@ -33,20 +33,36 @@ const card = {
 }
 
 export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
-  const { setCurrentPage, preferences, trackSearch, viewedWorkerId } = useAppStore()
+  const { setCurrentPage, preferences, trackSearch, viewedWorkerId, currentUser } = useAppStore()
+  const [workers, setWorkers] = useState<PublicWorker[]>([])
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading')
+  const [reloadKey, setReloadKey] = useState(0)
   const [query, setQuery] = useState('')
   const [selectedSkill, setSelectedSkill] = useState('all')
   const [availableOnly, setAvailableOnly] = useState(false)
   const [showAllFilters, setShowAllFilters] = useState(false)
-  const [selectedWorker, setSelectedWorker] = useState<typeof mockWorkers[0] | null>(null)
+  const [selectedWorker, setSelectedWorker] = useState<PublicWorker | null>(null)
 
+  // Load real workers from Supabase
   useEffect(() => {
-    if (viewedWorkerId) {
-      const worker = mockWorkers.find(w => w.id === viewedWorkerId)
-      if (worker) setSelectedWorker(worker)
-      useAppStore.setState({ viewedWorkerId: null })
-    }
-  }, [viewedWorkerId])
+    let cancelled = false
+    setLoadState('loading')
+    fetchWorkers(currentUser?.id).then(({ workers: list, error }) => {
+      if (cancelled) return
+      if (error) { setLoadState('error'); return }
+      setWorkers(list)
+      setLoadState('ready')
+    })
+    return () => { cancelled = true }
+  }, [currentUser?.id, reloadKey])
+
+  // Open a specific worker when another screen asks for one
+  useEffect(() => {
+    if (!viewedWorkerId || loadState === 'loading') return
+    const worker = workers.find(w => w.id === viewedWorkerId)
+    if (worker) setSelectedWorker(worker)
+    useAppStore.setState({ viewedWorkerId: null })
+  }, [viewedWorkerId, workers, loadState])
 
   // Recent searches — top 4 by frequency, min 1 search
   const recentSearches = Object.entries(preferences.searched ?? {})
@@ -62,15 +78,19 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
 
   const visibleFilters = showAllFilters ? skillFilters : skillFilters.slice(0, VISIBLE_FILTERS + 1)
 
-  const filtered = mockWorkers.filter(w => {
+  // Availability isn't stored yet, so only offer that filter once real data has it
+  const hasAvailability = workers.some(w => w.available !== null)
+
+  const filtered = workers.filter(w => {
+    const q = query.toLowerCase()
     const matchesQuery =
-      w.name.toLowerCase().includes(query.toLowerCase()) ||
-      w.bio.toLowerCase().includes(query.toLowerCase()) ||
-      w.skills.some(s => s.toLowerCase().includes(query.toLowerCase())) ||
-      w.location.toLowerCase().includes(query.toLowerCase()) ||
-      w.username.toLowerCase().includes(query.toLowerCase())
+      w.name.toLowerCase().includes(q) ||
+      w.bio.toLowerCase().includes(q) ||
+      w.skills.some(s => s.toLowerCase().includes(q)) ||
+      (w.location ?? '').toLowerCase().includes(q) ||
+      w.username.toLowerCase().includes(q)
     const matchesSkill = selectedSkill === 'all' || w.skills.includes(selectedSkill)
-    const matchesAvailable = !availableOnly || w.available
+    const matchesAvailable = !availableOnly || w.available === true
     return matchesQuery && matchesSkill && matchesAvailable
   })
 
@@ -108,15 +128,21 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                     </span>
                   )}
                 </div>
-                <p className="text-primary-foreground/75 text-sm flex items-center gap-1.5 mb-2">
-                  <MapPin size={13} /> {selectedWorker.location}
-                </p>
+                {selectedWorker.location && (
+                  <p className="text-primary-foreground/75 text-sm flex items-center gap-1.5 mb-2">
+                    <MapPin size={13} /> {selectedWorker.location}
+                  </p>
+                )}
                 <div className="flex items-center gap-3 text-sm">
-                  <RatingBadge value={selectedWorker.rating} size="sm" onDark />
+                  <RatingBadge value={selectedWorker.rating ?? 'New'} size="sm" onDark />
                   <span className="text-primary-foreground/60">·</span>
                   <span className="text-primary-foreground/80">{selectedWorker.completedJobs} jobs done</span>
-                  <span className="text-primary-foreground/60">·</span>
-                  <span className="text-primary-foreground/80 font-semibold">₦{selectedWorker.hourlyRate.toLocaleString()}/hr</span>
+                  {selectedWorker.hourlyRate != null && (
+                    <>
+                      <span className="text-primary-foreground/60">·</span>
+                      <span className="text-primary-foreground/80 font-semibold">₦{selectedWorker.hourlyRate.toLocaleString()}/hr</span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -150,12 +176,14 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
             {/* Stats */}
             <motion.div
               initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
-              className="grid grid-cols-3 gap-3"
+              className={`grid gap-3 ${selectedWorker.hourlyRate != null ? 'grid-cols-3' : 'grid-cols-2'}`}
             >
               {[
-                { label: 'Rating', value: selectedWorker.rating.toFixed(1), icon: 'rating' },
+                { label: 'Rating', value: selectedWorker.rating != null ? selectedWorker.rating.toFixed(1) : 'New', icon: 'rating' },
                 { label: 'Jobs Done', value: selectedWorker.completedJobs, icon: '✅' },
-                { label: 'Rate/hr', value: `₦${(selectedWorker.hourlyRate / 1000).toFixed(0)}k`, icon: '💰' },
+                ...(selectedWorker.hourlyRate != null
+                  ? [{ label: 'Rate/hr', value: `₦${(selectedWorker.hourlyRate / 1000).toFixed(0)}k`, icon: '💰' }]
+                  : []),
               ].map(stat => (
                 <div key={stat.label} className="bg-card border border-border rounded-2xl p-4 text-center">
                   <div className="text-2xl mb-1"><EmojiIcon e={stat.icon} size={24} /></div>
@@ -208,6 +236,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
           <input
             type="text"
+            aria-label="Search people"
             placeholder="Search by name, skill, or @username..."
             value={query}
             onChange={e => handleSearch(e.target.value)}
@@ -227,10 +256,12 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
         )}
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm text-muted-foreground">{filtered.length} {filtered.length === 1 ? 'person' : 'people'} found</p>
+          {hasAvailability && (
           <button onClick={() => setAvailableOnly(!availableOnly)}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition border ${availableOnly ? 'bg-green-500/15 text-green-700 border-green-400/40 dark:text-green-400' : 'bg-card border-border text-muted-foreground'}`}>
             <Zap size={12} /> Available now
           </button>
+          )}
         </div>
         <div className="flex gap-2 mb-4 overflow-x-auto pb-1 scrollbar-hide">
           {visibleFilters.map(f => (
@@ -240,11 +271,24 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
             </motion.button>
           ))}
         </div>
-        {filtered.length === 0 ? (
+        {loadState === 'loading' ? (
+          <div className="bg-card border border-border rounded-2xl p-12 text-center" role="status" aria-live="polite">
+            <p className="text-sm text-muted-foreground animate-pulse">Loading people...</p>
+          </div>
+        ) : loadState === 'error' ? (
+          <div className="bg-card border border-border rounded-2xl p-12 text-center">
+            <p className="font-bold text-foreground mb-1">Could not load people</p>
+            <p className="text-sm text-muted-foreground mb-4">Check your connection and try again.</p>
+            <button onClick={() => setReloadKey(k => k + 1)}
+              className="px-5 min-h-[44px] rounded-xl bg-primary text-primary-foreground text-sm font-bold">
+              Try again
+            </button>
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="bg-card border border-border rounded-2xl p-12 text-center">
             <div className="text-4xl mb-3"><EmojiIcon e="🔍" size={34} /></div>
             <p className="font-bold text-foreground mb-1">Nobody found</p>
-            <p className="text-sm text-muted-foreground">Try a different skill or remove the filter</p>
+            <p className="text-sm text-muted-foreground">{workers.length === 0 ? "No workers have signed up yet" : "Try a different skill or remove the filter"}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -258,9 +302,9 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <h3 className="font-black text-foreground text-sm truncate">{worker.name}</h3>
-                      {worker.available ? <span className="shrink-0 w-2 h-2 rounded-full bg-green-500" /> : <span className="shrink-0 w-2 h-2 rounded-full bg-muted-foreground/30" />}
+                      {worker.available === true ? <span className="shrink-0 w-2 h-2 rounded-full bg-green-500" title="Available" /> : worker.available === false ? <span className="shrink-0 w-2 h-2 rounded-full bg-muted-foreground/30" title="Busy" /> : null}
                     </div>
-                    <p className="text-xs text-muted-foreground">{worker.location}</p>
+                    {worker.location && <p className="text-xs text-muted-foreground">{worker.location}</p>}
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-1.5 mb-3">
@@ -270,10 +314,10 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                 </div>
                 <div className="flex items-center justify-between text-xs pt-2 border-t border-border">
                   <span className="flex items-center gap-1.5 font-bold text-foreground">
-                    <RatingBadge value={worker.rating} size="xs" />
+                    <RatingBadge value={worker.rating ?? 'New'} size="xs" />
                     <span className="text-muted-foreground font-normal">({worker.completedJobs})</span>
                   </span>
-                  <span className="font-bold text-primary">₦{worker.hourlyRate.toLocaleString()}/hr</span>
+                  {worker.hourlyRate != null && <span className="font-bold text-primary">₦{worker.hourlyRate.toLocaleString()}/hr</span>}
                 </div>
               </motion.div>
             ))}
@@ -304,6 +348,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
           <input
             type="text"
+            aria-label="Search people"
             placeholder="Search by name, skill, or @username..."
             value={query}
             onChange={e => handleSearch(e.target.value)}
@@ -332,6 +377,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
           <p className="text-sm text-muted-foreground">
             {filtered.length} {filtered.length === 1 ? 'person' : 'people'} found
           </p>
+          {hasAvailability && (
           <button
             onClick={() => setAvailableOnly(!availableOnly)}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition border ${availableOnly
@@ -342,6 +388,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
             <Zap size={12} />
             Available now
           </button>
+          )}
         </div>
 
         {/* Skill pills */}
@@ -386,14 +433,27 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
         )}
 
         {/* Results */}
-        {filtered.length === 0 ? (
+        {loadState === 'loading' ? (
+          <div className="bg-card border border-border rounded-2xl p-12 text-center" role="status" aria-live="polite">
+            <p className="text-sm text-muted-foreground animate-pulse">Loading people...</p>
+          </div>
+        ) : loadState === 'error' ? (
+          <div className="bg-card border border-border rounded-2xl p-12 text-center">
+            <p className="font-bold text-foreground mb-1">Could not load people</p>
+            <p className="text-sm text-muted-foreground mb-4">Check your connection and try again.</p>
+            <button onClick={() => setReloadKey(k => k + 1)}
+              className="px-5 min-h-[44px] rounded-xl bg-primary text-primary-foreground text-sm font-bold">
+              Try again
+            </button>
+          </div>
+        ) : filtered.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className="bg-card border border-border rounded-2xl p-12 text-center"
           >
             <div className="text-4xl mb-3"><EmojiIcon e="🔍" size={34} /></div>
             <p className="font-bold text-foreground mb-1">Nobody found</p>
-            <p className="text-sm text-muted-foreground">Try a different skill or remove the filter</p>
+            <p className="text-sm text-muted-foreground">{workers.length === 0 ? "No workers have signed up yet" : "Try a different skill or remove the filter"}</p>
           </motion.div>
         ) : (
           <AnimatePresence mode="wait">
@@ -420,15 +480,17 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <h3 className="font-black text-foreground truncate">{worker.name}</h3>
-                        {worker.available ? (
+                        {worker.available === true ? (
                           <span className="shrink-0 w-2 h-2 rounded-full bg-green-500" title="Available" />
-                        ) : (
+                        ) : worker.available === false ? (
                           <span className="shrink-0 w-2 h-2 rounded-full bg-muted-foreground/30" title="Busy" />
-                        )}
+                        ) : null}
                       </div>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                        <MapPin size={11} /> {worker.location}
-                      </p>
+                      {worker.location && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                          <MapPin size={11} /> {worker.location}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -448,10 +510,10 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                   {/* Footer */}
                   <div className="flex items-center justify-between gap-2 text-xs pt-3 border-t border-border flex-wrap">
                     <span className="flex items-center gap-1.5 font-bold text-foreground min-w-0">
-                      <RatingBadge value={worker.rating} size="xs" className="shrink-0" />
+                      <RatingBadge value={worker.rating ?? 'New'} size="xs" className="shrink-0" />
                       <span className="text-muted-foreground font-normal ml-0.5 truncate">({worker.completedJobs} jobs)</span>
                     </span>
-                    <span className="font-bold text-primary shrink-0">₦{worker.hourlyRate.toLocaleString()}/hr</span>
+                    {worker.hourlyRate != null && <span className="font-bold text-primary shrink-0">₦{worker.hourlyRate.toLocaleString()}/hr</span>}
                   </div>
                 </motion.div>
               ))}

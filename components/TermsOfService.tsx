@@ -14,7 +14,7 @@ export function TermsOfService() {
     >
       <header className="bg-background border-b border-border py-4 px-4 sm:px-6 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <button
+          <button aria-label="Go back"
             onClick={() => goBackTo('splash')}
             className="p-2 hover:bg-secondary rounded-lg transition"
           >

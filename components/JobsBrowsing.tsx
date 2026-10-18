@@ -80,12 +80,13 @@ export function JobsBrowsing() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
           <input
             type="text"
+            aria-label="Search jobs"
             placeholder="Search jobs, skills, location..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-11 pr-12 py-3.5 border border-border rounded-2xl focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/60 bg-card shadow-sm transition text-sm"
           />
-          <button
+          <button aria-label="Open filters"
             onClick={() => setCurrentPage('advanced-search')}
             className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-secondary rounded-lg transition"
           >

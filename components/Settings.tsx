@@ -37,7 +37,7 @@ export function Settings() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background border-b border-border">
         <div className="flex items-center gap-3 px-4 py-4 sm:px-6">
-          <button
+          <button aria-label="Go back"
             onClick={() => goBackTo('dashboard')}
             className="p-2 hover:bg-secondary rounded-lg transition"
           >
@@ -64,7 +64,7 @@ export function Settings() {
                   <p className="text-foreground text-sm mt-2">{currentUser.bio}</p>
                 )}
               </div>
-              <button
+              <button aria-label="Edit profile"
                 onClick={() => setIsEditing(true)}
                 className="p-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition"
               >
@@ -94,7 +94,7 @@ export function Settings() {
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Name
                 </label>
-                <input
+                <input aria-label="Name"
                   type="text"
                   value={editedName}
                   onChange={(e) => setEditedName(e.target.value)}
@@ -105,7 +105,7 @@ export function Settings() {
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Bio
                 </label>
-                <textarea
+                <textarea aria-label="Bio"
                   value={editedBio}
                   onChange={(e) => setEditedBio(e.target.value)}
                   rows={3}
@@ -157,7 +157,7 @@ export function Settings() {
                 </p>
               </div>
             </div>
-            <button
+            <button role="switch" aria-checked={darkMode} aria-label="Dark mode"
               onClick={toggleDarkMode}
               className={`w-12 h-6 rounded-full transition ${darkMode ? 'bg-primary' : 'bg-muted'
                 }`}

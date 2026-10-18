@@ -92,7 +92,7 @@ export function PaymentsEarnings() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background border-b border-border">
         <div className="flex items-center gap-3 px-4 py-4 sm:px-6">
-          <button
+          <button aria-label="Go back"
             onClick={() => goBackTo('dashboard')}
             className="p-2 hover:bg-secondary rounded-lg transition"
           >

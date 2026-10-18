@@ -75,7 +75,7 @@ export function JobDetails() {
             Back to Jobs
           </motion.button>
           <div className="flex gap-2">
-            <motion.button
+            <motion.button aria-label={isFavorite ? 'Remove from saved jobs' : 'Save job'} aria-pressed={isFavorite}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsFavorite(!isFavorite)}
@@ -86,7 +86,7 @@ export function JobDetails() {
             >
               <Heart size={20} fill={isFavorite ? 'currentColor' : 'none'} />
             </motion.button>
-            <motion.button
+            <motion.button aria-label="Share job"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               className="p-2 bg-secondary text-muted-foreground hover:text-foreground rounded-lg transition"

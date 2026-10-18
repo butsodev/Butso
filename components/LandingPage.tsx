@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect, useRef } from 'react'
-import { ChevronRight, MapPin, ArrowRight, CheckCircle, Award } from 'lucide-react'
+import { ChevronRight, MapPin, ArrowRight, CheckCircle, Award, Menu as MenuIcon, X as CloseIcon } from 'lucide-react'
 
 import { useAppStore } from '@/lib/store'
 import { HeroSlideshow } from '@/components/HeroSlideshow'
@@ -212,6 +212,7 @@ function WorkerAvatar({ worker, size = 40, ringColor = '#111110' }: { worker: ty
 export function LandingPage() {
   const { setCurrentPage, darkMode, toggleDarkMode } = useAppStore()
   const [tickerPaused, setTickerPaused] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [slideIdx, setSlideIdx] = useState(0)
   const slideTimer = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -220,6 +221,13 @@ export function LandingPage() {
     slideTimer.current = setInterval(() => setSlideIdx(i => (i + 1) % SLIDES.length), 5000)
     return () => { if (slideTimer.current) clearInterval(slideTimer.current) }
   }, [])
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [menuOpen])
 
   const go = (situation: Situation) => {
     sessionStorage.setItem('selectedSituation', situation)
@@ -302,37 +310,66 @@ export function LandingPage() {
             ))}
           </nav>
 
-          {/* Right */}
+          {/* Right: desktop shows everything, mobile keeps only Join free + menu */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.7rem', color: C.faint, background: C.pillBg, border: `1px solid ${C.border}`, padding: '0.25rem 0.65rem', borderRadius: 99, flexShrink: 0 }} className="ld-location">
+            <div style={{ alignItems: 'center', gap: 5, fontSize: '0.7rem', color: C.faint, background: C.pillBg, border: `1px solid ${C.border}`, padding: '0.25rem 0.65rem', borderRadius: 99, flexShrink: 0 }} className="ld-location">
               <MapPin size={9} style={{ color: C.green }} />Wukari
             </div>
             <button onClick={toggleDarkMode} aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, padding: '0.4rem', borderRadius: 6, fontSize: '0.9rem', display: 'flex', alignItems: 'center' }}>
-              {darkMode ? '' : ''}
-            </button>
-            {/* Google placeholder — small, nav-width */}
-            <button
-              onClick={() => alert('Google sign-in coming soon!')}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: `1px solid ${C.pillBorder}`, borderRadius: 8, padding: '0.42rem 0.85rem', fontSize: '0.78rem', color: C.mid, fontWeight: 600, cursor: 'pointer' }}>
-              <svg width="14" height="14" viewBox="0 0 18 18" fill="none">
-                <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4" />
-                <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853" />
-                <path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z" fill="#FBBC05" />
-                <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z" fill="#EA4335" />
-              </svg>
-              Continue with Google
+              className="ld-desktop-only"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, minWidth: 44, minHeight: 44, borderRadius: 8, fontSize: '0.9rem', alignItems: 'center', justifyContent: 'center' }}>
+              {darkMode ? '☀️' : '🌙'}
             </button>
             <button onClick={() => setCurrentPage('auth')}
-              style={{ background: 'none', border: `1px solid ${C.pillBorder}`, borderRadius: 8, padding: '0.42rem 1rem', fontSize: '0.82rem', color: C.mid, fontWeight: 600, cursor: 'pointer' }}>
+              className="ld-desktop-only"
+              style={{ background: 'none', border: `1px solid ${C.pillBorder}`, borderRadius: 8, padding: '0 1rem', minHeight: 44, fontSize: '0.82rem', color: C.mid, fontWeight: 600, cursor: 'pointer', alignItems: 'center' }}>
               Log in
             </button>
             <button onClick={() => go('have-skill')}
-              style={{ background: C.green, border: 'none', borderRadius: 8, padding: '0.42rem 1rem', fontSize: '0.82rem', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>
+              style={{ background: C.green, border: 'none', borderRadius: 8, padding: '0 1rem', minHeight: 44, fontSize: '0.82rem', color: '#fff', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
               Join free →
+            </button>
+            <button onClick={() => setMenuOpen(o => !o)}
+              className="ld-mobile-only"
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuOpen}
+              aria-controls="ld-mobile-menu"
+              style={{ background: 'none', border: `1px solid ${C.pillBorder}`, borderRadius: 8, minWidth: 44, minHeight: 44, color: C.mid, cursor: 'pointer', alignItems: 'center', justifyContent: 'center' }}>
+              {menuOpen ? <CloseIcon size={20} /> : <MenuIcon size={20} />}
             </button>
           </div>
         </div>
+
+        {/* Mobile menu panel */}
+        {menuOpen && (
+          <div id="ld-mobile-menu" className="ld-mobile-menu" style={{ borderTop: `1px solid ${C.border}`, background: C.canvas, padding: '0.5rem 1.5rem 1rem' }}>
+            <nav aria-label="Main" style={{ display: 'flex', flexDirection: 'column' }}>
+              {[
+              { label: 'Browse Jobs', page: 'jobs' },
+              { label: 'Find Workers', page: 'people' },
+              { label: 'Book a Service', page: 'shops' },
+            ].map(item => (
+                <button key={item.label} onClick={() => { setMenuOpen(false); setCurrentPage(item.page) }}
+                  style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', minHeight: 48, padding: '0 0.25rem', fontSize: '0.95rem', color: C.text, fontWeight: 600, borderBottom: `1px solid ${C.border}` }}>
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.9rem', flexWrap: 'wrap' }}>
+              <button onClick={() => { setMenuOpen(false); setCurrentPage('auth') }}
+                style={{ flex: 1, minWidth: 120, background: 'none', border: `1px solid ${C.pillBorder}`, borderRadius: 8, minHeight: 44, fontSize: '0.9rem', color: C.mid, fontWeight: 600, cursor: 'pointer' }}>
+                Log in
+              </button>
+              <button onClick={toggleDarkMode} aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                style={{ background: 'none', border: `1px solid ${C.pillBorder}`, borderRadius: 8, minWidth: 44, minHeight: 44, fontSize: '1rem', cursor: 'pointer' }}>
+                {darkMode ? '☀️' : '🌙'}
+              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.75rem', color: C.muted }}>
+                <MapPin size={11} style={{ color: C.green }} />Wukari
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* ── TICKER ──────────────────────────────────────────────────────── */}
@@ -790,7 +827,14 @@ export function LandingPage() {
           0%, 100% { opacity: 1; }
           50%       { opacity: 0.35; }
         }
+        .ld-mobile-menu { display: none; }
+        .ld-mobile-only { display: none !important; }
+        .ld-desktop-only { display: flex !important; }
+        .ld-location { display: flex; }
         @media (max-width: 900px) {
+          .ld-mobile-menu  { display: block; }
+          .ld-mobile-only  { display: flex !important; }
+          .ld-desktop-only { display: none !important; }
           .ld-hero-grid   { grid-template-columns: 1fr !important; }
           .ld-right-panel { display: none !important; }
           .ld-two-col     { grid-template-columns: 1fr !important; gap: 2rem !important; }

@@ -61,7 +61,7 @@ export function AdvancedSearch() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background border-b border-border">
         <div className="flex items-center gap-3 px-4 py-4 sm:px-6">
-          <button
+          <button aria-label="Go back"
             onClick={() => goBackTo('jobs')}
             className="p-2 hover:bg-secondary rounded-lg transition"
           >
@@ -81,6 +81,7 @@ export function AdvancedSearch() {
           <div className="relative">
             <input
               type="text"
+              aria-label="Search jobs"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -156,6 +157,7 @@ export function AdvancedSearch() {
               </h3>
               <input
                 type="range"
+                aria-label="Minimum rating"
                 min="0"
                 max="5"
                 step="0.5"

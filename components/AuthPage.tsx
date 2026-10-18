@@ -1,5 +1,6 @@
 'use client'
 
+import { showToast } from '@/lib/toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef } from 'react'
 import { Mail, MailCheck, Smartphone, KeyRound } from 'lucide-react'
@@ -110,8 +111,7 @@ export function AuthPage() {
             : await supabase.auth.verifyOtp({ email: contact, token: code, type: 'email' })
         setIsLoading(false)
         if (error) {
-            // TODO: swap this alert for the app's own Toast component
-            alert(error.message)
+            showToast('error', error.message)
             return
         }
         setCurrentPage('profile-setup')
@@ -229,6 +229,8 @@ export function AuthPage() {
             {arr.map((digit, i) => (
                 <input
                     key={i}
+                    aria-label={`Verification code digit ${i + 1}`}
+                    autoComplete={i === 0 ? 'one-time-code' : 'off'}
                     ref={el => { refs.current[i] = el }}
                     type="text"
                     inputMode="numeric"
@@ -369,7 +371,7 @@ export function AuthPage() {
             <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">+234</span>
                 <input
-                    type="tel" inputMode="tel" autoComplete="tel" placeholder="08012345678" value={value} autoFocus
+                    type="tel" aria-label="Phone number" inputMode="tel" autoComplete="tel" placeholder="08012345678" value={value} autoFocus
                     onChange={e => { setValue(e.target.value.replace(/\D/g, '').slice(0, 11)); setPhoneError('') }}
                     onKeyDown={e => e.key === 'Enter' && value.replace(/^0/, '').length === 10 && onNext()}
                     className="w-full pl-16 pr-4 py-4 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-base font-medium placeholder:text-muted-foreground/40 transition"
@@ -416,13 +418,14 @@ export function AuthPage() {
                 </p>
             </div>
             <input
-                type="email" placeholder="you@example.com" value={email} autoFocus autoComplete="email"
+                type="email" aria-label="Email address" placeholder="you@example.com" value={email} autoFocus autoComplete="email"
                 onChange={e => { setEmail(e.target.value); setEmailError('') }}
                 className="w-full px-4 py-4 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-base placeholder:text-muted-foreground/40 transition"
             />
             <div className="relative">
                 <input
                     type={showPassword ? 'text' : 'password'}
+                    aria-label="Password"
                     placeholder={isSignup ? 'Password (min 8 characters)' : 'Password'}
                     value={password}
                     autoComplete={isSignup ? 'new-password' : 'current-password'}
@@ -433,7 +436,9 @@ export function AuthPage() {
                 <button
                     type="button"
                     onClick={() => setShowPassword(v => !v)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground hover:text-foreground transition"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPassword}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-3 text-xs font-semibold text-muted-foreground hover:text-foreground transition"
                 >
                     {showPassword ? 'Hide' : 'Show'}
                 </button>

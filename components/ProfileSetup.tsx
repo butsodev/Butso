@@ -143,7 +143,7 @@ function UsernameField({ value, name, autoMode, onChange, onValidChange, allUser
       <div className="flex gap-2">
         <div className="relative flex-1">
           <AtSign size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <input
+          <input aria-label="Username"
             type="text"
             placeholder="e.g. wunuken_pipes"
             value={value}
@@ -246,7 +246,7 @@ function SkillsPicker({ selected, onChange }: { selected: string[]; onChange: (s
             <motion.span key={skill} initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
               className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground px-3 py-1.5 rounded-full text-sm font-semibold">
               {skill}
-              <button onClick={() => remove(skill)} className="hover:opacity-70 transition"><X size={13} /></button>
+              <button aria-label={`Remove ${skill}`} onClick={() => remove(skill)} className="hover:opacity-70 transition"><X size={13} /></button>
             </motion.span>
           ))}
         </div>
@@ -256,7 +256,7 @@ function SkillsPicker({ selected, onChange }: { selected: string[]; onChange: (s
         <div className="relative" ref={dropdownRef}>
           <div className="relative">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input ref={inputRef} type="text" placeholder="Search skills..."
+            <input aria-label="Search skills" ref={inputRef} type="text" placeholder="Search skills..."
               value={query}
               onChange={e => { setQuery(e.target.value); setOpen(true) }}
               onFocus={() => setOpen(true)}
@@ -498,7 +498,7 @@ export function ProfileSetup() {
         <label className="block text-sm font-bold text-foreground mb-2">
           Full Name <span className="text-destructive">*</span>
         </label>
-        <input type="text" placeholder="e.g. Wunuken Danladi" value={name}
+        <input aria-label="Full name" type="text" placeholder="e.g. Wunuken Danladi" value={name}
           onChange={e => setName(e.target.value)} autoFocus
           className="w-full px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/50 transition text-base"
         />
@@ -514,7 +514,7 @@ export function ProfileSetup() {
           </p>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">+234</span>
-            <input
+            <input aria-label="Phone number"
               type="tel" inputMode="tel" autoComplete="tel" placeholder="08012345678" value={phoneInput}
               onChange={e => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 11))}
               className="w-full pl-16 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-base placeholder:text-muted-foreground/40 transition"
@@ -536,7 +536,7 @@ export function ProfileSetup() {
         <label className="block text-sm font-bold text-foreground mb-1">
           Short Bio <span className="text-muted-foreground font-normal">(optional)</span>
         </label>
-        <textarea
+        <textarea aria-label="Short bio"
           placeholder={isWorker ? 'e.g. Experienced plumber, 5 years in Wukari' : 'e.g. Looking for reliable workers for home projects'}
           value={bio} onChange={e => setBio(e.target.value.slice(0, 150))} rows={3}
           className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/50 resize-none transition text-sm"

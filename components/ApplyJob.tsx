@@ -217,7 +217,7 @@ export function ApplyJob() {
                   <label className="block text-sm font-bold text-foreground mb-2">
                     When can you start?
                   </label>
-                  <select
+                  <select aria-label="When can you start?"
                     value={availability}
                     onChange={(e) => setAvailability(e.target.value)}
                     className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground bg-background transition"
@@ -237,7 +237,7 @@ export function ApplyJob() {
                   <p className="text-xs text-muted-foreground mb-2">
                     A sentence or two is fine. No need to write an essay.
                   </p>
-                  <textarea
+                  <textarea aria-label="Message to the employer"
                     placeholder="e.g. I've done this kind of work before and I'm available this week."
                     value={message}
                     onChange={(e) => setMessage(e.target.value.slice(0, 200))}
@@ -268,7 +268,7 @@ export function ApplyJob() {
                         <label className="block text-sm font-bold text-foreground mb-1">
                           Expected daily rate (₦) <span className="text-muted-foreground font-normal">(optional)</span>
                         </label>
-                        <input
+                        <input aria-label="Your proposed price in naira (optional)"
                           type="number"
                           placeholder="Leave blank to negotiate"
                           value={expectedRate}

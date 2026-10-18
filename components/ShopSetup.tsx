@@ -180,7 +180,7 @@ export function ShopSetup() {
                             {/* Name */}
                             <div>
                                 <label className="block text-sm font-bold text-foreground mb-2">Shop Name *</label>
-                                <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Hassan's Barbershop"
+                                <input aria-label="Shop name" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Hassan's Barbershop"
                                     className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-base transition" />
                             </div>
 
@@ -201,7 +201,7 @@ export function ShopSetup() {
                             {/* Description */}
                             <div>
                                 <label className="block text-sm font-bold text-foreground mb-2">Description *</label>
-                                <textarea value={description} onChange={e => setDescription(e.target.value.slice(0, 300))} rows={3}
+                                <textarea aria-label="Shop description" value={description} onChange={e => setDescription(e.target.value.slice(0, 300))} rows={3}
                                     placeholder="Tell customers what makes your shop great, your experience, what you specialise in..."
                                     className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-sm resize-none transition" />
                                 <p className="text-xs text-muted-foreground text-right mt-1">{description.length}/300</p>
@@ -220,7 +220,7 @@ export function ShopSetup() {
                                 {!isMobile && (
                                     <div className="relative">
                                         <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                                        <input value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. 12 Market Road, Central Wukari"
+                                        <input aria-label="Shop location" value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. 12 Market Road, Central Wukari"
                                             className="w-full pl-9 pr-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-sm transition" />
                                     </div>
                                 )}
@@ -231,7 +231,7 @@ export function ShopSetup() {
                                 <label className="block text-sm font-bold text-foreground mb-2">Contact Number</label>
                                 <div className="relative">
                                     <Phone size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                                    <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="080XXXXXXXX" type="tel" inputMode="tel" autoComplete="tel"
+                                    <input aria-label="Contact number" value={phone} onChange={e => setPhone(e.target.value)} placeholder="080XXXXXXXX" type="tel" inputMode="tel" autoComplete="tel"
                                         className="w-full pl-9 pr-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-sm transition" />
                                 </div>
                             </div>
@@ -242,7 +242,7 @@ export function ShopSetup() {
                                     Tagline <span className="text-muted-foreground font-normal">(optional)</span>
                                 </label>
                                 <p className="text-xs text-muted-foreground mb-2">One punchy sentence shown under your shop name, e.g. "Cleanest fades in Wukari, guaranteed."</p>
-                                <input value={tagline} onChange={e => setTagline(e.target.value.slice(0, 80))} placeholder="What are you known for?"
+                                <input aria-label="Tagline" value={tagline} onChange={e => setTagline(e.target.value.slice(0, 80))} placeholder="What are you known for?"
                                     className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-sm transition" />
                                 <p className="text-xs text-muted-foreground text-right mt-1">{tagline.length}/80</p>
                             </div>
@@ -273,10 +273,10 @@ export function ShopSetup() {
                                         {svc.description && <p className="text-xs text-muted-foreground mt-0.5 truncate">{svc.description}</p>}
                                     </div>
                                     <div className="flex gap-1 shrink-0">
-                                        <button onClick={() => openEditService(svc, idx)} className="p-2 hover:bg-secondary rounded-lg transition text-muted-foreground hover:text-foreground">
+                                        <button aria-label="Edit service" onClick={() => openEditService(svc, idx)} className="p-2 hover:bg-secondary rounded-lg transition text-muted-foreground hover:text-foreground">
                                             <ChevronRight size={16} />
                                         </button>
-                                        <button onClick={() => removeService(idx)} className="p-2 hover:bg-destructive/10 rounded-lg transition text-muted-foreground hover:text-destructive">
+                                        <button aria-label="Delete service" onClick={() => removeService(idx)} className="p-2 hover:bg-destructive/10 rounded-lg transition text-muted-foreground hover:text-destructive">
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
@@ -299,14 +299,14 @@ export function ShopSetup() {
 
                                             <div>
                                                 <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1.5">Service Name *</label>
-                                                <input value={editingSvc.name ?? ''} onChange={e => setEditingSvc(s => ({ ...s, name: e.target.value }))}
+                                                <input aria-label="Service name" value={editingSvc.name ?? ''} onChange={e => setEditingSvc(s => ({ ...s, name: e.target.value }))}
                                                     placeholder="e.g. Haircut, Deep Clean, Full Shave"
                                                     className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-sm transition" />
                                             </div>
 
                                             <div>
                                                 <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1.5">Description (optional)</label>
-                                                <input value={editingSvc.description ?? ''} onChange={e => setEditingSvc(s => ({ ...s, description: e.target.value }))}
+                                                <input aria-label="Service description (optional)" value={editingSvc.description ?? ''} onChange={e => setEditingSvc(s => ({ ...s, description: e.target.value }))}
                                                     placeholder="Brief description of what's included"
                                                     className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-sm transition" />
                                             </div>
@@ -314,13 +314,13 @@ export function ShopSetup() {
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div>
                                                     <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1.5">Price (₦) *</label>
-                                                    <input type="number" value={editingSvc.price ?? ''} onChange={e => setEditingSvc(s => ({ ...s, price: Number(e.target.value) }))}
+                                                    <input aria-label="Service price in naira" type="number" value={editingSvc.price ?? ''} onChange={e => setEditingSvc(s => ({ ...s, price: Number(e.target.value) }))}
                                                         placeholder="1500"
                                                         className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-sm transition" />
                                                 </div>
                                                 <div>
                                                     <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1.5">Duration (min)</label>
-                                                    <input type="number" value={editingSvc.durationMinutes ?? ''} onChange={e => setEditingSvc(s => ({ ...s, durationMinutes: Number(e.target.value) }))}
+                                                    <input aria-label="Service duration in minutes" type="number" value={editingSvc.durationMinutes ?? ''} onChange={e => setEditingSvc(s => ({ ...s, durationMinutes: Number(e.target.value) }))}
                                                         placeholder="30"
                                                         className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-sm transition" />
                                                 </div>
@@ -369,18 +369,18 @@ export function ShopSetup() {
                             <div className="space-y-2">
                                 {DAYS.map(({ key, label }) => (
                                     <div key={key} className={`flex items-center gap-3 p-3.5 rounded-xl border-2 transition ${hours[key].open ? 'border-primary/30 bg-primary/5' : 'border-border bg-card'}`}>
-                                        <button onClick={() => toggleDay(key)} className={`w-11 h-6 rounded-full transition-colors relative flex-shrink-0 ${hours[key].open ? 'bg-primary' : 'bg-border'}`}>
+                                        <button role="switch" aria-checked={hours[key].open} aria-label={`Open on ${label}`} onClick={() => toggleDay(key)} className={`w-11 h-6 rounded-full transition-colors relative flex-shrink-0 ${hours[key].open ? 'bg-primary' : 'bg-border'}`}>
                                             <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${hours[key].open ? 'translate-x-5' : 'translate-x-0.5'}`} />
                                         </button>
                                         <span className={`text-sm font-semibold w-24 flex-shrink-0 ${hours[key].open ? 'text-foreground' : 'text-muted-foreground'}`}>{label}</span>
                                         {hours[key].open ? (
                                             <div className="flex items-center gap-2 flex-1">
-                                                <select value={hours[key].from} onChange={e => setHourVal(key, 'from', e.target.value)}
+                                                <select aria-label={`Opening time ${label}`} value={hours[key].from} onChange={e => setHourVal(key, 'from', e.target.value)}
                                                     className="flex-1 px-2 py-1.5 border border-border rounded-lg text-xs bg-background text-foreground">
                                                     {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
                                                 </select>
                                                 <span className="text-xs text-muted-foreground">–</span>
-                                                <select value={hours[key].to} onChange={e => setHourVal(key, 'to', e.target.value)}
+                                                <select aria-label={`Closing time ${label}`} value={hours[key].to} onChange={e => setHourVal(key, 'to', e.target.value)}
                                                     className="flex-1 px-2 py-1.5 border border-border rounded-lg text-xs bg-background text-foreground">
                                                     {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
                                                 </select>

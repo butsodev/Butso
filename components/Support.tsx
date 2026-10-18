@@ -62,7 +62,7 @@ export function Support() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background border-b border-border">
         <div className="flex items-center gap-3 px-4 py-4 sm:px-6">
-          <button
+          <button aria-label="Go back"
             onClick={() => goBackTo('dashboard')}
             className="p-2 hover:bg-secondary rounded-lg transition"
           >
@@ -162,7 +162,7 @@ export function Support() {
               <label className="block text-sm font-medium text-foreground mb-2">
                 Subject
               </label>
-              <input
+              <input aria-label="Subject"
                 type="text"
                 placeholder="What can we help with?"
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
@@ -172,7 +172,7 @@ export function Support() {
               <label className="block text-sm font-medium text-foreground mb-2">
                 Message
               </label>
-              <textarea
+              <textarea aria-label="Message"
                 placeholder="Tell us more about your issue..."
                 rows={4}
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"

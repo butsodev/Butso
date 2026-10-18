@@ -15,13 +15,13 @@ export function Toast() {
   const [toasts, setToasts] = useState<ToastMessage[]>([])
 
   const removeToast = (id: string) => {
-    setToasts(toasts.filter(t => t.id !== id))
+    setToasts(prev => prev.filter(t => t.id !== id))
   }
 
   const addToast = (toast: Omit<ToastMessage, 'id'>) => {
-    const id = Math.random().toString(36).substr(2, 9)
+    const id = Math.random().toString(36).slice(2, 11)
     const newToast = { ...toast, id }
-    setToasts([...toasts, newToast])
+    setToasts(prev => [...prev, newToast])
 
     if (toast.duration !== Infinity) {
       setTimeout(() => removeToast(id), toast.duration || 3000)
@@ -64,7 +64,7 @@ export function Toast() {
   }
 
   return (
-    <div className="fixed top-4 right-4 z-50 pointer-events-none">
+    <div className="fixed top-4 right-4 z-50 pointer-events-none" role="status" aria-live="polite">
       <AnimatePresence>
         {toasts.map((toast) => (
           <motion.div
@@ -83,7 +83,8 @@ export function Toast() {
             </p>
             <button
               onClick={() => removeToast(toast.id)}
-              className="flex-shrink-0 text-muted-foreground hover:text-foreground"
+              aria-label="Dismiss notification"
+              className="flex-shrink-0 text-muted-foreground hover:text-foreground p-2 -m-2"
             >
               <X size={16} />
             </button>

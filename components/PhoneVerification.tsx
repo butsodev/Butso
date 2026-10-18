@@ -153,7 +153,7 @@ export function PhoneVerification() {
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium text-sm">
                   +234
                 </div>
-                <input
+                <input aria-label="Phone number"
                   type="tel"
                   inputMode="tel"
                   autoComplete="tel"

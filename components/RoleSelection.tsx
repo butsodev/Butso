@@ -9,7 +9,7 @@ export function RoleSelection() {
 
   const selectRole = (role: UserRole) => {
     sessionStorage.setItem('selectedRole', role)
-    setCurrentPage('phone-verification')
+    setCurrentPage('auth')
   }
 
   const options = [

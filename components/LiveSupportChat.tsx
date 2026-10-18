@@ -161,7 +161,7 @@ export function LiveSupportChat() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-1">
-                                <button
+                                <button aria-label={isMinimized ? 'Expand chat' : 'Minimize chat'}
                                     onClick={() => setIsMinimized(!isMinimized)}
                                     className="p-1.5 hover:bg-white/20 rounded-lg transition"
                                 >
@@ -170,7 +170,7 @@ export function LiveSupportChat() {
                                         : <ChevronDown size={16} className="text-white" />
                                     }
                                 </button>
-                                <button
+                                <button aria-label="Close chat"
                                     onClick={() => setIsOpen(false)}
                                     className="p-1.5 hover:bg-white/20 rounded-lg transition"
                                 >
@@ -248,7 +248,7 @@ export function LiveSupportChat() {
 
                                     {/* Input */}
                                     <div className="border-t border-border px-3 py-2.5 bg-background flex items-center gap-2 shrink-0">
-                                        <input
+                                        <input aria-label="Type your message"
                                             ref={inputRef}
                                             type="text"
                                             placeholder="Type your message..."
@@ -257,7 +257,7 @@ export function LiveSupportChat() {
                                             onKeyDown={e => e.key === 'Enter' && handleSend()}
                                             className="flex-1 px-3 py-2 bg-secondary/30 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary transition"
                                         />
-                                        <button
+                                        <button aria-label="Send message"
                                             onClick={() => handleSend()}
                                             disabled={!input.trim()}
                                             className="w-9 h-9 bg-primary text-primary-foreground rounded-xl flex items-center justify-center hover:bg-primary/90 transition disabled:opacity-40 shrink-0"

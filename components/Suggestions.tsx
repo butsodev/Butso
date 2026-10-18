@@ -61,7 +61,7 @@ export function Suggestions() {
 
           <div className="mb-6">
             <label className="block text-foreground font-semibold mb-3">Your Feedback</label>
-            <textarea
+            <textarea aria-label="Your feedback"
               value={suggestion}
               onChange={(e) => setSuggestion(e.target.value)}
               placeholder="Tell us what you think... (minimum 10 characters)"

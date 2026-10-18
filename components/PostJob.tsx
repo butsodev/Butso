@@ -95,7 +95,7 @@ export function PostJob() {
             <label className="block text-sm font-semibold text-foreground mb-2">
               Job Title *
             </label>
-            <input
+            <input aria-label="Job title"
               type="text"
               name="title"
               placeholder="e.g., Bathroom Renovation"
@@ -110,7 +110,7 @@ export function PostJob() {
             <label className="block text-sm font-semibold text-foreground mb-2">
               Job Description *
             </label>
-            <textarea
+            <textarea aria-label="Job description"
               name="description"
               placeholder="Describe the work in detail"
               value={formData.description}
@@ -125,7 +125,7 @@ export function PostJob() {
             <label className="block text-sm font-semibold text-foreground mb-2">
               Category *
             </label>
-            <select
+            <select aria-label="Category"
               name="category"
               value={formData.category}
               onChange={handleChange}
@@ -144,7 +144,7 @@ export function PostJob() {
             <label className="block text-sm font-semibold text-foreground mb-2">
               Budget (₦) *
             </label>
-            <input
+            <input aria-label="Budget in naira"
               type="number"
               inputMode="numeric"
               name="budget"
@@ -161,7 +161,7 @@ export function PostJob() {
             <label className="block text-sm font-semibold text-foreground mb-2">
               Location
             </label>
-            <select
+            <select aria-label="Location"
               name="location"
               value={formData.location}
               onChange={handleChange}
@@ -179,7 +179,7 @@ export function PostJob() {
             <label className="block text-sm font-semibold text-foreground mb-2">
               Deadline (Optional)
             </label>
-            <input
+            <input aria-label="Deadline (optional)"
               type="date"
               name="deadline"
               value={formData.deadline}

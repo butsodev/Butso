@@ -68,11 +68,10 @@ export function ShopPage() {
             sessionStorage.setItem('bookingShopId', shop.id)
             sessionStorage.setItem('bookingServiceId', svc.id)
             rememberReturnTo()
-            setCurrentPage('phone-verification')
+            setCurrentPage('auth')
             return
         }
         setBookingService(svc)
-        // TODO: navigate to booking slots with shop context
         setCurrentPage('booking-slots')
     }
 
@@ -100,14 +99,14 @@ export function ShopPage() {
             {/* Header */}
             <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-sm border-b border-border">
                 <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-                    <button onClick={() => goBack('shops')} className="p-2 hover:bg-secondary rounded-xl transition">
+                    <button aria-label="Go back" onClick={() => goBack('shops')} className="p-2 hover:bg-secondary rounded-xl transition">
                         <ArrowLeft size={20} />
                     </button>
                     <div className="flex items-center gap-2">
-                        <button onClick={handleShare} className="p-2 hover:bg-secondary rounded-xl transition">
+                        <button aria-label="Share shop" onClick={handleShare} className="p-2 hover:bg-secondary rounded-xl transition">
                             <Share2 size={18} className="text-muted-foreground" />
                         </button>
-                        <button onClick={() => setCurrentPage('messaging')} className="p-2 hover:bg-secondary rounded-xl transition">
+                        <button aria-label="Message shop" onClick={() => setCurrentPage('messaging')} className="p-2 hover:bg-secondary rounded-xl transition">
                             <MessageCircle size={18} className="text-muted-foreground" />
                         </button>
                     </div>

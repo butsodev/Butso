@@ -97,7 +97,7 @@ export function Notifications() {
       <div className="sticky top-0 z-30 bg-background border-b border-border">
         <div className="flex items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <button
+            <button aria-label="Go back"
               onClick={() => goBackTo('dashboard')}
               className="p-2 hover:bg-secondary rounded-lg transition"
             >
@@ -151,7 +151,7 @@ export function Notifications() {
                   {notification.timestamp}
                 </p>
               </div>
-              <button
+              <button aria-label="Delete notification"
                 onClick={(e) => {
                   e.stopPropagation()
                   handleDelete(notification.id)

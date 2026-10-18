@@ -264,7 +264,7 @@ export function FeedbackWidget() {
                                 <span className="text-xs text-foreground font-semibold">{topic}</span>
                             </div>
                         )}
-                        <textarea
+                        <textarea aria-label="Describe your feedback"
                             ref={textareaRef}
                             rows={4}
                             value={text}
@@ -336,7 +336,7 @@ export function FeedbackWidget() {
                             <span className="text-lg"><EmojiIcon e="🤖" size={18} /></span>
                             <span className="text-xs text-muted-foreground">Ask anything about Butsó, AI will answer instantly</span>
                         </div>
-                        <textarea
+                        <textarea aria-label="Additional details"
                             ref={textareaRef}
                             rows={3}
                             value={text}
@@ -484,13 +484,13 @@ export function FeedbackWidget() {
                             <div className="flex items-center justify-between px-5 py-2 shrink-0">
                                 <div className="flex items-center gap-2">
                                     {canGoBack && (
-                                        <button onClick={handleBack} className="p-1.5 rounded-xl hover:bg-secondary transition mr-1">
+                                        <button aria-label="Go back" onClick={handleBack} className="p-1.5 rounded-xl hover:bg-secondary transition mr-1">
                                             <ArrowLeft size={16} className="text-muted-foreground" />
                                         </button>
                                     )}
                                     <h2 className="text-base font-black text-foreground">{headerTitle()}</h2>
                                 </div>
-                                <button onClick={reset} className="p-2 rounded-xl hover:bg-secondary transition">
+                                <button aria-label="Close feedback" onClick={reset} className="p-2 rounded-xl hover:bg-secondary transition">
                                     <X size={18} className="text-muted-foreground" />
                                 </button>
                             </div>

@@ -93,6 +93,57 @@ export async function fetchProfile(id: string): Promise<PublicProfile | null> {
   }
 }
 
+export type PublicWorker = {
+  id: string
+  name: string
+  username: string
+  bio: string
+  skills: string[]
+  rating: number | null
+  completedJobs: number
+  // Not stored on profiles yet. Kept optional so the UI can show them
+  // once those columns exist, without faking values in the meantime.
+  location: string | null
+  hourlyRate: number | null
+  available: boolean | null
+}
+
+type PublicWorkerRow = {
+  id: string; name: string; username: string; bio: string | null
+  skills: string[] | null; rating: number | string | null; completed_jobs: number | null
+}
+
+/**
+ * Real worker directory. Reads the `public_profiles` view (see
+ * supabase/phase-1b-and-3a.sql) so private columns like phone never leave the database.
+ */
+export async function fetchWorkers(excludeId?: string): Promise<{ workers: PublicWorker[]; error: string | null }> {
+  let q = supabase
+    .from('public_profiles')
+    .select('id, name, username, bio, skills, rating, completed_jobs')
+    .eq('role', 'worker')
+    .order('completed_jobs', { ascending: false })
+    .limit(100)
+  if (excludeId) q = q.neq('id', excludeId)
+  const { data, error } = await q
+  if (error) return { workers: [], error: error.message }
+  return {
+    workers: (data as PublicWorkerRow[]).map(r => ({
+      id: r.id,
+      name: r.name,
+      username: r.username,
+      bio: r.bio ?? '',
+      skills: r.skills ?? [],
+      rating: r.rating == null ? null : Number(r.rating),
+      completedJobs: r.completed_jobs ?? 0,
+      location: null,
+      hourlyRate: null,
+      available: null,
+    })),
+    error: null,
+  }
+}
+
 /** "just now", "3 hours ago", "2 days ago" */
 export function timeAgo(iso: string): string {
   const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000))

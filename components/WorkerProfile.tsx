@@ -123,7 +123,7 @@ export function WorkerProfile() {
                 <MessageCircle size={20} />
                 Message
               </motion.button>
-              <motion.button
+              <motion.button aria-label="Share profile"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="p-3 border border-border text-foreground rounded-lg hover:bg-secondary transition"

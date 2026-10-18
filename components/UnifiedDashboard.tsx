@@ -331,7 +331,7 @@ export function UnifiedDashboard() {
             <p className="text-white/65 text-sm font-medium mb-0.5">Good day</p>
             <h1 className="text-2xl sm:text-3xl font-black">{currentUser?.name}</h1>
           </motion.div>
-          <motion.button
+          <motion.button aria-label="Notifications"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }}
             onClick={() => setCurrentPage('notifications')}
             className="p-2.5 bg-white/15 rounded-xl hover:bg-white/25 transition shrink-0">

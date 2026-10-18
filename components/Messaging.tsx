@@ -105,6 +105,7 @@ export function Messaging() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
           <input
             type="text"
+            aria-label="Search conversations"
             placeholder="Search conversations..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
@@ -164,7 +165,7 @@ export function Messaging() {
       <div className="border-b border-border px-4 py-3 bg-background flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-3">
           {/* PHASE 3 FIX: Back arrow goes to list, NOT to dashboard */}
-          <button
+          <button aria-label="Go back"
             onClick={() => setSelectedId(null)}
             className="p-1.5 -ml-1.5 rounded-lg hover:bg-secondary transition md:hidden"
           >
@@ -182,9 +183,9 @@ export function Messaging() {
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <button className="p-2 hover:bg-secondary rounded-lg transition"><Phone size={18} className="text-primary" /></button>
-          <button className="p-2 hover:bg-secondary rounded-lg transition"><Video size={18} className="text-primary" /></button>
-          <button className="p-2 hover:bg-secondary rounded-lg transition"><MoreVertical size={18} className="text-muted-foreground" /></button>
+          <button aria-label="Voice call" className="p-3 hover:bg-secondary rounded-lg transition"><Phone size={18} className="text-primary" /></button>
+          <button aria-label="Video call" className="p-3 hover:bg-secondary rounded-lg transition"><Video size={18} className="text-primary" /></button>
+          <button aria-label="More options" className="p-3 hover:bg-secondary rounded-lg transition"><MoreVertical size={18} className="text-muted-foreground" /></button>
         </div>
       </div>
 
@@ -217,6 +218,7 @@ export function Messaging() {
         <div className="flex items-center gap-2">
           <input
             ref={inputRef}
+            aria-label="Type a message"
             type="text"
             placeholder="Type a message..."
             value={messageInput}
@@ -225,6 +227,7 @@ export function Messaging() {
             className="flex-1 px-4 py-3 border border-border rounded-xl focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/60 bg-secondary/30 text-sm transition"
           />
           <motion.button
+            aria-label="Send message"
             whileTap={{ scale: 0.92 }}
             onClick={handleSend}
             disabled={!messageInput.trim()}

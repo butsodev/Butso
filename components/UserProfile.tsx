@@ -63,7 +63,7 @@ export function UserProfile() {
               <h2 className="text-2xl font-bold text-foreground mb-2">{currentUser.name}</h2>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-muted-foreground font-mono text-sm">@{username}</span>
-                <button
+                <button aria-label={copied ? 'Username copied' : 'Copy username'}
                   onClick={handleCopyUsername}
                   className="p-1 hover:bg-secondary rounded transition"
                   title="Copy username"
