@@ -193,3 +193,30 @@ export async function saveShop(input: SaveShopInput, existingId?: string): Promi
   if (error || !data) return { shop: null, error: error?.message ?? 'Saved, but could not reload the shop' }
   return { shop: mapShop(data as ShopRow), error: null }
 }
+
+/** A customer reviews a shop. The database only allows this after a completed booking. */
+export async function addShopReview(
+  shopId: string,
+  user: { id: string; name: string },
+  rating: number,
+  comment: string,
+): Promise<string | null> {
+  const { error } = await supabase.from('shop_reviews').insert({
+    shop_id: shopId,
+    user_id: user.id,
+    user_name: user.name,
+    rating,
+    comment: comment.trim(),
+  })
+  if (error) {
+    if (error.code === '23505') return 'You have already reviewed this shop.'
+    return error.message
+  }
+  // A database trigger updated the shop's rating, so reload the shop
+  const { data } = await supabase.from('shops').select(SHOP_SELECT).eq('id', shopId).single()
+  if (data) {
+    const fresh = mapShop(data as ShopRow)
+    useAppStore.getState().updateShop(shopId, fresh)
+  }
+  return null
+}

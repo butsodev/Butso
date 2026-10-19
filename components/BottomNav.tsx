@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { Home, Search, Store, MessageCircle, User } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
+import { unreadCountFor } from '@/lib/dataMessages'
 
 const navItems = [
   { id: 'dashboard', icon: Home, label: 'Home' },
@@ -22,7 +23,8 @@ const activeMap: Record<string, string[]> = {
 }
 
 export function BottomNav() {
-  const { currentUser, setCurrentPage, currentPage } = useAppStore()
+  const { currentUser, setCurrentPage, currentPage, messages } = useAppStore()
+  const unreadMsgs = currentUser ? unreadCountFor(messages, currentUser.id) : 0
 
   if (!currentUser) return null
 
@@ -46,11 +48,16 @@ export function BottomNav() {
               aria-current={isActive ? 'page' : undefined}
               className="flex flex-col items-center gap-0.5 p-2 flex-1 min-h-[44px] rounded-xl transition group"
             >
-              <div className={`p-1.5 rounded-xl transition-all ${isActive ? 'bg-primary/10' : 'group-hover:bg-secondary'}`}>
+              <div className={`relative p-1.5 rounded-xl transition-all ${isActive ? 'bg-primary/10' : 'group-hover:bg-secondary'}`}>
                 <Icon
                   size={22}
                   className={`transition ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
                 />
+                {item.id === 'messaging' && unreadMsgs > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-accent text-accent-foreground text-[10px] font-black rounded-full flex items-center justify-center">
+                    {unreadMsgs > 9 ? '9+' : unreadMsgs}
+                  </span>
+                )}
               </div>
               <span className={`text-xs font-semibold transition ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
                 {item.label}

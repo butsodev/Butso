@@ -1,12 +1,25 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Calendar, User, ChevronRight } from 'lucide-react'
+import { Calendar, User } from 'lucide-react'
 import { NairaIcon } from '@/components/NairaIcon'
-import { useAppStore } from '@/lib/store'
+import { useState } from 'react'
+import { useAppStore, type Booking } from '@/lib/store'
+import { updateBookingStatus } from '@/lib/dataBookings'
+import { showToast } from '@/lib/toast'
 
 export function Bookings() {
-  const { bookings, setCurrentPage } = useAppStore()
+  const { bookings, setCurrentPage, currentUser, openChatWith } = useAppStore()
+  const [busyId, setBusyId] = useState<string | null>(null)
+
+  const changeStatus = async (b: Booking, status: Booking['status'], done: string) => {
+    if (busyId) return
+    setBusyId(b.id)
+    const error = await updateBookingStatus(b.id, status)
+    setBusyId(null)
+    if (error) showToast('error', 'Could not update that booking. Please try again.')
+    else showToast('success', done)
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -99,9 +112,7 @@ export function Bookings() {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.4 + index * 0.05 }}
-                  whileHover={{ x: 5 }}
-                  className="p-4 border border-border rounded-lg hover:bg-secondary/50 transition cursor-pointer"
-                  onClick={() => setCurrentPage('booking-details')}
+                  className="p-4 border border-border rounded-lg"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -122,12 +133,45 @@ export function Bookings() {
                         </div>
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <User size={16} />
-                          <span className="text-xs">{booking.workerName || booking.slots.length + ' slot(s)'}</span>
+                          <span className="text-xs">
+                            {currentUser?.id === booking.workerId
+                              ? `Booked by ${booking.employerName ?? 'a customer'}`
+                              : `With ${booking.workerName ?? 'the provider'}`}
+                          </span>
                         </div>
+                        {booking.slots.length > 0 && (
+                          <p className="col-span-2 text-xs text-muted-foreground">{booking.slots.join(', ')}</p>
+                        )}
                       </div>
                     </div>
-                    <ChevronRight className="text-muted-foreground mt-2" size={20} />
                   </div>
+
+                  {/* Actions: the person booked accepts or declines, the customer can cancel */}
+                  {(() => {
+                    if (!currentUser) return null
+                    const isProvider = currentUser.id === booking.workerId
+                    const otherId = isProvider ? booking.employerId : booking.workerId
+                    const otherName = (isProvider ? booking.employerName : booking.workerName) ?? 'them'
+                    const busy = busyId === booking.id
+                    const btn = 'px-4 min-h-[44px] rounded-lg text-sm font-semibold transition disabled:opacity-50'
+                    return (
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        {isProvider && booking.status === 'pending' && (
+                          <>
+                            <button disabled={busy} onClick={() => changeStatus(booking, 'confirmed', 'Booking accepted.')} className={`${btn} bg-primary text-primary-foreground`}>Accept</button>
+                            <button disabled={busy} onClick={() => changeStatus(booking, 'cancelled', 'Booking declined.')} className={`${btn} border border-border text-foreground`}>Decline</button>
+                          </>
+                        )}
+                        {isProvider && booking.status === 'confirmed' && (
+                          <button disabled={busy} onClick={() => changeStatus(booking, 'completed', 'Marked as completed.')} className={`${btn} bg-primary text-primary-foreground`}>Mark completed</button>
+                        )}
+                        {!isProvider && (booking.status === 'pending' || booking.status === 'confirmed') && (
+                          <button disabled={busy} onClick={() => changeStatus(booking, 'cancelled', 'Booking cancelled.')} className={`${btn} border border-border text-foreground`}>Cancel booking</button>
+                        )}
+                        <button onClick={() => openChatWith({ userId: otherId, name: otherName, context: booking.jobTitle })} className={`${btn} border border-border text-foreground`}>Message</button>
+                      </div>
+                    )
+                  })()}
                 </motion.div>
               ))}
             </div>

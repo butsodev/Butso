@@ -2,6 +2,7 @@
 
 import { MessageCircle, Bell, Moon, Sun, ArrowLeft } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { unreadCountFor } from '@/lib/dataMessages'
 import { useAppStore, goBackTo } from '@/lib/store'
 
 // Screens that draw their own back arrow and title. The Header hides its own on these,
@@ -19,7 +20,7 @@ const PAGE_TITLES: Record<string, string> = {
 
 export function Header() {
   const [isMounted, setIsMounted] = useState(false)
-  const { currentUser, setCurrentPage, darkMode, toggleDarkMode, currentPage, notifications } = useAppStore()
+  const { currentUser, setCurrentPage, darkMode, toggleDarkMode, currentPage, notifications, messages } = useAppStore()
 
   useEffect(() => {
     setIsMounted(true)
@@ -28,6 +29,7 @@ export function Header() {
     else root.classList.remove('dark')
   }, [darkMode])
 
+  const unreadMsgs = currentUser ? unreadCountFor(messages, currentUser.id) : 0
   const unreadNotifs = notifications?.filter((n: import('@/lib/store').Notification) => !n.read).length ?? 0
 
   const showBack = isMounted && currentPage !== 'dashboard' && !OWN_BACK.includes(currentPage)
@@ -66,10 +68,15 @@ export function Header() {
         <div className="flex items-center gap-1">
           <button
             onClick={() => setCurrentPage('messaging')}
-            className="p-2 hover:bg-secondary rounded-xl transition"
-            aria-label="Messages"
+            className="relative p-2 hover:bg-secondary rounded-xl transition"
+            aria-label={unreadMsgs > 0 ? `Messages, ${unreadMsgs} unread` : 'Messages'}
           >
             <MessageCircle size={20} className="text-foreground" />
+            {unreadMsgs > 0 && (
+              <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 bg-accent text-accent-foreground text-[11px] font-black rounded-full flex items-center justify-center">
+                {unreadMsgs > 9 ? '9+' : unreadMsgs}
+              </span>
+            )}
           </button>
 
           <button

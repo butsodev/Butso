@@ -1,86 +1,19 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { ArrowLeft, CreditCard, TrendingUp, Wallet, ArrowRight } from 'lucide-react'
-import { NairaIcon } from '@/components/NairaIcon'
-import { useState } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
+import { ArrowLeft, Wallet, ShieldCheck, ArrowDownToLine, TrendingUp, Sparkles } from 'lucide-react'
 import { useAppStore, goBackTo } from '@/lib/store'
 
-const mockTransactions = [
-  {
-    id: 1,
-    type: 'earned',
-    title: 'Carpentry Job - Payment Released',
-    amount: '₦15,000',
-    status: 'completed',
-    date: '2 days ago',
-    jobTitle: 'Furniture Repair',
-  },
-  {
-    id: 2,
-    type: 'escrow',
-    title: 'Electrical Work - In Escrow',
-    amount: '₦8,500',
-    status: 'pending',
-    date: '5 days ago',
-    jobTitle: 'Light Installation',
-  },
-  {
-    id: 3,
-    type: 'earned',
-    title: 'Painting Job - Payment Released',
-    amount: '₦12,000',
-    status: 'completed',
-    date: '1 week ago',
-    jobTitle: 'House Painting',
-  },
-  {
-    id: 4,
-    type: 'withdrawal',
-    title: 'Withdrawal to Bank Account',
-    amount: '-₦20,000',
-    status: 'completed',
-    date: '1 week ago',
-    jobTitle: 'Bank Transfer',
-  },
-  {
-    id: 5,
-    type: 'earned',
-    title: 'Plumbing Job - Payment Released',
-    amount: '₦10,500',
-    status: 'completed',
-    date: '2 weeks ago',
-    jobTitle: 'Pipe Repair',
-  },
+const upcoming = [
+  { icon: ShieldCheck, title: 'Secure escrow', body: 'Money is held safely until the job is done and both sides are happy.' },
+  { icon: TrendingUp, title: 'Earnings history', body: 'See every payment in one place, with totals by week and month.' },
+  { icon: ArrowDownToLine, title: 'Bank withdrawals', body: 'Cash out your earnings straight to your Nigerian bank account.' },
 ]
 
 export function PaymentsEarnings() {
-  const { setCurrentPage, currentUser } = useAppStore()
-  const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all')
-
-  const filteredTransactions = mockTransactions.filter(t => {
-    if (filter === 'all') return true
-    if (filter === 'pending') return t.status === 'pending'
-    if (filter === 'completed') return t.status === 'completed'
-    return true
-  })
-
-  const totalEarnings = 45500
-  const escrowBalance = 8500
-  const availableBalance = 37000
-
-  const getTransactionIcon = (type: string) => {
-    switch (type) {
-      case 'earned':
-        return <TrendingUp size={20} className="text-primary" />
-      case 'escrow':
-        return <Wallet size={20} className="text-accent" />
-      case 'withdrawal':
-        return <ArrowRight size={20} className="text-destructive" />
-      default:
-        return <NairaIcon size={20} className="text-primary" />
-    }
-  }
+  const { currentUser, setCurrentPage } = useAppStore()
+  const reduce = useReducedMotion()
+  const isWorker = currentUser?.role === 'worker'
 
   return (
     <motion.div
@@ -92,157 +25,117 @@ export function PaymentsEarnings() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background border-b border-border">
         <div className="flex items-center gap-3 px-4 py-4 sm:px-6">
-          <button aria-label="Go back"
+          <button
+            aria-label="Go back"
             onClick={() => goBackTo('dashboard')}
             className="p-2 hover:bg-secondary rounded-lg transition"
           >
             <ArrowLeft size={24} className="text-foreground" />
           </button>
-          <h1 className="text-2xl font-bold text-foreground">
-            {currentUser?.role === 'worker' ? 'Earnings' : 'Payments'}
-          </h1>
+          <h1 className="text-2xl font-bold text-foreground">{isWorker ? 'Earnings' : 'Payments'}</h1>
         </div>
       </div>
 
-      <div className="p-4 sm:p-6">
-        {/* Balance Cards */}
-        {currentUser?.role === 'worker' && (
+      <div className="max-w-xl mx-auto px-4 sm:px-6 pt-10">
+        {/* Animated hero */}
+        <div className="relative flex items-center justify-center h-52" aria-hidden="true">
+          {/* Pulsing rings */}
+          {[0, 1, 2].map(i => (
+            <motion.span
+              key={i}
+              className="absolute rounded-full border border-primary/30"
+              style={{ width: 96, height: 96 }}
+              initial={{ scale: 1, opacity: 0.5 }}
+              animate={reduce ? { scale: 1.6, opacity: 0.15 } : { scale: [1, 2.4], opacity: [0.5, 0] }}
+              transition={reduce ? { duration: 0 } : { duration: 3, repeat: Infinity, delay: i * 1, ease: 'easeOut' }}
+            />
+          ))}
+
+          {/* Wallet */}
           <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6"
+            className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground flex items-center justify-center shadow-lg"
+            animate={reduce ? undefined : { y: [0, -10, 0], rotate: [0, -3, 3, 0] }}
+            transition={reduce ? undefined : { duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           >
-            {/* Total Earnings */}
-            <div className="bg-gradient-to-br from-primary to-primary/80 rounded-xl p-6 text-primary-foreground">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-sm opacity-90">Total Earnings</p>
-                <TrendingUp size={24} />
-              </div>
-              <h2 className="text-3xl font-bold">₦{totalEarnings.toLocaleString()}</h2>
-            </div>
-
-            {/* In Escrow */}
-            <div className="bg-gradient-to-br from-accent to-accent/80 rounded-xl p-6 text-primary-foreground">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-sm opacity-90">In Escrow</p>
-                <Wallet size={24} />
-              </div>
-              <h2 className="text-3xl font-bold">₦{escrowBalance.toLocaleString()}</h2>
-            </div>
-
-            {/* Available Balance */}
-            <div className="bg-gradient-to-br from-primary to-primary/80 rounded-xl p-6 text-primary-foreground">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-sm opacity-90">Available</p>
-                <CreditCard size={24} />
-              </div>
-              <h2 className="text-3xl font-bold">₦{availableBalance.toLocaleString()}</h2>
-            </div>
+            <Wallet size={44} />
           </motion.div>
-        )}
 
-        {/* Employer Budget */}
-        {currentUser?.role === 'employer' && (
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="bg-gradient-to-br from-primary to-primary/80 rounded-xl p-6 text-primary-foreground mb-6"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm opacity-90">Budget Spent</p>
-              <CreditCard size={24} />
-            </div>
-            <h2 className="text-3xl font-bold">₦145,500</h2>
-            <p className="text-sm opacity-90 mt-2">From 12 active jobs</p>
-            <p className="text-xs opacity-70 mt-3">Payments processed via Paystack</p>
-          </motion.div>
-        )}
-
-        {/* Action Buttons */}
-        {currentUser?.role === 'worker' && (
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"
-          >
-            <div>
-              <button className="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:opacity-90 transition font-medium flex items-center justify-center gap-2">
-                <CreditCard size={20} />
-                Withdraw via Paystack
-              </button>
-              <p className="text-xs text-muted-foreground text-center mt-1">Funds sent directly to your bank account</p>
-            </div>
-            <button
-              onClick={() => setCurrentPage('bookings')}
-              className="bg-card text-foreground py-3 rounded-lg hover:bg-opacity-80 transition font-medium flex items-center justify-center gap-2"
+          {/* Falling coins */}
+          {[
+            { x: -70, delay: 0 },
+            { x: 66, delay: 0.9 },
+            { x: -20, delay: 1.7 },
+          ].map((c, i) => (
+            <motion.span
+              key={i}
+              className="absolute top-2 w-7 h-7 rounded-full bg-amber-400 text-amber-900 text-sm font-black flex items-center justify-center shadow"
+              style={{ marginLeft: c.x }}
+              initial={{ y: -10, opacity: 0 }}
+              animate={reduce ? { y: 40, opacity: 0.9 } : { y: [-10, 70, 90], opacity: [0, 1, 0], rotate: [0, 180, 360] }}
+              transition={reduce ? { duration: 0 } : { duration: 2.6, repeat: Infinity, delay: c.delay, ease: 'easeIn' }}
             >
-              <Wallet size={20} />
-              View Bookings
-            </button>
-          </motion.div>
-        )}
+              ₦
+            </motion.span>
+          ))}
+        </div>
 
-        {/* Filter Tabs */}
+        {/* Message */}
         <motion.div
-          initial={{ y: 20, opacity: 0 }}
+          initial={{ y: 16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.15 }}
-          className="flex gap-2 mb-4"
+          className="text-center"
         >
-          {(['all', 'pending', 'completed'] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg font-medium transition capitalize ${filter === f
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-card text-foreground hover:bg-opacity-80'
-                }`}
-            >
-              {f}
-            </button>
-          ))}
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide bg-accent/15 text-accent px-3 py-1 rounded-full">
+            <Sparkles size={12} /> Coming soon
+          </span>
+          <h2 className="text-3xl font-black text-foreground mt-4 mb-2">
+            {isWorker ? 'Earnings are on the way' : 'Payments are on the way'}
+          </h2>
+          <p className="text-muted-foreground leading-relaxed">
+            We are building safe in-app payments for Butsó. For now, agree the price in the chat or on the booking and
+            pay each other directly.
+          </p>
         </motion.div>
 
-        {/* Transactions List */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="space-y-3"
-        >
-          {filteredTransactions.map((transaction) => (
-            <div
-              key={transaction.id}
-              className="bg-card rounded-lg p-4 flex items-center justify-between hover:bg-opacity-80 transition"
-            >
-              <div className="flex items-center gap-4 flex-1">
-                <div className="p-3 bg-background rounded-lg">
-                  {getTransactionIcon(transaction.type)}
+        {/* What is coming */}
+        <div className="mt-8 space-y-3">
+          {upcoming.map((f, i) => {
+            const Icon = f.icon
+            return (
+              <motion.div
+                key={f.title}
+                initial={{ y: 16, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 + i * 0.1 }}
+                className="flex items-start gap-4 p-4 bg-card border border-border rounded-2xl"
+              >
+                <div className="w-10 h-10 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                  <Icon size={20} />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-foreground">{transaction.title}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{transaction.jobTitle}</p>
-                  <p className="text-xs text-muted-foreground">{transaction.date}</p>
+                <div>
+                  <p className="font-bold text-foreground text-sm">{f.title}</p>
+                  <p className="text-sm text-muted-foreground mt-0.5">{f.body}</p>
                 </div>
-              </div>
-              <div className="text-right flex-shrink-0">
-                <p className={`font-bold text-lg ${transaction.type === 'earned' || transaction.type === 'escrow'
-                  ? 'text-primary'
-                  : 'text-destructive'
-                  }`}>
-                  {transaction.amount}
-                </p>
-                <span className={`text-xs px-2 py-1 rounded capitalize ${transaction.status === 'completed'
-                  ? 'bg-primary/15 dark:bg-primary/15 text-primary dark:text-primary'
-                  : 'bg-accent/15 dark:bg-accent/20 text-accent dark:text-accent'
-                  }`}>
-                  {transaction.status}
-                </span>
-              </div>
-            </div>
-          ))}
-        </motion.div>
+              </motion.div>
+            )
+          })}
+        </div>
+
+        <div className="mt-8 flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => setCurrentPage('bookings')}
+            className="flex-1 min-h-[48px] rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 transition"
+          >
+            View my bookings
+          </button>
+          <button
+            onClick={() => setCurrentPage('dashboard')}
+            className="flex-1 min-h-[48px] rounded-xl border border-border text-foreground font-bold text-sm hover:bg-secondary transition"
+          >
+            Back to dashboard
+          </button>
+        </div>
       </div>
     </motion.div>
   )

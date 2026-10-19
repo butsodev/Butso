@@ -9,6 +9,8 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, MapPin, Phone, Award, Clock, Check, ChevronRight, Share2, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
+import { addShopReview } from '@/lib/dataShops'
+import { showToast } from '@/lib/toast'
 import { useAppStore, type Shop, type ShopService, rememberReturnTo } from '@/lib/store'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
@@ -47,8 +49,25 @@ function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
 }
 
 export function ShopPage() {
-    const { selectedShopId, shops, setCurrentPage, currentUser, goBack } = useAppStore()
+    const { selectedShopId, shops, setCurrentPage, currentUser, goBack, openChatWith, bookings } = useAppStore()
+    const [reviewRating, setReviewRating] = useState(0)
+    const [reviewComment, setReviewComment] = useState('')
+    const [reviewSaving, setReviewSaving] = useState(false)
     const shop = shops.find(s => s.id === selectedShopId)
+    const hasReviewed = !!shop && !!currentUser && shop.reviews.some(r => r.userId === currentUser.id)
+    const canReview = !!shop && !!currentUser && shop.ownerId !== currentUser.id && !hasReviewed &&
+        bookings.some(b => b.shopId === shop.id && b.employerId === currentUser.id && b.status === 'completed')
+
+    const submitReview = async () => {
+        if (!shop || !currentUser || reviewRating === 0 || reviewSaving) return
+        setReviewSaving(true)
+        const error = await addShopReview(shop.id, { id: currentUser.id, name: currentUser.name }, reviewRating, reviewComment)
+        setReviewSaving(false)
+        if (error) { showToast('error', error); return }
+        setReviewRating(0)
+        setReviewComment('')
+        showToast('success', 'Thanks for your review.')
+    }
     const [activeTab, setActiveTab] = useState<'services' | 'reviews' | 'hours'>('services')
     const [bookingService, setBookingService] = useState<ShopService | null>(null)
     const [showShareToast, setShowShareToast] = useState(false)
@@ -106,7 +125,7 @@ export function ShopPage() {
                         <button aria-label="Share shop" onClick={handleShare} className="p-2 hover:bg-secondary rounded-xl transition">
                             <Share2 size={18} className="text-muted-foreground" />
                         </button>
-                        <button aria-label="Message shop" onClick={() => setCurrentPage('messaging')} className="p-2 hover:bg-secondary rounded-xl transition">
+                        <button aria-label="Message shop" onClick={() => openChatWith({ userId: shop.ownerId, name: shop.ownerName || shop.name, context: shop.name })} className="p-2 hover:bg-secondary rounded-xl transition">
                             <MessageCircle size={18} className="text-muted-foreground" />
                         </button>
                     </div>
@@ -253,9 +272,32 @@ export function ShopPage() {
                                 ))
                             )}
 
-                            {currentUser && (
+                            {canReview ? (
+                                <div className="p-4 bg-card border border-border rounded-2xl space-y-3">
+                                    <p className="font-bold text-foreground text-sm">Rate your experience</p>
+                                    <div className="flex gap-1" role="radiogroup" aria-label="Rating">
+                                        {[1, 2, 3, 4, 5].map(n => (
+                                            <button key={n} type="button" role="radio" aria-checked={reviewRating === n}
+                                                aria-label={`${n} star${n > 1 ? 's' : ''}`}
+                                                onClick={() => setReviewRating(n)}
+                                                className="min-w-[44px] min-h-[44px] rounded-lg hover:bg-secondary transition text-2xl leading-none">
+                                                <span className={n <= reviewRating ? 'text-amber-400' : 'text-muted-foreground/40'}>★</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <textarea aria-label="Your review" value={reviewComment} onChange={e => setReviewComment(e.target.value.slice(0, 500))}
+                                        rows={3} placeholder="What was it like? (optional)"
+                                        className="w-full px-4 py-3 border border-border rounded-xl bg-secondary/30 text-sm focus:outline-none focus:border-primary" />
+                                    <button onClick={submitReview} disabled={reviewRating === 0 || reviewSaving}
+                                        className="px-5 min-h-[44px] rounded-xl bg-primary text-primary-foreground text-sm font-bold disabled:opacity-50">
+                                        {reviewSaving ? 'Posting...' : 'Post review'}
+                                    </button>
+                                </div>
+                            ) : (
                                 <div className="pt-2 text-center text-xs text-muted-foreground">
-                                    Reviews are only available after a completed booking.
+                                    {currentUser
+                                        ? (hasReviewed ? 'Thanks, you have reviewed this shop.' : 'Reviews are only available after a completed booking.')
+                                        : 'Log in to leave a review after a completed booking.'}
                                 </div>
                             )}
                         </motion.div>

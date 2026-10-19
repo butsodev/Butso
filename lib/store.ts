@@ -57,10 +57,27 @@ export interface Booking {
 
 export interface Message {
   id: string
+  conversationId: string
   senderId: string
   receiverId: string
   content: string
   createdAt: string
+  readAt?: string | null
+  pending?: boolean            // true while a sent message is still being saved
+}
+
+export interface Conversation {
+  id: string
+  otherUserId: string
+  otherName: string
+  context?: string             // e.g. the job or shop the chat started from
+  createdAt: string
+}
+
+export interface PendingChat {
+  userId: string
+  name: string
+  context?: string
 }
 
 export interface Notification {
@@ -272,6 +289,11 @@ export interface AppStore {
   messages: Message[]
   setMessages: (messages: Message[]) => void
   addMessage: (message: Message) => void
+  conversations: Conversation[]
+  setConversations: (conversations: Conversation[]) => void
+  pendingChat: PendingChat | null
+  openChatWith: (chat: PendingChat) => void
+  clearPendingChat: () => void
 
   // Notifications
   notifications: Notification[]
@@ -369,7 +391,16 @@ export const useAppStore = create<AppStore>()(
 
       messages: [],
       setMessages: (messages) => set({ messages }),
-      addMessage: (message) => set((state) => ({ messages: [message, ...state.messages] })),
+      addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
+      conversations: [],
+      setConversations: (conversations) => set({ conversations }),
+      pendingChat: null,
+      openChatWith: (chat) => {
+        const state = get()
+        const newHistory = state.pageHistory.slice(-9)
+        set({ pendingChat: chat, currentPage: 'messaging', pageHistory: [...newHistory, state.currentPage].filter(p => p !== 'splash') })
+      },
+      clearPendingChat: () => set({ pendingChat: null }),
 
       notifications: [],
       setNotifications: (notifications) => set({ notifications }),

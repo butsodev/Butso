@@ -1,87 +1,115 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, Phone, Video, Info, Search, ArrowLeft, MoreVertical } from 'lucide-react'
-import { useState, useRef, useEffect } from 'react'
-import { useAppStore } from '@/lib/store'
+import { Send, Phone, Video, Search, ArrowLeft, MoreVertical } from 'lucide-react'
+import { useState, useRef, useEffect, useMemo } from 'react'
+import { useAppStore, type Conversation, type Message } from '@/lib/store'
+import {
+  getOrCreateConversation, rememberConversation, sendMessage, markConversationRead, unreadCountFor,
+} from '@/lib/dataMessages'
+import { timeAgo } from '@/lib/data'
+import { showToast } from '@/lib/toast'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
 import { Avatar } from '@/components/Avatar'
-type Message = { id: string; sender: 'me' | 'other'; text: string; time: string }
-type Conversation = {
-  id: string; name: string; avatar: string; lastMessage: string
-  timestamp: string; unread: number; isOnline: boolean; job: string
-  workerId?: string
+
+type ConversationView = Conversation & {
+  lastMessage: string
+  lastAt: string
+  unread: number
 }
 
-const conversations: Conversation[] = [
-  { id: 'conv1', name: 'Wunuken Danladi', avatar: '', lastMessage: 'Can you start on Monday?', timestamp: '2h ago', unread: 2, isOnline: true, job: 'Bathroom Renovation', workerId: 'worker1' },
-  { id: 'conv2', name: 'Zando Ishaku', avatar: '', lastMessage: 'I can do that!', timestamp: '4h ago', unread: 0, isOnline: true, job: 'Electrical Work', workerId: 'worker5' },
-  { id: 'conv3', name: 'Chidonku Agbu', avatar: '', lastMessage: 'What time works best for you?', timestamp: '1d ago', unread: 0, isOnline: false, job: 'Plumbing Repair', workerId: 'worker3' },
-  { id: 'conv4', name: 'Fatima Abdullahi', avatar: '', lastMessage: 'Thank you for the opportunity', timestamp: '2d ago', unread: 0, isOnline: false, job: 'House Cleaning', workerId: 'worker2' },
-]
-
-const allMessages: Record<string, Message[]> = {
-  conv1: [
-    { id: '1', sender: 'other', text: 'Hi! I saw your bathroom renovation job posting.', time: '10:30' },
-    { id: '2', sender: 'other', text: 'I have 5+ years of experience with similar projects.', time: '10:31' },
-    { id: '3', sender: 'me', text: 'Great! When can you start?', time: '10:45' },
-    { id: '4', sender: 'other', text: 'Can you start on Monday?', time: '11:00' },
-    { id: '5', sender: 'me', text: 'Monday works perfectly. What time?', time: '11:02' },
-  ],
-  conv2: [
-    { id: '1', sender: 'me', text: 'Hello! Interested in the electrical work?', time: '9:00' },
-    { id: '2', sender: 'other', text: 'Yes! I have the certifications and experience.', time: '9:15' },
-    { id: '3', sender: 'me', text: 'Can you do residential work?', time: '9:20' },
-    { id: '4', sender: 'other', text: 'I can do that!', time: '9:30' },
-  ],
-  conv3: [
-    { id: '1', sender: 'other', text: 'Hi, I saw your plumbing job', time: 'Yesterday' },
-    { id: '2', sender: 'me', text: 'When are you available?', time: 'Yesterday' },
-    { id: '3', sender: 'other', text: 'What time works best for you?', time: 'Today' },
-  ],
-  conv4: [
-    { id: '1', sender: 'me', text: 'Thanks for applying!', time: '2d ago' },
-    { id: '2', sender: 'other', text: 'Thank you for the opportunity', time: '2d ago' },
-  ],
-}
+const clock = (iso: string) =>
+  new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 
 export function Messaging() {
-  const { setCurrentPage, viewWorkerProfile } = useAppStore()
-  // PHASE 3 FIX: null = show list, string = show chat (mobile stack behaviour)
+  const {
+    currentUser, setCurrentPage, viewWorkerProfile,
+    conversations, messages, pendingChat, clearPendingChat,
+  } = useAppStore()
+  // null = show list, string = show chat (mobile stack behaviour)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [messageInput, setMessageInput] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
-  const [localMessages, setLocalMessages] = useState(allMessages)
+  const [sending, setSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const selectedConv = conversations.find(c => c.id === selectedId)
-  const convMessages = selectedId ? (localMessages[selectedId] ?? []) : []
-  const filtered = conversations.filter(c =>
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.job.toLowerCase().includes(searchQuery.toLowerCase())
+  const myId = currentUser?.id ?? ''
+
+  // Conversation list with last message and unread count, newest first
+  const views: ConversationView[] = useMemo(() => {
+    const byConv = new Map<string, Message[]>()
+    for (const m of messages) {
+      const list = byConv.get(m.conversationId)
+      if (list) list.push(m)
+      else byConv.set(m.conversationId, [m])
+    }
+    return conversations
+      .map(c => {
+        const thread = byConv.get(c.id) ?? []
+        const last = thread[thread.length - 1]
+        return {
+          ...c,
+          lastMessage: last?.content ?? 'Say hello',
+          lastAt: last?.createdAt ?? c.createdAt,
+          unread: unreadCountFor(thread, myId),
+        }
+      })
+      .sort((x, y) => y.lastAt.localeCompare(x.lastAt))
+  }, [conversations, messages, myId])
+
+  const selectedConv = views.find(c => c.id === selectedId)
+  const convMessages = useMemo(
+    () => (selectedId ? messages.filter(m => m.conversationId === selectedId) : []),
+    [messages, selectedId],
+  )
+  const filtered = views.filter(c =>
+    c.otherName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (c.context ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  // Scroll to bottom when messages change or conversation opens
+  // Opened from a profile, shop or booking: find or create that chat and open it
+  useEffect(() => {
+    if (!pendingChat || !currentUser) return
+    let cancelled = false
+    ;(async () => {
+      const { conversation, error } = await getOrCreateConversation(
+        { id: currentUser.id, name: currentUser.name },
+        { id: pendingChat.userId, name: pendingChat.name },
+        pendingChat.context,
+      )
+      if (cancelled) return
+      clearPendingChat()
+      if (error || !conversation) { showToast('error', error ?? 'Could not open that chat.'); return }
+      rememberConversation(conversation)
+      setSelectedId(conversation.id)
+    })()
+    return () => { cancelled = true }
+  }, [pendingChat, currentUser, clearPendingChat])
+
+  // Scroll to bottom when messages change or a chat opens
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [convMessages.length, selectedId])
 
-  const handleSend = () => {
+  // Looking at a chat marks the other person's messages as read
+  const unreadHere = selectedId ? unreadCountFor(convMessages, myId) : 0
+  useEffect(() => {
+    if (selectedId && currentUser && unreadHere > 0) markConversationRead(selectedId, currentUser.id)
+  }, [selectedId, unreadHere, currentUser])
+
+  const handleSend = async () => {
     const text = messageInput.trim()
-    if (!text || !selectedId) return
-    const newMsg: Message = {
-      id: Date.now().toString(),
-      sender: 'me',
-      text,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    }
-    setLocalMessages(prev => ({
-      ...prev,
-      [selectedId]: [...(prev[selectedId] ?? []), newMsg],
-    }))
+    if (!text || !selectedConv || !currentUser || sending) return
+    setSending(true)
     setMessageInput('')
+    const error = await sendMessage(selectedConv, currentUser, text)
+    setSending(false)
+    if (error) {
+      setMessageInput(text) // give the text back so nothing is lost
+      showToast('error', 'Message not sent. Check your connection and try again.')
+    }
     inputRef.current?.focus()
   }
 
@@ -90,6 +118,24 @@ export function Messaging() {
       e.preventDefault()
       handleSend()
     }
+  }
+
+  const comingSoon = (what: string) => showToast('info', `${what} is coming soon.`)
+
+  if (!currentUser) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center p-8" style={{ minHeight: 'calc(100vh - 128px)' }}>
+        <div className="text-5xl mb-4"><EmojiIcon e="💬" size={44} /></div>
+        <p className="font-bold text-foreground mb-1">Log in to see your messages</p>
+        <p className="text-muted-foreground text-sm mb-5">Chat with workers, employers and shops.</p>
+        <button
+          onClick={() => setCurrentPage('auth')}
+          className="px-6 min-h-[44px] rounded-xl bg-primary text-primary-foreground text-sm font-bold"
+        >
+          Log in
+        </button>
+      </div>
+    )
   }
 
   // ── Conversation List ────────────────────────────────────────────────────
@@ -117,7 +163,11 @@ export function Messaging() {
       {/* List */}
       <div className="flex-1 overflow-y-auto">
         {filtered.length === 0 && (
-          <div className="text-center py-16 text-muted-foreground text-sm">No conversations found</div>
+          <div className="text-center py-16 px-6 text-muted-foreground text-sm">
+            {views.length === 0
+              ? 'No conversations yet. Message someone from their profile or shop page.'
+              : 'No conversations found'}
+          </div>
         )}
         {filtered.map((conv, i) => (
           <motion.button
@@ -131,17 +181,14 @@ export function Messaging() {
           >
             <div className="flex items-start gap-3">
               <div className="relative shrink-0">
-                <Avatar name={conv.name} size={44} />
-                {conv.isOnline && (
-                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
-                )}
+                <Avatar name={conv.otherName} size={44} />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className="font-bold text-foreground text-sm truncate">{conv.name}</span>
-                  <span className="text-xs text-muted-foreground ml-2 shrink-0">{conv.timestamp}</span>
+                  <span className="font-bold text-foreground text-sm truncate">{conv.otherName}</span>
+                  <span className="text-xs text-muted-foreground ml-2 shrink-0">{timeAgo(conv.lastAt)}</span>
                 </div>
-                <p className="text-xs text-muted-foreground truncate mb-0.5">{conv.job}</p>
+                {conv.context && <p className="text-xs text-muted-foreground truncate mb-0.5">{conv.context}</p>}
                 <p className={`text-sm truncate ${conv.unread > 0 ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
                   {conv.lastMessage}
                 </p>
@@ -172,44 +219,46 @@ export function Messaging() {
             <ArrowLeft size={20} className="text-foreground" />
           </button>
           <div className="relative">
-            <Avatar name={selectedConv.name} size={40} />
-            {selectedConv.isOnline && (
-              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-background" />
-            )}
+            <Avatar name={selectedConv.otherName} size={40} />
           </div>
           <div>
-            <button onClick={() => selectedConv.workerId && viewWorkerProfile(selectedConv.workerId)} className="font-black text-foreground text-sm hover:text-primary transition text-left">{selectedConv.name}</button>
-            <p className="text-xs text-muted-foreground">{selectedConv.isOnline ? 'Online' : selectedConv.job}</p>
+            <button onClick={() => viewWorkerProfile(selectedConv.otherUserId)} className="font-black text-foreground text-sm hover:text-primary transition text-left">{selectedConv.otherName}</button>
+            {selectedConv.context && <p className="text-xs text-muted-foreground">{selectedConv.context}</p>}
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <button aria-label="Voice call" className="p-3 hover:bg-secondary rounded-lg transition"><Phone size={18} className="text-primary" /></button>
-          <button aria-label="Video call" className="p-3 hover:bg-secondary rounded-lg transition"><Video size={18} className="text-primary" /></button>
-          <button aria-label="More options" className="p-3 hover:bg-secondary rounded-lg transition"><MoreVertical size={18} className="text-muted-foreground" /></button>
+          <button aria-label="Voice call" onClick={() => comingSoon('Voice calls')} className="p-3 hover:bg-secondary rounded-lg transition"><Phone size={18} className="text-primary" /></button>
+          <button aria-label="Video call" onClick={() => comingSoon('Video calls')} className="p-3 hover:bg-secondary rounded-lg transition"><Video size={18} className="text-primary" /></button>
+          <button aria-label="More options" onClick={() => comingSoon('More options')} className="p-3 hover:bg-secondary rounded-lg transition"><MoreVertical size={18} className="text-muted-foreground" /></button>
         </div>
       </div>
 
       {/* Messages — scrollable, pb accounts for input bar */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-        {convMessages.map((msg, i) => (
+        {convMessages.length === 0 && (
+          <p className="text-center text-sm text-muted-foreground py-10">No messages yet. Say hello.</p>
+        )}
+        {convMessages.map(msg => {
+          const mine = msg.senderId === myId
+          return (
           <motion.div
             key={msg.id}
             initial={{ y: 6, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: i * 0.03 }}
-            className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}
+            animate={{ y: 0, opacity: msg.pending ? 0.6 : 1 }}
+            className={`flex ${mine ? 'justify-end' : 'justify-start'}`}
           >
-            <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${msg.sender === 'me'
+            <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${mine
               ? 'bg-primary text-primary-foreground rounded-br-sm'
               : 'bg-secondary text-foreground rounded-bl-sm'
               }`}>
-              <p className="text-sm leading-relaxed">{msg.text}</p>
-              <p className={`text-xs mt-1 ${msg.sender === 'me' ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
-                {msg.time}
+              <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
+              <p className={`text-xs mt-1 ${mine ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
+                {msg.pending ? 'Sending...' : clock(msg.createdAt)}{mine && !msg.pending && msg.readAt ? ' · Seen' : ''}
               </p>
             </div>
           </motion.div>
-        ))}
+          )
+        })}
         <div ref={messagesEndRef} />
       </div>
 
@@ -230,7 +279,7 @@ export function Messaging() {
             aria-label="Send message"
             whileTap={{ scale: 0.92 }}
             onClick={handleSend}
-            disabled={!messageInput.trim()}
+            disabled={!messageInput.trim() || sending}
             className="w-11 h-11 bg-primary text-primary-foreground rounded-xl flex items-center justify-center hover:bg-primary/90 transition disabled:opacity-40 shrink-0"
           >
             <Send size={18} />

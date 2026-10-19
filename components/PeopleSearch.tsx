@@ -33,7 +33,7 @@ const card = {
 }
 
 export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
-  const { setCurrentPage, preferences, trackSearch, viewedWorkerId, currentUser } = useAppStore()
+  const { setCurrentPage, preferences, trackSearch, viewedWorkerId, currentUser, openChatWith } = useAppStore()
   const [workers, setWorkers] = useState<PublicWorker[]>([])
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading')
   const [reloadKey, setReloadKey] = useState(0)
@@ -206,7 +206,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
               <div className="flex gap-3">
                 <motion.button
                   whileTap={{ scale: 0.97 }}
-                  onClick={() => setCurrentPage('messaging')}
+                  onClick={() => openChatWith({ userId: selectedWorker.id, name: selectedWorker.name })}
                   className="flex-1 py-3 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition text-sm"
                 >
                   Send Message

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAppStore, type UserRole, goAfterAuth, rememberReturnTo } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
 import { refreshJobs } from '@/lib/data'
-import { mockTransactions } from '@/lib/mockData'
+import { stopMessagesRealtime } from '@/lib/dataMessages'
 import { loadUserData } from '@/lib/loadUserData'
 import { refreshShops } from '@/lib/dataShops'
 import { ThemeProvider } from '@/components/ThemeProvider'
@@ -28,7 +28,6 @@ import { Settings } from '@/components/Settings'
 import { Support } from '@/components/Support'
 import { Notifications } from '@/components/Notifications'
 import { PaymentsEarnings } from '@/components/PaymentsEarnings'
-import { BookingConfirmation } from '@/components/BookingConfirmation'
 import { RatingsReviews } from '@/components/RatingsReviews'
 import { Toast } from '@/components/Toast'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
@@ -63,7 +62,7 @@ const AUTH_PAGES = ['role-select', 'phone-verification', 'auth', 'profile-setup'
 export default function Home() {
   const {
     currentPage, currentUser, setCurrentPage, setCurrentUser, setDashboardMode,
-    setBookings, setNotifications, setTransactions,
+    setBookings, setNotifications,
   } = useAppStore()
   const [authChecked, setAuthChecked] = useState(false)
 
@@ -108,8 +107,6 @@ export default function Home() {
           completedJobs: p.completed_jobs ?? 0,
         })
         setDashboardMode(p.role === 'employer' ? 'need-help' : 'find-work')
-        // Bookings and notifications are real. Transactions are still sample data until phase 7.
-        setTransactions(mockTransactions)
         loadUserData(p.id)
         goAfterAuth()
       }
@@ -127,7 +124,9 @@ export default function Home() {
       }
       if (event === 'SIGNED_OUT') {
         setCurrentUser(null)
+        stopMessagesRealtime()
         setBookings([]); setNotifications([])
+        useAppStore.getState().setMessages([]); useAppStore.getState().setConversations([])
       }
     })
 
@@ -229,7 +228,7 @@ export default function Home() {
             {currentPage === 'support' && <Support />}
             {currentPage === 'notifications' && <Notifications />}
             {currentPage === 'payments' && <PaymentsEarnings />}
-            {currentPage === 'booking-confirmation' && <BookingConfirmation />}
+            {currentPage === 'booking-confirmation' && <Bookings />}
             {currentPage === 'ratings-reviews' && <RatingsReviews />}
             {currentPage === 'advanced-search' && <AdvancedSearch />}
             {currentPage === 'profile' && <UserProfile />}
