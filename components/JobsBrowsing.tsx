@@ -195,6 +195,7 @@ export function JobsBrowsing() {
                     whileTap={{ scale: 0.97 }}
                     onClick={(e) => {
                       e.stopPropagation()
+                      setSelectedJobId(job.id)
                       setCurrentPage('apply-job')
                     }}
                     className="w-full py-2.5 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition text-sm"

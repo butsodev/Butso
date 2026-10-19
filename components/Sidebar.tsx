@@ -1,6 +1,7 @@
 'use client'
 
 import { useAppStore } from '@/lib/store'
+import { signOutUser } from '@/lib/auth'
 import { Home, Briefcase, Zap, MessageSquare, Calendar, HelpCircle, Settings as SettingsIcon, LogOut } from 'lucide-react'
 import { NairaIcon } from '@/components/NairaIcon'
 
@@ -60,9 +61,7 @@ export function Sidebar() {
       {/* Logout Button */}
       <div className="border-t border-border p-4">
         <button
-          onClick={() => {
-            useAppStore.setState({ currentUser: null, currentPage: 'splash' })
-          }}
+          onClick={() => { void signOutUser() }}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-foreground hover:bg-secondary transition text-destructive hover:text-destructive"
         >
           <LogOut size={20} />

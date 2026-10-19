@@ -3,65 +3,86 @@
 import { motion } from 'framer-motion'
 import { CheckCircle, XCircle, MessageCircle, ChevronLeft } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
-import { useState } from 'react'
-import { goBackTo } from '@/lib/store'
+import { useState, useEffect, useCallback } from 'react'
+import { useAppStore, goBackTo } from '@/lib/store'
+import { fetchApplicants, setApplicationStatus, type Applicant } from '@/lib/dataApplications'
+import { createBooking, refreshBookings } from '@/lib/dataBookings'
+import { refreshJobs, timeAgo } from '@/lib/data'
+import { showToast } from '@/lib/toast'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
-export function JobApplicants() {
-  const [selectedApplicant, setSelectedApplicant] = useState<string | null>(null)
-  const [appliedFilter, setAppliedFilter] = useState<'all' | 'accepted' | 'rejected'>('all')
 
-  // Sample applicants data
-  const applicants = [
-    {
-      id: '1',
-      name: 'Wunuken Danladi',
-      rating: 4.9,
-      completedJobs: 23,
-      bio: 'Professional carpenter with 5+ years experience',
-      skills: ['Carpentry', 'Painting', 'Repairs'],
-      coverLetter: 'I have successfully completed similar bathroom renovation projects with excellent results. My attention to detail and quality workmanship guarantee customer satisfaction.',
-      status: 'pending' as const,
-      appliedDate: '2 hours ago',
-    },
-    {
-      id: '2',
-      name: 'Wapuken Amos',
-      rating: 4.7,
-      completedJobs: 15,
-      bio: 'Experienced in construction and renovation',
-      skills: ['Tiling', 'Construction', 'Finishing'],
-      coverLetter: 'I specialize in bathroom renovations and have done 10+ similar projects in the past year.',
-      status: 'accepted' as const,
-      appliedDate: '4 hours ago',
-    },
-    {
-      id: '3',
-      name: 'Emeka Eze',
-      rating: 4.5,
-      completedJobs: 8,
-      bio: 'Growing professional, eager to learn',
-      skills: ['Plumbing', 'General Repairs'],
-      coverLetter: 'Enthusiastic about this project. I have relevant experience and can start immediately.',
-      status: 'pending' as const,
-      appliedDate: '6 hours ago',
-    },
-    {
-      id: '4',
-      name: 'Asogya Kefas',
-      rating: 3.2,
-      completedJobs: 2,
-      bio: 'Trainee professional',
-      skills: ['General Labor', 'Painting'],
-      coverLetter: 'I am eager to gain more experience in construction work.',
-      status: 'rejected' as const,
-      appliedDate: '1 day ago',
-    },
-  ]
+type Filter = 'all' | 'pending' | 'accepted' | 'rejected'
+
+export function JobApplicants() {
+  const { currentUser, jobs, selectedJobId, setCurrentPage, openChatWith } = useAppStore()
+  const job = jobs.find(j => j.id === selectedJobId)
+
+  const [applicants, setApplicants] = useState<Applicant[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+  const [selectedApplicant, setSelectedApplicant] = useState<string | null>(null)
+  const [appliedFilter, setAppliedFilter] = useState<Filter>('all')
+  const [busy, setBusy] = useState(false)
+
+  const load = useCallback(async () => {
+    if (!job) return
+    setLoading(true); setLoadError('')
+    const { applicants: list, error } = await fetchApplicants(job.id)
+    if (error) setLoadError('Could not load applicants. Please try again.')
+    else setApplicants(list)
+    setLoading(false)
+  }, [job?.id])
+
+  useEffect(() => { void load() }, [load])
+
+  const decide = async (a: Applicant, status: 'accepted' | 'rejected') => {
+    if (!job || busy) return
+    setBusy(true)
+    const err = await setApplicationStatus(a.id, status, job.id, a.workerId)
+    setBusy(false)
+    if (err) { showToast('error', 'Could not update this applicant. Please try again.'); return }
+    setApplicants(prev => prev.map(x => x.id === a.id ? { ...x, status } : x))
+    showToast('success', status === 'accepted' ? `${a.name} accepted` : `${a.name} rejected`)
+    refreshJobs()
+  }
+
+  const createJobBooking = async (a: Applicant) => {
+    if (!job || !currentUser || busy) return
+    setBusy(true)
+    const { error } = await createBooking({
+      type: 'job',
+      jobId: job.id,
+      jobTitle: job.title,
+      workerId: a.workerId,
+      workerName: a.name,
+      employerId: currentUser.id,
+      employerName: currentUser.name,
+      date: (job.deadline ? job.deadline.slice(0, 10) : new Date().toISOString().slice(0, 10)),
+      slots: [],
+      totalPrice: job.budget,
+    })
+    setBusy(false)
+    if (error) { showToast('error', 'Could not create the booking. Please try again.'); return }
+    void refreshBookings(currentUser.id)
+    showToast('success', 'Booking created')
+    setCurrentPage('bookings')
+  }
+
+  if (!job || !currentUser || job.employerId !== currentUser.id) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6 text-center">
+        <div>
+          <p className="text-foreground font-bold mb-2">No job selected</p>
+          <button onClick={() => setCurrentPage('dashboard')} className="text-primary font-semibold">Back to dashboard</button>
+        </div>
+      </div>
+    )
+  }
 
   const filteredApplicants = appliedFilter === 'all'
     ? applicants
-    : applicants.filter(a => a.status === appliedFilter.slice(0, -1))
+    : applicants.filter(a => a.status === appliedFilter)
 
   const selectedData = selectedApplicant
     ? applicants.find(a => a.id === selectedApplicant)
@@ -94,7 +115,7 @@ export function JobApplicants() {
             </motion.button>
           </div>
           <h1 className="text-3xl font-bold">Job Applicants</h1>
-          <p className="text-primary-foreground/80">Bathroom Renovation • ₦250,000</p>
+          <p className="text-primary-foreground/80">{job.title} • ₦{job.budget.toLocaleString()}</p>
         </motion.div>
       </div>
 
@@ -111,25 +132,35 @@ export function JobApplicants() {
             >
               {/* Filter Tabs */}
               <div className="flex border-b border-border">
-                {(['all', 'accepted', 'rejected'] as const).map((filter) => (
+                {(['all', 'pending', 'accepted', 'rejected'] as const).map((filter) => (
                   <button
                     key={filter}
                     onClick={() => setAppliedFilter(filter)}
-                    className={`flex-1 py-3 px-4 text-sm font-semibold transition border-b-2 ${appliedFilter === filter
+                    className={`flex-1 py-3 px-2 text-xs sm:text-sm font-semibold transition border-b-2 ${appliedFilter === filter
                       ? 'border-accent text-accent bg-accent/5'
                       : 'border-transparent text-muted-foreground hover:text-foreground'
                       }`}
                   >
-                    {filter === 'all' ? 'All' : filter === 'accepted' ? 'Accepted' : 'Rejected'}
-                    {filter === 'all' && ` (${applicants.length})`}
-                    {filter === 'accepted' && ` (${applicants.filter(a => a.status === 'accepted').length})`}
-                    {filter === 'rejected' && ` (${applicants.filter(a => a.status === 'rejected').length})`}
+                    {filter === 'all' ? 'All' : filter === 'pending' ? 'New' : filter === 'accepted' ? 'Accepted' : 'Rejected'}
+                    {` (${filter === 'all' ? applicants.length : applicants.filter(a => a.status === filter).length})`}
                   </button>
                 ))}
               </div>
 
               {/* Applicants List */}
               <div className="divide-y divide-border max-h-[600px] overflow-y-auto">
+                {loading && <div className="p-6 text-center text-sm text-muted-foreground">Loading applicants…</div>}
+                {!loading && loadError && (
+                  <div className="p-6 text-center text-sm">
+                    <p className="text-destructive mb-2">{loadError}</p>
+                    <button onClick={() => void load()} className="text-primary font-semibold">Try again</button>
+                  </div>
+                )}
+                {!loading && !loadError && filteredApplicants.length === 0 && (
+                  <div className="p-6 text-center text-sm text-muted-foreground">
+                    {applicants.length === 0 ? 'No one has applied yet.' : 'No applicants in this tab.'}
+                  </div>
+                )}
                 {filteredApplicants.map((applicant, index) => (
                   <motion.button
                     key={applicant.id}
@@ -150,10 +181,10 @@ export function JobApplicants() {
                       )}
                     </div>
                     <div className="flex items-center gap-1 mb-1">
-                      <RatingBadge value={applicant.rating} size="xs" />
+                      {applicant.rating != null ? <RatingBadge value={applicant.rating} size="xs" /> : <span className="text-xs text-muted-foreground">No reviews</span>}
                       <span className="text-xs text-muted-foreground">• {applicant.completedJobs} jobs</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">{applicant.appliedDate}</p>
+                    <p className="text-xs text-muted-foreground">{timeAgo(applicant.createdAt)}</p>
                   </motion.button>
                 ))}
               </div>
@@ -177,7 +208,7 @@ export function JobApplicants() {
                       <div className="text-5xl"><EmojiIcon e="👷" size={44} /></div>
                       <div>
                         <h2 className="text-2xl font-bold text-foreground">{selectedData.name}</h2>
-                        <p className="text-muted-foreground text-sm">{selectedData.bio}</p>
+                        <p className="text-muted-foreground text-sm">{selectedData.bio || `@${selectedData.username}`}</p>
                       </div>
                     </div>
                     {selectedData.status === 'pending' && (
@@ -201,7 +232,7 @@ export function JobApplicants() {
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Rating</p>
                       <div className="flex items-center gap-2">
-                        <RatingBadge value={selectedData.rating} size="md" />
+                        {selectedData.rating != null ? <RatingBadge value={selectedData.rating} size="md" /> : <span className="text-sm text-muted-foreground">No reviews yet</span>}
                       </div>
                     </div>
                     <div>
@@ -229,8 +260,18 @@ export function JobApplicants() {
 
                 {/* Cover Letter */}
                 <div className="bg-card rounded-lg border border-border shadow-sm p-6">
-                  <h3 className="text-lg font-bold text-foreground mb-4">Cover Letter</h3>
-                  <p className="text-foreground leading-relaxed">{selectedData.coverLetter}</p>
+                  <h3 className="text-lg font-bold text-foreground mb-4">Message</h3>
+                  <p className="text-foreground leading-relaxed">{selectedData.message || 'No message. They applied with their profile only.'}</p>
+                  {(selectedData.availability || selectedData.expectedRate != null) && (
+                    <div className="mt-4 pt-4 border-t border-border grid grid-cols-2 gap-4 text-sm">
+                      {selectedData.availability && (
+                        <div><p className="text-xs text-muted-foreground mb-1">Availability</p><p className="font-semibold text-foreground capitalize">{selectedData.availability.replace(/-/g, ' ')}</p></div>
+                      )}
+                      {selectedData.expectedRate != null && (
+                        <div><p className="text-xs text-muted-foreground mb-1">Expected daily rate</p><p className="font-semibold text-foreground">₦{selectedData.expectedRate.toLocaleString()}</p></div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Action Buttons */}
@@ -239,7 +280,9 @@ export function JobApplicants() {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex-1 py-3 px-6 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition flex items-center justify-center gap-2"
+                      onClick={() => void decide(selectedData, 'accepted')}
+                      disabled={busy}
+                      className="flex-1 py-3 px-6 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       <CheckCircle size={20} />
                       Accept
@@ -247,6 +290,7 @@ export function JobApplicants() {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
+                      onClick={() => openChatWith({ userId: selectedData.workerId, name: selectedData.name, context: job.title })}
                       className="flex-1 py-3 px-6 border border-border text-foreground font-semibold rounded-lg hover:bg-secondary transition flex items-center justify-center gap-2"
                     >
                       <MessageCircle size={20} />
@@ -255,7 +299,9 @@ export function JobApplicants() {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex-1 py-3 px-6 border border-destructive/30 text-destructive font-semibold rounded-lg hover:bg-destructive/10 transition"
+                      onClick={() => void decide(selectedData, 'rejected')}
+                      disabled={busy}
+                      className="flex-1 py-3 px-6 border border-destructive/30 text-destructive font-semibold rounded-lg hover:bg-destructive/10 transition disabled:opacity-50"
                     >
                       Reject
                     </motion.button>
@@ -267,6 +313,7 @@ export function JobApplicants() {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
+                      onClick={() => openChatWith({ userId: selectedData.workerId, name: selectedData.name, context: job.title })}
                       className="flex-1 py-3 px-6 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition flex items-center justify-center gap-2"
                     >
                       <MessageCircle size={20} />
@@ -275,7 +322,9 @@ export function JobApplicants() {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex-1 py-3 px-6 border border-border text-foreground font-semibold rounded-lg hover:bg-secondary transition"
+                      onClick={() => void createJobBooking(selectedData)}
+                      disabled={busy}
+                      className="flex-1 py-3 px-6 border border-border text-foreground font-semibold rounded-lg hover:bg-secondary transition disabled:opacity-50"
                     >
                       Create Booking
                     </motion.button>

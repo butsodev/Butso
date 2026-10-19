@@ -4,6 +4,9 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, Bell, Lock, Globe, LogOut, User, Edit2, Shield } from 'lucide-react'
 import { useState } from 'react'
 import { useAppStore, goBackTo } from '@/lib/store'
+import { supabase } from '@/lib/supabase'
+import { signOutUser } from '@/lib/auth'
+import { showToast } from '@/lib/toast'
 
 export function Settings() {
   const { currentUser, setCurrentPage, setCurrentUser, darkMode, toggleDarkMode } = useAppStore()
@@ -11,21 +14,26 @@ export function Settings() {
   const [editedName, setEditedName] = useState(currentUser?.name || '')
   const [editedBio, setEditedBio] = useState(currentUser?.bio || '')
 
-  const handleSaveProfile = () => {
-    if (currentUser) {
-      setCurrentUser({
-        ...currentUser,
-        name: editedName,
-        bio: editedBio,
-      })
-      setIsEditing(false)
-    }
+  const [saving, setSaving] = useState(false)
+
+  const handleSaveProfile = async () => {
+    if (!currentUser || saving) return
+    const name = editedName.trim()
+    if (name.length < 2) { showToast('error', 'Please enter your name.'); return }
+    setSaving(true)
+    const bio = editedBio.trim()
+    const { error } = await supabase
+      .from('profiles')
+      .update({ name, bio: bio || null })
+      .eq('id', currentUser.id)
+    setSaving(false)
+    if (error) { showToast('error', 'Could not save your changes. Please try again.'); return }
+    setCurrentUser({ ...currentUser, name, bio: bio || undefined })
+    setIsEditing(false)
+    showToast('success', 'Profile updated')
   }
 
-  const handleLogout = () => {
-    setCurrentUser(null)
-    setCurrentPage('splash')
-  }
+  const handleLogout = () => { void signOutUser() }
 
   return (
     <motion.div
@@ -115,9 +123,10 @@ export function Settings() {
               <div className="flex gap-2">
                 <button
                   onClick={handleSaveProfile}
-                  className="flex-1 bg-primary text-primary-foreground py-2 rounded-lg hover:opacity-90 transition font-medium"
+                  disabled={saving}
+                  className="flex-1 bg-primary text-primary-foreground py-2 rounded-lg hover:opacity-90 transition font-medium disabled:opacity-60"
                 >
-                  Save
+                  {saving ? 'Saving…' : 'Save'}
                 </button>
                 <button
                   onClick={() => {

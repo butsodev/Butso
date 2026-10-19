@@ -4,12 +4,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, CheckCircle, Zap, FileText, ChevronDown, ChevronUp } from 'lucide-react'
 import { useState } from 'react'
 import { useAppStore, goBackTo } from '@/lib/store'
+import { applyToJob } from '@/lib/dataApplications'
+import { refreshJobs, timeAgo } from '@/lib/data'
+import { showToast } from '@/lib/toast'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
 type ApplyMode = 'choose' | 'quick' | 'detailed' | 'success'
 
 export function ApplyJob() {
-  const { setCurrentPage, currentUser } = useAppStore()
+  const { setCurrentPage, currentUser, jobs, jobsStatus, selectedJobId } = useAppStore()
+  const job = jobs.find(j => j.id === selectedJobId)
+  const alreadyApplied = !!job && !!currentUser && job.applicants.includes(currentUser.id)
+  const [submitError, setSubmitError] = useState('')
   const [mode, setMode] = useState<ApplyMode>('choose')
   const [isLoading, setIsLoading] = useState(false)
   const [showMore, setShowMore] = useState(false)
@@ -19,20 +25,61 @@ export function ApplyJob() {
   const [expectedRate, setExpectedRate] = useState('')
   const [message, setMessage] = useState('')
 
-  const handleQuickApply = () => {
+  const submit = async (detailed: boolean) => {
+    if (isLoading) return
+    setSubmitError('')
+    if (!job || !currentUser) { setSubmitError('Please log in again to apply.'); return }
+    if (currentUser.role !== 'worker') { setSubmitError('Only worker accounts can apply for jobs.'); return }
+    if (job.employerId === currentUser.id) { setSubmitError('You cannot apply to your own job.'); return }
+    if (job.status !== 'open') { setSubmitError('This job is no longer open.'); return }
     setIsLoading(true)
-    setTimeout(() => {
-      setMode('success')
-      setIsLoading(false)
-    }, 900)
+    const rate = detailed && expectedRate.trim() ? Number(expectedRate.replace(/[^\d.]/g, '')) : null
+    const { error, alreadyApplied: dup } = await applyToJob({
+      jobId: job.id,
+      workerId: currentUser.id,
+      availability: detailed ? availability : undefined,
+      message: detailed ? message : undefined,
+      expectedRate: rate && Number.isFinite(rate) ? rate : null,
+    })
+    setIsLoading(false)
+    if (error && !dup) { setSubmitError('Could not send your application. Please try again.'); return }
+    if (dup) showToast('info', 'You already applied for this job.')
+    refreshJobs()
+    setMode('success')
   }
 
-  const handleDetailedApply = () => {
-    setIsLoading(true)
-    setTimeout(() => {
-      setMode('success')
-      setIsLoading(false)
-    }, 1000)
+  const handleQuickApply = () => { void submit(false) }
+  const handleDetailedApply = () => { void submit(true) }
+
+  const jobSummaryLine = job
+    ? `₦${job.budget.toLocaleString()} · ${job.location}`
+    : ''
+
+  if (!job) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6 text-center">
+        {jobsStatus === 'idle' || jobsStatus === 'loading' ? (
+          <span className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+        ) : (
+          <div>
+            <p className="text-foreground font-bold mb-2">This job is no longer available</p>
+            <button onClick={() => setCurrentPage('jobs')} className="text-primary font-semibold">Browse jobs</button>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (alreadyApplied && mode !== 'success') {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6 text-center">
+        <div>
+          <p className="text-foreground font-bold mb-1">You already applied for {job.title}</p>
+          <p className="text-muted-foreground text-sm mb-4">The employer will see your application and get back to you.</p>
+          <button onClick={() => setCurrentPage('jobs')} className="text-primary font-semibold">Back to jobs</button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -60,6 +107,11 @@ export function ApplyJob() {
       )}
 
       <div className="max-w-2xl mx-auto px-4 py-6">
+        {submitError && (
+          <div role="alert" className="mb-4 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {submitError}
+          </div>
+        )}
         <AnimatePresence mode="wait">
 
           {/* ─── PHASE 2: Choose Apply Mode ─────────────────────── */}
@@ -74,8 +126,8 @@ export function ApplyJob() {
               <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-4 mb-8">
                 <div className="text-3xl"><EmojiIcon e="🏗️" size={28} /></div>
                 <div className="flex-1">
-                  <h3 className="font-black text-foreground text-lg">Bathroom Renovation</h3>
-                  <p className="text-muted-foreground text-sm">₦250,000 · Central Wukari · Posted 2 days ago</p>
+                  <h3 className="font-black text-foreground text-lg">{job.title}</h3>
+                  <p className="text-muted-foreground text-sm">{jobSummaryLine} · Posted {timeAgo(job.createdAt)}</p>
                 </div>
               </div>
 
@@ -138,8 +190,8 @@ export function ApplyJob() {
               <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-4 mb-8">
                 <div className="text-3xl"><EmojiIcon e="🏗️" size={28} /></div>
                 <div>
-                  <h3 className="font-black text-foreground">Bathroom Renovation</h3>
-                  <p className="text-sm text-muted-foreground">₦250,000 · Central Wukari</p>
+                  <h3 className="font-black text-foreground">{job.title}</h3>
+                  <p className="text-sm text-muted-foreground">{jobSummaryLine}</p>
                 </div>
               </div>
 
@@ -203,8 +255,8 @@ export function ApplyJob() {
               <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-4 mb-8">
                 <div className="text-3xl"><EmojiIcon e="🏗️" size={28} /></div>
                 <div>
-                  <h3 className="font-black text-foreground">Bathroom Renovation</h3>
-                  <p className="text-sm text-muted-foreground">₦250,000 · Central Wukari</p>
+                  <h3 className="font-black text-foreground">{job.title}</h3>
+                  <p className="text-sm text-muted-foreground">{jobSummaryLine}</p>
                 </div>
               </div>
 

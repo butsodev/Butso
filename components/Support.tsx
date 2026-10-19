@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion'
 import { ArrowLeft, MessageCircle, HelpCircle, Mail, Phone, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import { supabase } from '@/lib/supabase'
+import { showToast } from '@/lib/toast'
 import { useAppStore, goBackTo } from '@/lib/store'
 
 const faqs = [
@@ -51,6 +53,25 @@ const faqs = [
 export function Support() {
   const { setCurrentPage } = useAppStore()
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
+  const currentUser = useAppStore(s => s.currentUser)
+  const [subject, setSubject] = useState('')
+  const [ticketMessage, setTicketMessage] = useState('')
+  const [sending, setSending] = useState(false)
+
+  const handleSubmitTicket = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (sending) return
+    if (!currentUser) { showToast('error', 'Please log in to contact support.'); return }
+    if (!subject.trim() || !ticketMessage.trim()) { showToast('error', 'Add a subject and a message.'); return }
+    setSending(true)
+    const { error } = await supabase.from('support_tickets').insert({
+      user_id: currentUser.id, subject: subject.trim(), message: ticketMessage.trim(),
+    })
+    setSending(false)
+    if (error) { showToast('error', 'Could not send your message. Please try again.'); return }
+    setSubject(''); setTicketMessage('')
+    showToast('success', 'Message sent. We will get back to you.')
+  }
 
   return (
     <motion.div
@@ -157,13 +178,16 @@ export function Support() {
           className="mt-8 bg-card rounded-lg p-6"
         >
           <h3 className="text-xl font-bold text-foreground mb-4">Still need help?</h3>
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmitTicket}>
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Subject
               </label>
               <input aria-label="Subject"
                 type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                maxLength={120}
                 placeholder="What can we help with?"
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               />
@@ -174,15 +198,19 @@ export function Support() {
               </label>
               <textarea aria-label="Message"
                 placeholder="Tell us more about your issue..."
+                value={ticketMessage}
+                onChange={(e) => setTicketMessage(e.target.value)}
+                maxLength={2000}
                 rows={4}
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
             <button
               type="submit"
-              className="w-full bg-primary text-primary-foreground py-2 rounded-lg hover:opacity-90 transition font-medium"
+              disabled={sending}
+              className="w-full bg-primary text-primary-foreground py-2 rounded-lg hover:opacity-90 transition font-medium disabled:opacity-60"
             >
-              Send Message
+              {sending ? 'Sending…' : 'Send Message'}
             </button>
           </form>
         </motion.div>

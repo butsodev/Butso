@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Send, Check, ChevronRight, ArrowLeft, Loader2 } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
+import { supabase } from '@/lib/supabase'
+import { showToast } from '@/lib/toast'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
 type FeedbackType = 'love' | 'broken' | 'suggestion' | 'confused'
@@ -144,6 +146,7 @@ export function FeedbackWidget() {
     const [selectedFaq, setSelectedFaq] = useState<typeof FAQS[0] | null>(null)
     const [aiAnswer, setAiAnswer] = useState('')
     const [aiError, setAiError] = useState(false)
+    const [sending, setSending] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
 
     useEffect(() => {
@@ -175,18 +178,17 @@ export function FeedbackWidget() {
         setStage('text-input')
     }
 
-    const handleSend = () => {
-        if (!text.trim()) return
-        const existing = JSON.parse(localStorage.getItem('butso_feedback') || '[]')
-        existing.push({
+    const handleSend = async () => {
+        if (!text.trim() || sending) return
+        setSending(true)
+        const { error } = await supabase.from('feedback').insert({
+            user_id: currentUser.id,
             type,
             topic,
-            text: text.trim(),
-            userId: currentUser.id,
-            name: currentUser.name,
-            createdAt: new Date().toISOString(),
+            message: text.trim(),
         })
-        localStorage.setItem('butso_feedback', JSON.stringify(existing))
+        setSending(false)
+        if (error) { showToast('error', 'Could not send your feedback. Please try again.'); return }
         setStage('sent')
         setTimeout(reset, 2500)
     }
@@ -279,7 +281,7 @@ export function FeedbackWidget() {
                         <div className="flex items-center justify-between gap-3">
                             <span className="text-xs text-muted-foreground">{text.length}/500</span>
                             <motion.button whileTap={{ scale: 0.96 }} onClick={handleSend}
-                                disabled={!text.trim()}
+                                disabled={!text.trim() || sending}
                                 className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition disabled:opacity-40 text-sm">
                                 <Send size={15} /> Send
                             </motion.button>

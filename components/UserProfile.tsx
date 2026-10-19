@@ -5,6 +5,7 @@ import { ArrowLeft, MapPin, Copy, Check, LogOut } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
 import { useState } from 'react'
 import { useAppStore, goBackTo } from '@/lib/store'
+import { signOutUser } from '@/lib/auth'
 
 export function UserProfile() {
   const { setCurrentPage, currentUser, setCurrentUser } = useAppStore()
@@ -12,10 +13,7 @@ export function UserProfile() {
 
   if (!currentUser) return null
 
-  const handleLogout = () => {
-    setCurrentUser(null)
-    setCurrentPage('splash')
-  }
+  const handleLogout = () => { void signOutUser() }
 
   const generateUsername = (name: string, id: string) => {
     return `${name.toLowerCase().replace(/\s+/g, '')}_${id.slice(0, 6)}`
