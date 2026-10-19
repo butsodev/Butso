@@ -193,6 +193,34 @@ body::before {
   outline-offset: 2px;
 }
 
+/* Landing page header: mobile nav visibility */
+@media (max-width: 640px) {
+  .ld-nav,
+  .ld-location,
+  .ld-desktop-only {
+    display: none !important;
+  }
+  .ld-mobile-only {
+    display: inline-flex !important;
+  }
+}
+
+@media (min-width: 641px) {
+  .ld-mobile-only,
+  .ld-mobile-menu {
+    display: none !important;
+  }
+}
+
+/* Hero section likely has the same gap: a hardcoded two-column grid
+   (ld-hero-grid) with nothing to collapse it on a phone. Breakpoint is a
+   guess, not verified against the live layout, adjust once visible. */
+@media (max-width: 900px) {
+  .ld-hero-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 /* Respect "reduce motion" on the phone / OS */
 @media (prefers-reduced-motion: reduce) {
   *,
