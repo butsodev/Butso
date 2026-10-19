@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react'
 import { useAppStore, type UserRole, goAfterAuth, rememberReturnTo } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
 import { refreshJobs } from '@/lib/data'
-import { mockBookings, mockNotifications, mockTransactions, mockShops } from '@/lib/mockData'
+import { mockTransactions } from '@/lib/mockData'
+import { loadUserData } from '@/lib/loadUserData'
+import { refreshShops } from '@/lib/dataShops'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { AuthShell } from '@/components/AuthShell'
 import { Header } from '@/components/Header'
@@ -61,7 +63,7 @@ const AUTH_PAGES = ['role-select', 'phone-verification', 'auth', 'profile-setup'
 export default function Home() {
   const {
     currentPage, currentUser, setCurrentPage, setCurrentUser, setDashboardMode,
-    setBookings, setNotifications, setTransactions, setShops,
+    setBookings, setNotifications, setTransactions,
   } = useAppStore()
   const [authChecked, setAuthChecked] = useState(false)
 
@@ -74,6 +76,9 @@ export default function Home() {
 
   // Jobs are public, so load them for guests and signed-in users alike
   useEffect(() => { refreshJobs() }, [])
+
+  // Shops are public too
+  useEffect(() => { refreshShops() }, [])
 
   // ── Session bridge ────────────────────────────────────────────────────────
   // Supabase is the source of truth for who is logged in. Covers the return
@@ -103,9 +108,9 @@ export default function Home() {
           completedJobs: p.completed_jobs ?? 0,
         })
         setDashboardMode(p.role === 'employer' ? 'need-help' : 'find-work')
-        // Temporary until the Phase 2 data-layer swap
-        setBookings(mockBookings); setNotifications(mockNotifications)
-        setTransactions(mockTransactions); setShops(mockShops)
+        // Bookings and notifications are real. Transactions are still sample data until phase 7.
+        setTransactions(mockTransactions)
+        loadUserData(p.id)
         goAfterAuth()
       }
       setAuthChecked(true)
@@ -122,6 +127,7 @@ export default function Home() {
       }
       if (event === 'SIGNED_OUT') {
         setCurrentUser(null)
+        setBookings([]); setNotifications([])
       }
     })
 

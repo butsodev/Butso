@@ -2,83 +2,37 @@
 
 import { motion } from 'framer-motion'
 import { ArrowLeft, CheckCircle, AlertCircle, Info, Trash2 } from 'lucide-react'
-import { useState } from 'react'
-import { goBackTo } from '@/lib/store'
-
-const mockNotifications = [
-  {
-    id: 1,
-    type: 'success',
-    title: 'Job Completed',
-    message: 'Your carpentry job has been marked as completed',
-    timestamp: '2 hours ago',
-    read: false,
-  },
-  {
-    id: 2,
-    type: 'info',
-    title: 'New Job Match',
-    message: 'A new painting job matches your skills',
-    timestamp: '5 hours ago',
-    read: false,
-  },
-  {
-    id: 3,
-    type: 'warning',
-    title: 'Payment Pending',
-    message: 'Release payment for completed carpentry work',
-    timestamp: '1 day ago',
-    read: true,
-  },
-  {
-    id: 4,
-    type: 'success',
-    title: 'Booking Confirmed',
-    message: 'Your booking with Asoga Tarfa is confirmed',
-    timestamp: '2 days ago',
-    read: true,
-  },
-  {
-    id: 5,
-    type: 'info',
-    title: 'Review Received',
-    message: 'You received a 5-star review from a client',
-    timestamp: '3 days ago',
-    read: true,
-  },
-  {
-    id: 6,
-    type: 'success',
-    title: 'Application Accepted',
-    message: 'Your application for electrical work has been accepted',
-    timestamp: '4 days ago',
-    read: true,
-  },
-]
+import { goBackTo, useAppStore } from '@/lib/store'
+import { timeAgo } from '@/lib/data'
+import { markNotificationRead, markAllNotificationsRead, deleteNotification } from '@/lib/dataNotifications'
+import { showToast } from '@/lib/toast'
 
 export function Notifications() {
-  const [notifications, setNotifications] = useState(mockNotifications)
+  const { notifications, currentUser } = useAppStore()
 
-  const handleDelete = (id: number) => {
-    setNotifications(notifications.filter(n => n.id !== id))
+  const handleDelete = async (id: string) => {
+    const error = await deleteNotification(id)
+    if (error) showToast('error', 'Could not delete that notification.')
   }
 
-  const handleMarkAsRead = (id: number) => {
-    setNotifications(
-      notifications.map(n =>
-        n.id === id ? { ...n, read: true } : n
-      )
-    )
+  const handleMarkAsRead = (id: string, alreadyRead: boolean) => {
+    if (!alreadyRead) markNotificationRead(id)
+  }
+
+  const handleMarkAll = async () => {
+    if (!currentUser) return
+    const error = await markAllNotificationsRead(currentUser.id)
+    if (error) showToast('error', 'Could not mark everything as read.')
   }
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'success':
-        return <CheckCircle size={24} className="text-primary" />
-      case 'warning':
+      case 'payment':
         return <AlertCircle size={24} className="text-accent" />
-      case 'info':
-        return <Info size={24} className="text-primary" />
+      case 'booking':
+      case 'application':
+      case 'review':
+        return <CheckCircle size={24} className="text-primary" />
       default:
         return <Info size={24} className="text-primary" />
     }
@@ -106,9 +60,17 @@ export function Notifications() {
             <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
           </div>
           {unreadCount > 0 && (
-            <span className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">
-              {unreadCount} New
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">
+                {unreadCount} New
+              </span>
+              <button
+                onClick={handleMarkAll}
+                className="text-xs font-semibold text-primary hover:underline px-2 min-h-[44px]"
+              >
+                Mark all read
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -131,7 +93,7 @@ export function Notifications() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: index * 0.05 }}
-              onClick={() => handleMarkAsRead(notification.id)}
+              onClick={() => handleMarkAsRead(notification.id, notification.read)}
               className={`rounded-lg p-4 flex items-start gap-4 cursor-pointer transition ${notification.read
                 ? 'bg-card hover:bg-opacity-80'
                 : 'bg-primary bg-opacity-10 border-l-4 border-primary'
@@ -145,10 +107,10 @@ export function Notifications() {
                   {notification.title}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {notification.message}
+                  {notification.body}
                 </p>
                 <p className="text-xs text-muted-foreground mt-2">
-                  {notification.timestamp}
+                  {timeAgo(notification.createdAt)}
                 </p>
               </div>
               <button aria-label="Delete notification"

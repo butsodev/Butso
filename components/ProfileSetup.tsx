@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { useAppStore, generateUsernameFromName, isUsernameAvailable, type UserRole, type AppStore, goAfterAuth } from '@/lib/store'
-import { mockBookings, mockNotifications, mockTransactions, mockShops } from '@/lib/mockData'
+import { mockTransactions } from '@/lib/mockData'
 import { supabase } from '@/lib/supabase'
 
 /* ─── Skills list ────────────────────────────────────────────────────────── */
@@ -308,8 +308,8 @@ type Step = 'role' | 'basic' | 'gender' | 'skills' | 'next'
 
 export function ProfileSetup() {
   const {
-    setCurrentPage, setCurrentUser, setBookings,
-    setNotifications, setTransactions, setShops, allUsers, setDashboardMode,
+    setCurrentPage, setCurrentUser,
+    setTransactions, allUsers, setDashboardMode,
   } = useAppStore()
 
   const [name, setName] = useState('')
@@ -420,10 +420,8 @@ export function ProfileSetup() {
   }
 
   const seedData = () => {
-    setBookings(mockBookings)
-    setNotifications(mockNotifications)
+    // New account: no bookings or notifications yet. Transactions are sample data until phase 7.
     setTransactions(mockTransactions)
-    setShops(mockShops)
     sessionStorage.removeItem('selectedRole')
     sessionStorage.removeItem('userPhone')
   }

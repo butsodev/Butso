@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef } from 'react'
 import { Mail, MailCheck, Smartphone, KeyRound } from 'lucide-react'
 import { useAppStore, type UserRole, goAfterAuth } from '@/lib/store'
-import { mockBookings, mockNotifications, mockTransactions, mockShops } from '@/lib/mockData'
+import { mockTransactions } from '@/lib/mockData'
+import { loadUserData } from '@/lib/loadUserData'
 import { supabase } from '@/lib/supabase'
 
 type Panel = 'signup' | 'login'
@@ -23,7 +24,7 @@ const GoogleIcon = () => (
 )
 
 export function AuthPage() {
-    const { setCurrentPage, setCurrentUser, setDashboardMode, setBookings, setNotifications, setTransactions, setShops } = useAppStore()
+    const { setCurrentPage, setCurrentUser, setDashboardMode, setTransactions } = useAppStore()
     const [panel, setPanel] = useState<Panel>('signup')
 
     // Shared method state per panel
@@ -168,9 +169,9 @@ export function AuthPage() {
             completedJobs: p.completed_jobs ?? 0,
         })
         setDashboardMode(p.role === 'employer' ? 'need-help' : 'find-work')
-        // Temporary: data screens still read mock data until the Phase 2 data-layer swap.
-        setBookings(mockBookings); setNotifications(mockNotifications)
-        setTransactions(mockTransactions); setShops(mockShops)
+        // Bookings and notifications are real. Transactions are still sample data until phase 7.
+        setTransactions(mockTransactions)
+        loadUserData(p.id)
         goAfterAuth()
     }
 

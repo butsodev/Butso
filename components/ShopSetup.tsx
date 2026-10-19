@@ -9,7 +9,9 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Plus, Trash2, ChevronRight, ChevronLeft, MapPin, Phone, Check } from 'lucide-react'
 import { useState } from 'react'
-import { useAppStore, DEFAULT_HOURS, isShopOpenNow, type ShopService, type OpeningHours, type DayOfWeek, type Shop, goBackTo } from '@/lib/store'
+import { useAppStore, DEFAULT_HOURS, type ShopService, type OpeningHours, type DayOfWeek, goBackTo } from '@/lib/store'
+import { saveShop } from '@/lib/dataShops'
+import { showToast } from '@/lib/toast'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
 const SHOP_CATEGORIES = [
@@ -102,33 +104,32 @@ export function ShopSetup() {
         setHours(h => ({ ...h, [day]: { ...h[day], [field]: val } }))
 
     // ── Submit ────────────────────────────────────────────────────────────────
-    const handleSave = () => {
-        if (!currentUser) return
+    const handleSave = async () => {
+        if (!currentUser || saving) return
         setSaving(true)
-        setTimeout(() => {
-            if (existing) {
-                updateShop(existing.id, { name, category, description, location, isMobile, phone, services, openingHours: hours, isOpen: isShopOpenNow(hours) })
-            } else {
-                const shop: Shop = {
-                    id: `shop-${Date.now()}`,
-                    ownerId: currentUser.id,
-                    ownerName: currentUser.name,
-                    ownerUsername: currentUser.username,
-                    name, category, description, location, isMobile, phone,
-                    services, openingHours: hours,
-                    rating: 0, reviewCount: 0, reviews: [],
-                    isOpen: isShopOpenNow(hours),
-                    verified: false,
-                    portfolio: [],
-                    defaultTab: 'services',
-                    createdAt: new Date().toISOString(),
-                }
-                addShop(shop)
-                setCurrentUser({ ...currentUser, shopId: shop.id })
-            }
-            setSaving(false)
-            setCurrentPage('dashboard')
-        }, 800)
+        const { shop, error } = await saveShop(
+            {
+                ownerId: currentUser.id,
+                ownerName: currentUser.name,
+                ownerUsername: currentUser.username,
+                name, tagline, category, description, location, isMobile, phone,
+                defaultTab, openingHours: hours, services,
+            },
+            existing?.id,
+        )
+        setSaving(false)
+        if (error || !shop) {
+            showToast('error', error ?? 'Could not save your shop. Please try again.')
+            return
+        }
+        if (existing) {
+            updateShop(existing.id, shop)
+        } else {
+            addShop(shop)
+            setCurrentUser({ ...currentUser, shopId: shop.id })
+        }
+        showToast('success', existing ? 'Shop updated.' : 'Your shop is live.')
+        setCurrentPage('dashboard')
     }
 
     const steps: Step[] = ['basics', 'services', 'hours', 'review']

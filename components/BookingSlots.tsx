@@ -4,9 +4,11 @@ import { motion } from 'framer-motion'
 import { Calendar, Clock, CheckCircle, ChevronLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
+import { createBooking } from '@/lib/dataBookings'
+import { showToast } from '@/lib/toast'
 
 export function BookingSlots() {
-  const { setCurrentPage, addBooking, currentUser, pendingBooking, setPendingBooking } = useAppStore()
+  const { setCurrentPage, addBooking, currentUser, pendingBooking, setPendingBooking, shops } = useAppStore()
   const [step, setStep] = useState<'date' | 'slots' | 'confirm' | 'success'>('date')
   const [selectedDate, setSelectedDate] = useState<string>('')
   const [selectedSlots, setSelectedSlots] = useState<string[]>([])
@@ -57,30 +59,38 @@ export function BookingSlots() {
     }
   }
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    if (isProcessing) return
+    if (!currentUser) { showToast('error', 'Please log in to book.'); setCurrentPage('auth'); return }
+    const shop = shops.find(sh => sh.id === pendingBooking?.shopId)
+    if (!pendingBooking || !shop) { showToast('error', 'We could not find that shop. Go back and try again.'); return }
+    if (shop.ownerId === currentUser.id) { showToast('error', 'You cannot book your own shop.'); return }
+
     setIsProcessing(true)
-    setTimeout(() => {
-      const newBooking = {
-        id: Math.random().toString(36).slice(2, 9),
-        jobId: pendingBooking?.shopId ?? 'direct',
-        jobTitle: `${serviceName} at ${shopName}`,
-        workerId: pendingBooking?.shopId ?? 'worker1',
-        workerName: shopName,
-        employerId: currentUser?.id ?? 'user',
-        employerName: currentUser?.name ?? 'Customer',
-        type: 'shop' as const,
-        status: 'pending' as const,
-        negotiated: false,
-        date: selectedDate,
-        slots: selectedSlots,
-        totalPrice,
-        createdAt: new Date().toISOString(),
-      }
-      addBooking(newBooking)
-      setPendingBooking(null)
-      setStep('success')
-      setIsProcessing(false)
-    }, 1200)
+    const { booking, error } = await createBooking({
+      type: 'shop',
+      shopId: shop.id,
+      serviceId: pendingBooking.serviceId,
+      shopName: shop.name,
+      serviceName,
+      jobTitle: `${serviceName} at ${shop.name}`,
+      workerId: shop.ownerId,           // the person being booked is the shop owner
+      workerName: shop.name,
+      employerId: currentUser.id,
+      employerName: currentUser.name,
+      date: selectedDate,
+      slots: selectedSlots,
+      totalPrice,
+      negotiated: false,
+    })
+    setIsProcessing(false)
+    if (error || !booking) {
+      showToast('error', error ?? 'Could not save your booking. Please try again.')
+      return
+    }
+    addBooking(booking)
+    setPendingBooking(null)
+    setStep('success')
   }
 
   const stepIndex = { date: 0, slots: 1, confirm: 2, success: 3 }[step]
