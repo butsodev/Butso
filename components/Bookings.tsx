@@ -168,6 +168,9 @@ export function Bookings() {
                         {!isProvider && (booking.status === 'pending' || booking.status === 'confirmed') && (
                           <button disabled={busy} onClick={() => changeStatus(booking, 'cancelled', 'Booking cancelled.')} className={`${btn} border border-border text-foreground`}>Cancel booking</button>
                         )}
+                        {!isProvider && booking.status === 'completed' && (
+                          <button onClick={() => useAppStore.getState().openReviews(booking.workerId)} className={`${btn} bg-primary text-primary-foreground`}>Rate {otherName}</button>
+                        )}
                         <button onClick={() => openChatWith({ userId: otherId, name: otherName, context: booking.jobTitle })} className={`${btn} border border-border text-foreground`}>Message</button>
                       </div>
                     )

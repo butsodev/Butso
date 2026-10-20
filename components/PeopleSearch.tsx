@@ -219,6 +219,12 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                   Hire for Job
                 </motion.button>
               </div>
+              <button
+                onClick={() => useAppStore.getState().openReviews(selectedWorker.id)}
+                className="mt-3 w-full py-3 border border-border text-foreground font-semibold rounded-xl hover:bg-secondary transition text-sm"
+              >
+                Ratings &amp; reviews
+              </button>
             </motion.div>
           </div>
         </motion.div>
