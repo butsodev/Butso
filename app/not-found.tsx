@@ -18,7 +18,7 @@ export default function NotFound() {
           <Link href="/" className="bg-primary text-primary-foreground font-bold px-6 min-h-[48px] inline-flex items-center justify-center rounded-xl hover:opacity-90 transition">
             Go to home
           </Link>
-          <Link href="/?p=jobs" className="border border-border text-foreground font-semibold px-6 min-h-[48px] inline-flex items-center justify-center rounded-xl hover:bg-secondary transition">
+          <Link href="/jobs" className="border border-border text-foreground font-semibold px-6 min-h-[48px] inline-flex items-center justify-center rounded-xl hover:bg-secondary transition">
             Browse jobs
           </Link>
         </div>

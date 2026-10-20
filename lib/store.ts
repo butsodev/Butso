@@ -1,3 +1,5 @@
+import { navigateToPage, navigateToPath, navigateBack } from '@/lib/navigation'
+import { pathFor } from '@/lib/routes'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -267,7 +269,6 @@ export interface AppStore {
   openAuth: (panel: 'login' | 'signup') => void
   pendingBooking: PendingBooking | null
   setPendingBooking: (b: PendingBooking | null) => void
-  pageHistory: string[]
   goBack: (fallback?: string) => void
 
   // Theme
@@ -345,7 +346,6 @@ export const useAppStore = create<AppStore>()(
       setCurrentUser: (user) => set({ currentUser: user }),
 
       currentPage: 'splash',
-      pageHistory: [],
       selectedShopId: null,
       setSelectedShopId: (id) => set({ selectedShopId: id }),
       selectedJobId: null,
@@ -354,40 +354,41 @@ export const useAppStore = create<AppStore>()(
       authPanel: 'signup',
       reviewWorkerId: null,
       openReviews: (workerId) => {
-        const state = get()
-        const newHistory = state.pageHistory.slice(-9)
-        set({ reviewWorkerId: workerId, currentPage: 'ratings-reviews', pageHistory: [...newHistory, state.currentPage].filter(p => p !== 'splash') })
+        set({ reviewWorkerId: workerId, currentPage: 'ratings-reviews' })
+        navigateToPage('ratings-reviews', { reviewWorkerId: workerId })
       },
       openAuth: (panel) => {
-        const state = get()
-        const newHistory = state.pageHistory.slice(-9)
-        set({ authPanel: panel, currentPage: 'auth', pageHistory: [...newHistory, state.currentPage].filter(p => p !== 'splash') })
+        set({ authPanel: panel, currentPage: 'auth' })
+        navigateToPage('auth', { authPanel: panel })
       },
       viewWorkerProfile: (id) => {
-        const state = get()
-        const newHistory = state.pageHistory.slice(-9)
-        set({ viewedWorkerId: id, currentPage: 'people', pageHistory: [...newHistory, state.currentPage].filter(p => p !== 'splash') })
+        set({ viewedWorkerId: id, currentPage: 'people' })
+        navigateToPath(`/people/${encodeURIComponent(id)}`)
       },
       pendingBooking: null,
       setPendingBooking: (b) => set({ pendingBooking: b }),
 
+      // Moving between screens now means moving between real URLs (see lib/routes.ts)
       setCurrentPage: (page) => {
-        const state = get()
-        const newHistory = state.pageHistory.slice(-9)
-        set({
-          currentPage: page,
-          pageHistory: [...newHistory, state.currentPage].filter(p => p !== 'splash'),
+        const s = get()
+        set({ currentPage: page })
+        navigateToPage(page, {
+          shopId: s.selectedShopId,
+          jobId: s.selectedJobId,
+          reviewWorkerId: s.reviewWorkerId,
+          authPanel: s.authPanel,
         })
       },
       // Go to the screen the person came from. If this screen was opened straight from a link
       // (nothing earlier in the app to go back to), go to `fallback` instead.
       goBack: (fallback = 'dashboard') => {
-        const idx = typeof window !== 'undefined' ? window.history.state?.idx : undefined
-        if (typeof idx === 'number' && idx > 0) {
-          window.history.back() // the URL sync restores the previous screen
-        } else {
-          get().setCurrentPage(fallback)
-        }
+        const s = get()
+        navigateBack(pathFor(fallback, {
+          shopId: s.selectedShopId,
+          jobId: s.selectedJobId,
+          reviewWorkerId: s.reviewWorkerId,
+          authPanel: s.authPanel,
+        }))
       },
 
       darkMode: false,
@@ -414,9 +415,8 @@ export const useAppStore = create<AppStore>()(
       setConversations: (conversations) => set({ conversations }),
       pendingChat: null,
       openChatWith: (chat) => {
-        const state = get()
-        const newHistory = state.pageHistory.slice(-9)
-        set({ pendingChat: chat, currentPage: 'messaging', pageHistory: [...newHistory, state.currentPage].filter(p => p !== 'splash') })
+        set({ pendingChat: chat, currentPage: 'messaging' })
+        navigateToPage('messaging')
       },
       clearPendingChat: () => set({ pendingChat: null }),
 
@@ -579,7 +579,7 @@ export function goBackTo(fallback: string) {
 // back on that screen, not the dashboard. Kept in sessionStorage so it survives the Google
 // sign-in redirect (a full page reload).
 const RETURN_KEY = 'butso-return-to'
-const RETURNABLE = ['jobs', 'people', 'shops', 'shop']
+const RETURNABLE = ['jobs', 'job-details', 'people', 'shops', 'shop']
 type ReturnTo = { page: string; shopId: string | null; jobId: string | null }
 let recentReturn: { rt: ReturnTo | null; at: number } | null = null
 

@@ -2,6 +2,7 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans, Fraunces } from 'next/font/google'
 import './globals.css'
+import { AuthGate } from '@/components/AuthGate'
 
 const jakartaSans = Plus_Jakarta_Sans({
   variable: '--font-body-var',
@@ -62,7 +63,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased bg-background text-foreground">
-        {children}
+        <AuthGate>{children}</AuthGate>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
