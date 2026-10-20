@@ -2,7 +2,7 @@
 
 import { showToast } from '@/lib/toast'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Mail, MailCheck, Smartphone, KeyRound } from 'lucide-react'
 import { useAppStore, type UserRole, goAfterAuth } from '@/lib/store'
 import { loadUserData } from '@/lib/loadUserData'
@@ -24,7 +24,9 @@ const GoogleIcon = () => (
 
 export function AuthPage() {
     const { setCurrentPage, setCurrentUser, setDashboardMode } = useAppStore()
-    const [panel, setPanel] = useState<Panel>('signup')
+    // "Log in" buttons open the Log in tab; everything else opens Sign up
+    const [panel, setPanel] = useState<Panel>(() => useAppStore.getState().authPanel)
+    useEffect(() => { useAppStore.setState({ authPanel: 'signup' }) }, [])
 
     // Shared method state per panel
     const [signupMethod, setSignupMethod] = useState<Method>(null)
@@ -441,6 +443,17 @@ export function AuthPage() {
                     {showPassword ? 'Hide' : 'Show'}
                 </button>
             </div>
+            {!isSignup && (
+                <div className="flex justify-end -mt-1">
+                    <button
+                        type="button"
+                        onClick={() => setCurrentPage('forgot-password')}
+                        className="text-xs font-semibold text-primary hover:underline py-2"
+                    >
+                        Forgot password?
+                    </button>
+                </div>
+            )}
             {emailError && <p className="text-destructive text-sm">{emailError}</p>}
             <motion.button
                 whileTap={{ scale: 0.97 }}

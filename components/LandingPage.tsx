@@ -320,7 +320,7 @@ export function LandingPage() {
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, minWidth: 44, minHeight: 44, borderRadius: 8, fontSize: '0.9rem', alignItems: 'center', justifyContent: 'center' }}>
               {darkMode ? '☀️' : '🌙'}
             </button>
-            <button onClick={() => setCurrentPage('auth')}
+            <button onClick={() => useAppStore.getState().openAuth('login')}
               className="ld-desktop-only"
               style={{ background: 'none', border: `1px solid ${C.pillBorder}`, borderRadius: 8, padding: '0 1rem', minHeight: 44, fontSize: '0.82rem', color: C.mid, fontWeight: 600, cursor: 'pointer', alignItems: 'center' }}>
               Log in
@@ -356,7 +356,7 @@ export function LandingPage() {
               ))}
             </nav>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.9rem', flexWrap: 'wrap' }}>
-              <button onClick={() => { setMenuOpen(false); setCurrentPage('auth') }}
+              <button onClick={() => { setMenuOpen(false); useAppStore.getState().openAuth('login') }}
                 style={{ flex: 1, minWidth: 120, background: 'none', border: `1px solid ${C.pillBorder}`, borderRadius: 8, minHeight: 44, fontSize: '0.9rem', color: C.mid, fontWeight: 600, cursor: 'pointer' }}>
                 Log in
               </button>

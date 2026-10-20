@@ -129,7 +129,7 @@ export function Messaging() {
         <p className="font-bold text-foreground mb-1">Log in to see your messages</p>
         <p className="text-muted-foreground text-sm mb-5">Chat with workers, employers and shops.</p>
         <button
-          onClick={() => setCurrentPage('auth')}
+          onClick={() => useAppStore.getState().openAuth('login')}
           className="px-6 min-h-[44px] rounded-xl bg-primary text-primary-foreground text-sm font-bold"
         >
           Log in

@@ -1,6 +1,8 @@
 'use client'
 
+import '@/lib/recovery'
 import { useEffect, useState } from 'react'
+import { markRecovery, isRecovery } from '@/lib/recovery'
 import { useAppStore, type UserRole, goAfterAuth, rememberReturnTo } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
 import { refreshJobs } from '@/lib/data'
@@ -46,6 +48,8 @@ import { ExploreOnboarding } from '@/components/ExploreOnboarding'
 import { ShopsBrowsing } from '@/components/ShopsBrowsing'
 import { ShopPage } from '@/components/ShopPage'
 import { ShopSetup } from '@/components/ShopSetup'
+import { ForgotPassword } from '@/components/ForgotPassword'
+import { ResetPassword } from '@/components/ResetPassword'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
 import { useUrlSync } from '@/lib/urlSync'
@@ -54,10 +58,10 @@ const KNOWN_PAGES = [
   'worker-profile', 'job-applicants', 'booking-slots', 'messaging', 'settings',
   'support', 'notifications', 'payments', 'booking-confirmation', 'ratings-reviews',
   'advanced-search', 'profile', 'suggestions', 'privacy', 'terms',
-  'shops', 'shop', 'shop-setup', 'explore-onboarding',
+  'shops', 'shop', 'shop-setup', 'explore-onboarding', 'forgot-password', 'reset-password',
 ]
 
-const AUTH_PAGES = ['role-select', 'phone-verification', 'auth', 'profile-setup', 'explore-onboarding', 'privacy', 'terms']
+const AUTH_PAGES = ['role-select', 'phone-verification', 'auth', 'profile-setup', 'explore-onboarding', 'privacy', 'terms', 'forgot-password']
 
 export default function Home() {
   const {
@@ -91,8 +95,8 @@ export default function Home() {
       const { data: p } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
       if (cancelled) return
       if (!p) {
-        // Signed in but no profile yet: finish onboarding
-        setCurrentPage('profile-setup')
+        // Signed in but no profile yet: finish onboarding (unless they are resetting their password)
+        if (!isRecovery()) setCurrentPage('profile-setup')
       } else {
         setCurrentUser({
           id: p.id,
@@ -108,7 +112,8 @@ export default function Home() {
         })
         setDashboardMode(p.role === 'employer' ? 'need-help' : 'find-work')
         loadUserData(p.id)
-        goAfterAuth()
+        if (isRecovery()) setCurrentPage('reset-password')
+        else goAfterAuth()
       }
       setAuthChecked(true)
     }
@@ -118,6 +123,11 @@ export default function Home() {
     })
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        // They clicked the link in the reset email: show the new-password screen
+        markRecovery()
+        setCurrentPage('reset-password')
+      }
       if (event === 'SIGNED_IN' && session?.user) {
         // Defer: don't call supabase inside the auth callback itself
         setTimeout(() => bridge(session.user.id), 0)
@@ -144,6 +154,18 @@ export default function Home() {
     )
   }
 
+  // ── Password reset (works signed in or out, so it sits above both) ────────
+  if (currentPage === 'reset-password') {
+    return (
+      <ThemeProvider>
+        <Toast />
+        <AuthShell>
+          <ResetPassword />
+        </AuthShell>
+      </ThemeProvider>
+    )
+  }
+
   // ── Unauthenticated ───────────────────────────────────────────────────────
   if (!currentUser) {
     // Pages guests can browse without logging in
@@ -151,6 +173,7 @@ export default function Home() {
     if (GUEST_BROWSABLE.includes(currentPage)) {
       return (
         <ThemeProvider>
+          <Toast />
           <div className="min-h-screen bg-background text-foreground pb-20">
             {currentPage === 'jobs' && <JobsBrowsing />}
             {currentPage === 'people' && <PeopleSearch />}
@@ -175,6 +198,7 @@ export default function Home() {
     if (!AUTH_PAGES.includes(currentPage)) {
       return (
         <ThemeProvider>
+          <Toast />
           <LandingPage />
         </ThemeProvider>
       )
@@ -183,7 +207,8 @@ export default function Home() {
     const backMap: Record<string, string> = {
       'role-select': 'splash',
       'phone-verification': 'splash',        // LandingPage handles role — skip role-select
-      'profile-setup': 'phone-verification',
+      'profile-setup': 'splash',
+      'forgot-password': 'auth',
       'explore-onboarding': 'splash',
       'privacy': 'splash',
       'terms': 'splash',
@@ -191,10 +216,12 @@ export default function Home() {
 
     return (
       <ThemeProvider>
+        <Toast />
         <AuthShell back={backMap[currentPage]}>
           {currentPage === 'role-select' && <RoleSelection />}
           {currentPage === 'phone-verification' && <PhoneVerification />}
           {currentPage === 'auth' && <AuthPage />}
+          {currentPage === 'forgot-password' && <ForgotPassword />}
           {currentPage === 'profile-setup' && <ProfileSetup />}
           {currentPage === 'explore-onboarding' && <ExploreOnboarding />}
           {currentPage === 'privacy' && <PrivacyPolicy />}

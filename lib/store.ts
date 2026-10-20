@@ -259,6 +259,9 @@ export interface AppStore {
   setSelectedJobId: (id: string | null) => void
   viewedWorkerId: string | null
   viewWorkerProfile: (id: string) => void
+  /** Which tab the sign-in screen opens on. "Log in" buttons set this to 'login'. */
+  authPanel: 'login' | 'signup'
+  openAuth: (panel: 'login' | 'signup') => void
   pendingBooking: PendingBooking | null
   setPendingBooking: (b: PendingBooking | null) => void
   pageHistory: string[]
@@ -345,6 +348,12 @@ export const useAppStore = create<AppStore>()(
       selectedJobId: null,
       setSelectedJobId: (id) => set({ selectedJobId: id }),
       viewedWorkerId: null,
+      authPanel: 'signup',
+      openAuth: (panel) => {
+        const state = get()
+        const newHistory = state.pageHistory.slice(-9)
+        set({ authPanel: panel, currentPage: 'auth', pageHistory: [...newHistory, state.currentPage].filter(p => p !== 'splash') })
+      },
       viewWorkerProfile: (id) => {
         const state = get()
         const newHistory = state.pageHistory.slice(-9)

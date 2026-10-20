@@ -14,9 +14,9 @@ import { useAppStore } from '@/lib/store'
  */
 
 // Pages a signed-out visitor may open
-const GUEST_PAGES = ['jobs', 'people', 'shops', 'shop', 'privacy', 'terms']
+const GUEST_PAGES = ['jobs', 'people', 'shops', 'shop', 'privacy', 'terms', 'forgot-password', 'reset-password']
 // Pages that belong to signing in / signing up (not useful once signed in)
-const ENTRY_PAGES = ['splash', 'role-select', 'phone-verification', 'auth', 'profile-setup', 'explore-onboarding']
+const ENTRY_PAGES = ['splash', 'role-select', 'phone-verification', 'auth', 'profile-setup', 'explore-onboarding', 'forgot-password']
 // Pages that only make sense mid-flow. They need data that a link can't carry
 const FLOW_ONLY: Record<string, string> = {
   'booking-slots': 'bookings',

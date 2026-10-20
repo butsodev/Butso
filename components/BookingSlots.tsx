@@ -61,7 +61,7 @@ export function BookingSlots() {
 
   const handleConfirm = async () => {
     if (isProcessing) return
-    if (!currentUser) { showToast('error', 'Please log in to book.'); setCurrentPage('auth'); return }
+    if (!currentUser) { showToast('error', 'Please log in to book.'); useAppStore.getState().openAuth('login'); return }
     const shop = shops.find(sh => sh.id === pendingBooking?.shopId)
     if (!pendingBooking || !shop) { showToast('error', 'We could not find that shop. Go back and try again.'); return }
     if (shop.ownerId === currentUser.id) { showToast('error', 'You cannot book your own shop.'); return }
