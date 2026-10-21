@@ -5,220 +5,146 @@ import { ArrowLeft, Search, Filter, X } from 'lucide-react'
 import { useState } from 'react'
 import { useAppStore, goBackTo } from '@/lib/store'
 
-const categories = [
-  'Carpentry',
-  'Plumbing',
-  'Electrical',
-  'Painting',
-  'Welding',
-  'House Cleaning',
-  'Landscaping',
-  'Repairs',
+const CATEGORIES = [
+  'Carpentry', 'Plumbing', 'Electrical', 'Painting',
+  'Welding', 'House Cleaning', 'Landscaping', 'Repairs',
 ]
 
-const budgetRanges = [
-  { label: '₦0 - ₦5,000', min: 0, max: 5000 },
-  { label: '₦5,000 - ₦15,000', min: 5000, max: 15000 },
-  { label: '₦15,000 - ₦30,000', min: 15000, max: 30000 },
-  { label: '₦30,000 - ₦50,000', min: 30000, max: 50000 },
-  { label: '₦50,000+', min: 50000, max: Infinity },
+const BUDGET_RANGES = [
+  { label: '₦0 – ₦5,000',      min: 0,     max: 5000 },
+  { label: '₦5,000 – ₦15,000',  min: 5000,  max: 15000 },
+  { label: '₦15,000 – ₦30,000', min: 15000, max: 30000 },
+  { label: '₦30,000 – ₦50,000', min: 30000, max: 50000 },
+  { label: '₦50,000+',          min: 50000, max: Infinity },
 ]
 
 export function AdvancedSearch() {
-  const { setCurrentPage } = useAppStore()
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [selectedBudget, setSelectedBudget] = useState<string | null>(null)
-  const [minRating, setMinRating] = useState(0)
+  const { setCurrentPage, setJobSearch } = useAppStore()
+  const [query,    setQuery]    = useState('')
+  const [category, setCategory] = useState<string | null>(null)
+  const [budget,   setBudget]   = useState<typeof BUDGET_RANGES[0] | null>(null)
   const [showFilters, setShowFilters] = useState(false)
 
+  const activeFilters = [
+    query    && `"${query}"`,
+    category && `Category: ${category}`,
+    budget   && `Budget: ${budget.label}`,
+  ].filter((f): f is string => Boolean(f))
+
   const handleSearch = () => {
-    // Navigate to jobs page with filters
+    // Push filters into the store then jump to the jobs list — it reads them directly
+    setJobSearch({
+      query,
+      category,
+      budgetMin: budget?.min ?? null,
+      budgetMax: budget?.max ?? null,
+    })
     setCurrentPage('jobs')
   }
 
-  const handleClearFilters = () => {
-    setSearchQuery('')
-    setSelectedCategory(null)
-    setSelectedBudget(null)
-    setMinRating(0)
+  const handleClear = () => {
+    setQuery(''); setCategory(null); setBudget(null)
+    setJobSearch({ query: '', category: null, budgetMin: null, budgetMax: null })
   }
-
-  const activeFilters = [
-    searchQuery && `Search: ${searchQuery}`,
-    selectedCategory && `Category: ${selectedCategory}`,
-    selectedBudget && `Budget: ${selectedBudget}`,
-    minRating > 0 && `Rating: ${minRating}+`,
-  ].filter((f): f is string => Boolean(f))
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className="min-h-screen bg-background text-foreground pb-20"
     >
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background border-b border-border">
         <div className="flex items-center gap-3 px-4 py-4 sm:px-6">
-          <button aria-label="Go back"
-            onClick={() => goBackTo('jobs')}
-            className="p-2 hover:bg-secondary rounded-lg transition"
-          >
+          <button aria-label="Go back" onClick={() => goBackTo('jobs')}
+            className="p-2 hover:bg-secondary rounded-lg transition">
             <ArrowLeft size={24} className="text-foreground" />
           </button>
           <h1 className="text-2xl font-bold text-foreground">Advanced Search</h1>
         </div>
       </div>
 
-      <div className="p-4 sm:p-6">
-        {/* Search Bar */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="mb-6"
-        >
-          <div className="relative">
-            <input
-              type="text"
-              aria-label="Search jobs"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="Search jobs by title, description..."
-              className="w-full px-4 py-3 pl-10 bg-card border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-            <Search size={20} className="absolute left-3 top-3.5 text-muted-foreground" />
-          </div>
-        </motion.div>
+      <div className="p-4 sm:p-6 space-y-6">
 
-        {/* Filter Toggle */}
-        <motion.button
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.05 }}
-          onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 text-primary hover:opacity-80 transition mb-4 font-medium"
-        >
-          <Filter size={20} />
-          {showFilters ? 'Hide Filters' : 'Show Filters'}
-        </motion.button>
+        {/* Search bar */}
+        <div className="relative">
+          <input
+            type="text" aria-label="Search jobs"
+            value={query} onChange={e => setQuery(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSearch()}
+            placeholder="Search by title or description…"
+            className="w-full px-4 py-3 pl-10 bg-card border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <Search size={20} className="absolute left-3 top-3.5 text-muted-foreground" />
+        </div>
 
-        {/* Filters Section */}
+        {/* Filter toggle */}
+        <button onClick={() => setShowFilters(v => !v)}
+          className="flex items-center gap-2 text-primary font-medium hover:opacity-80 transition">
+          <Filter size={18} />
+          {showFilters ? 'Hide filters' : 'Show filters'}
+        </button>
+
+        {/* Filters */}
         {showFilters && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="space-y-6 mb-6 pb-6 border-b border-border"
+            initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+            className="space-y-6 pb-6 border-b border-border overflow-hidden"
           >
-            {/* Categories */}
+            {/* Category */}
             <div>
               <h3 className="font-bold text-foreground mb-3">Category</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
-                    className={`p-3 rounded-lg text-left transition ${selectedCategory === cat
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-card text-foreground hover:bg-opacity-80'
-                      }`}
-                  >
+              <div className="grid grid-cols-2 gap-2">
+                {CATEGORIES.map(cat => (
+                  <button key={cat} onClick={() => setCategory(category === cat ? null : cat)}
+                    className={`p-3 rounded-lg text-left text-sm font-medium transition ${
+                      category === cat
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-card text-foreground hover:bg-secondary'
+                    }`}>
                     {cat}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Budget Range */}
+            {/* Budget */}
             <div>
-              <h3 className="font-bold text-foreground mb-3">Budget Range</h3>
+              <h3 className="font-bold text-foreground mb-3">Budget range</h3>
               <div className="space-y-2">
-                {budgetRanges.map((range) => (
-                  <button
-                    key={range.label}
-                    onClick={() => setSelectedBudget(selectedBudget === range.label ? null : range.label)}
-                    className={`w-full p-3 rounded-lg text-left transition ${selectedBudget === range.label
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-card text-foreground hover:bg-opacity-80'
-                      }`}
-                  >
-                    {range.label}
+                {BUDGET_RANGES.map(r => (
+                  <button key={r.label} onClick={() => setBudget(budget?.label === r.label ? null : r)}
+                    className={`w-full p-3 rounded-lg text-left text-sm font-medium transition ${
+                      budget?.label === r.label
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-card text-foreground hover:bg-secondary'
+                    }`}>
+                    {r.label}
                   </button>
                 ))}
               </div>
             </div>
-
-            {/* Minimum Rating */}
-            <div>
-              <h3 className="font-bold text-foreground mb-3">
-                Minimum Rating: {minRating}+
-              </h3>
-              <input
-                type="range"
-                aria-label="Minimum rating"
-                min="0"
-                max="5"
-                step="0.5"
-                value={minRating}
-                onChange={(e) => setMinRating(parseFloat(e.target.value))}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                <span>0</span>
-                <span>5</span>
-              </div>
-            </div>
           </motion.div>
         )}
 
-        {/* Active Filters */}
+        {/* Active filter pills */}
         {activeFilters.length > 0 && (
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className="mb-6"
-          >
-            <div className="flex flex-wrap gap-2 items-center">
-              {activeFilters.map((filter) => (
-                <div
-                  key={filter}
-                  className="bg-primary bg-opacity-20 text-primary px-3 py-1 rounded-full text-sm flex items-center gap-2"
-                >
-                  {filter}
-                </div>
-              ))}
-              <button
-                onClick={handleClearFilters}
-                className="text-muted-foreground hover:text-foreground text-sm"
-              >
-                Clear all
-              </button>
-            </div>
-          </motion.div>
+          <div className="flex flex-wrap gap-2 items-center">
+            {activeFilters.map(f => (
+              <span key={f} className="bg-primary/15 text-primary px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                {f}
+              </span>
+            ))}
+            <button onClick={handleClear} className="flex items-center gap-1 text-muted-foreground text-sm hover:text-foreground transition">
+              <X size={14} /> Clear all
+            </button>
+          </div>
         )}
 
-        {/* Search Results Preview */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.15 }}
-          className="bg-card rounded-lg p-6 text-center"
-        >
-          <p className="text-muted-foreground mb-4">
-            {activeFilters.length > 0
-              ? `Found ${Math.floor(Math.random() * 20) + 5} jobs matching your filters`
-              : 'Set filters and search to find jobs'}
-          </p>
-          <button
-            onClick={handleSearch}
-            className="bg-primary text-primary-foreground px-8 py-3 rounded-lg hover:opacity-90 transition font-medium"
-          >
-            Search Jobs
-          </button>
-        </motion.div>
+        {/* Search button */}
+        <button onClick={handleSearch}
+          className="w-full py-3 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition shadow">
+          Search Jobs
+        </button>
       </div>
     </motion.div>
   )

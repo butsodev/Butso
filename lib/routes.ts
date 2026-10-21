@@ -10,6 +10,7 @@ export type RouteIds = {
   workerId?: string | null        // person opened inside People search
   reviewWorkerId?: string | null  // person whose reviews are shown
   authPanel?: AuthPanel | null
+  username?: string | null        // /@username public profile
 }
 
 const STATIC_PATHS: Record<string, string> = {
@@ -54,7 +55,7 @@ PATH_TO_PAGE['/people'] = 'people'
 export const ENTRY_PAGES = ['role-select', 'phone-verification', 'auth', 'forgot-password', 'profile-setup', 'explore-onboarding']
 
 /** Screens a signed-out visitor may open (read-only browsing). */
-export const GUEST_PAGES = ['jobs', 'job-details', 'people', 'shops', 'shop', 'privacy', 'terms']
+export const GUEST_PAGES = ['jobs', 'job-details', 'people', 'shops', 'shop', 'privacy', 'terms', 'worker-username']
 
 /** Screens that work whether or not you are signed in. */
 export const OPEN_PAGES = ['reset-password']
@@ -74,6 +75,7 @@ export function pathFor(page: string, ids: RouteIds = {}): string {
     case 'shop': return ids.shopId ? `/shops/${enc(ids.shopId)}` : '/shops'
     case 'ratings-reviews': return ids.reviewWorkerId ? `/reviews/${enc(ids.reviewWorkerId)}` : '/dashboard'
     case 'auth': return ids.authPanel === 'login' ? '/login' : '/signup'
+    case 'worker-username': return ids.username ? `/@${enc(ids.username)}` : '/people'
     default: return STATIC_PATHS[page] ?? '/'
   }
 }
@@ -85,6 +87,7 @@ export type ParsedPath = {
   workerId?: string
   reviewWorkerId?: string
   authPanel?: AuthPanel
+  username?: string
 }
 
 /** Which screen (and which ids) a URL means. Unknown URLs give page "not-found". */
@@ -105,6 +108,8 @@ export function pageFromPath(pathname: string): ParsedPath {
   if (m) return { page: 'shop', shopId: safe(m[1]) }
   m = clean.match(/^\/people\/([^/]+)$/)
   if (m) return { page: 'people', workerId: safe(m[1]) }
+  m = clean.match(/^\/@([^/]+)$/)
+  if (m) return { page: 'people', username: safe(m[1]) }
   m = clean.match(/^\/reviews\/([^/]+)$/)
   if (m) return { page: 'ratings-reviews', reviewWorkerId: safe(m[1]) }
 
@@ -123,3 +128,4 @@ export function pathFromLegacySearch(search: string): string | null {
   })
   return path === '/' ? null : path
 }
+

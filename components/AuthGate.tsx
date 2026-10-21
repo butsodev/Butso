@@ -44,6 +44,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
       selectedShopId: t.shopId ?? st.selectedShopId,
       selectedJobId: t.jobId ?? st.selectedJobId,
       viewedWorkerId: t.workerId ?? st.viewedWorkerId,
+      viewedUsername: t.username ?? null,
       reviewWorkerId: t.reviewWorkerId ?? st.reviewWorkerId,
       authPanel: t.authPanel ?? st.authPanel,
     }))
@@ -163,3 +164,4 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     </ThemeProvider>
   )
 }
+

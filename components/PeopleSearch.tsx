@@ -33,7 +33,7 @@ const card = {
 }
 
 export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
-  const { setCurrentPage, preferences, trackSearch, viewedWorkerId, currentUser, openChatWith } = useAppStore()
+  const { setCurrentPage, preferences, trackSearch, viewedWorkerId, viewedUsername, currentUser, openChatWith } = useAppStore()
   const [workers, setWorkers] = useState<PublicWorker[]>([])
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading')
   const [reloadKey, setReloadKey] = useState(0)
@@ -63,6 +63,14 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
     if (worker) setSelectedWorker(worker)
     useAppStore.setState({ viewedWorkerId: null })
   }, [viewedWorkerId, workers, loadState])
+
+  // /@username — open a worker's profile directly from their public link
+  useEffect(() => {
+    if (!viewedUsername || loadState === 'loading') return
+    const worker = workers.find(w => w.username?.toLowerCase() === viewedUsername.toLowerCase())
+    if (worker) setSelectedWorker(worker)
+    useAppStore.setState({ viewedUsername: null })
+  }, [viewedUsername, workers, loadState])
 
   // Recent searches — top 4 by frequency, min 1 search
   const recentSearches = Object.entries(preferences.searched ?? {})
