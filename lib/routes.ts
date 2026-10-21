@@ -108,7 +108,7 @@ export function pageFromPath(pathname: string): ParsedPath {
   if (m) return { page: 'shop', shopId: safe(m[1]) }
   m = clean.match(/^\/people\/([^/]+)$/)
   if (m) return { page: 'people', workerId: safe(m[1]) }
-  m = clean.match(/^\/@([^/]+)$/)
+  m = clean.match(/^\/(?:@|u\/)([^/]+)$/) // /@name is the public URL; /u/name is the route it is rewritten to
   if (m) return { page: 'people', username: safe(m[1]) }
   m = clean.match(/^\/reviews\/([^/]+)$/)
   if (m) return { page: 'ratings-reviews', reviewWorkerId: safe(m[1]) }
