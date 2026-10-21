@@ -6,6 +6,7 @@ import {
   Wrench, ClipboardList, Users, UserRound, CheckCircle2, type LucideIcon,
 } from 'lucide-react'
 import { useState, useRef, useEffect, useMemo } from 'react'
+import { WUKARI_AREAS } from '@/lib/areas'
 import { useAppStore, generateUsernameFromName, isUsernameAvailable, type UserRole, type AppStore, goAfterAuth } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
 
@@ -316,6 +317,7 @@ export function ProfileSetup() {
   const [usernameValid, setUsernameValid] = useState(false)
   const [usernameEdited, setUsernameEdited] = useState(false)
   const [bio, setBio] = useState('')
+  const [area, setArea] = useState<string>('')
   const [gender, setGender] = useState<Gender | null>(null)
   const [skills, setSkills] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -388,6 +390,7 @@ export function ProfileSetup() {
       role,
       bio: bio.trim() || null,
       gender: gender ?? null,
+      location: area.trim() || null,
       skills: isWorker && skills.length > 0 ? skills : [],
     }
     const { data, error } = await supabase.from('profiles').insert(profileData).select().single()
@@ -527,6 +530,20 @@ export function ProfileSetup() {
         onValidChange={setUsernameValid}
         allUsers={allUsers}
       />
+
+      <div>
+        <label className="block text-sm font-bold text-foreground mb-1">
+          Your Area <span className="text-muted-foreground font-normal">(optional)</span>
+        </label>
+        <p className="text-xs text-muted-foreground mb-2">Helps people near you find you faster.</p>
+        <select aria-label="Your area"
+          value={area} onChange={e => setArea(e.target.value)}
+          className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground bg-background transition text-sm"
+        >
+          <option value="">Select your area in Wukari…</option>
+          {WUKARI_AREAS.map(a => <option key={a} value={a}>{a}</option>)}
+        </select>
+      </div>
 
       <div>
         <label className="block text-sm font-bold text-foreground mb-1">

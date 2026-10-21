@@ -35,17 +35,22 @@ const categories = [
 ]
 
 export function JobsBrowsing() {
-  const { jobs, jobsStatus, setCurrentPage, setSelectedJobId, currentUser } = useAppStore()
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('all')
+  const { jobs, jobsStatus, setCurrentPage, setSelectedJobId, currentUser, jobSearch, setJobSearch } = useAppStore()
+  // Seed local state from store (set by AdvancedSearch)
+  const [searchQuery, setSearchQuery] = useState(() => jobSearch.query)
+  const [selectedCategory, setSelectedCategory] = useState(() => jobSearch.category ?? 'all')
   const loading = jobsStatus === 'idle' || (jobsStatus === 'loading' && jobs.length === 0)
 
   const filteredJobs = jobs.filter((job) => {
-    const matchesSearch =
-      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.description.toLowerCase().includes(searchQuery.toLowerCase())
+    const q = searchQuery.toLowerCase()
+    const matchesSearch = !q ||
+      job.title.toLowerCase().includes(q) ||
+      job.description.toLowerCase().includes(q)
     const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory
-    return matchesSearch && matchesCategory && job.status === 'open'
+    const matchesBudgetMin = jobSearch.budgetMin == null || job.budget >= jobSearch.budgetMin
+    const matchesBudgetMax = jobSearch.budgetMax == null || job.budget <= jobSearch.budgetMax
+    const matchesArea = !jobSearch.area || job.location === jobSearch.area
+    return matchesSearch && matchesCategory && matchesBudgetMin && matchesBudgetMax && matchesArea && job.status === 'open'
   })
 
   return (
@@ -83,7 +88,7 @@ export function JobsBrowsing() {
             aria-label="Search jobs"
             placeholder="Search jobs, skills, location..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => { setSearchQuery(e.target.value); setJobSearch({ query: e.target.value }) }}
             className="w-full pl-11 pr-12 py-3.5 border border-border rounded-2xl focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/60 bg-card shadow-sm transition text-sm"
           />
           <button aria-label="Open filters"

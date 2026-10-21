@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { ChevronRight, ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
+import { WUKARI_AREAS } from '@/lib/areas'
 import { useAppStore, goBackTo } from '@/lib/store'
 import { createJob } from '@/lib/data'
 
@@ -167,10 +168,7 @@ export function PostJob() {
               onChange={handleChange}
               className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-foreground bg-card"
             >
-              <option>Wukari</option>
-              <option>Central Wukari</option>
-              <option>North Wukari</option>
-              <option>South Wukari</option>
+              {WUKARI_AREAS.map(a => <option key={a}>{a}</option>)}
             </select>
           </div>
 

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Search, MapPin, Zap, SlidersHorizontal, X } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
 import { useState, useEffect } from 'react'
+import { proximityLabel } from '@/lib/areas'
 import { useAppStore } from '@/lib/store'
 import { fetchWorkers, type PublicWorker } from '@/lib/data'
 
@@ -33,7 +34,7 @@ const card = {
 }
 
 export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
-  const { setCurrentPage, preferences, trackSearch, viewedWorkerId, viewedUsername, currentUser, openChatWith } = useAppStore()
+  const { setCurrentPage, currentUser, preferences, trackSearch, viewedWorkerId, viewedUsername, openChatWith } = useAppStore()
   const [workers, setWorkers] = useState<PublicWorker[]>([])
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading')
   const [reloadKey, setReloadKey] = useState(0)
@@ -318,7 +319,16 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                       <h3 className="font-black text-foreground text-sm truncate">{worker.name}</h3>
                       {worker.available === true ? <span className="shrink-0 w-2 h-2 rounded-full bg-green-500" title="Available" /> : worker.available === false ? <span className="shrink-0 w-2 h-2 rounded-full bg-muted-foreground/30" title="Busy" /> : null}
                     </div>
-                    {worker.location && <p className="text-xs text-muted-foreground">{worker.location}</p>}
+                    {worker.location && (
+                      <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                        {worker.location}
+                        {proximityLabel(currentUser?.location, worker.location) && (
+                          <span className="bg-primary/10 text-primary text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                            {proximityLabel(currentUser?.location, worker.location)}
+                          </span>
+                        )}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-1.5 mb-3">

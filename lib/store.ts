@@ -15,6 +15,7 @@ export interface User {
   avatar?: string
   gender?: 'male' | 'female' | 'other'
   bio?: string
+  location?: string
   skills?: string[]
   rating?: number
   completedJobs?: number
@@ -260,6 +261,7 @@ export interface AppStore {
   selectedJobId: string | null
   setSelectedJobId: (id: string | null) => void
   viewedWorkerId: string | null
+  viewedUsername: string | null
   viewWorkerProfile: (id: string) => void
   /** Which tab the sign-in screen opens on. "Log in" buttons set this to 'login'. */
   authPanel: 'login' | 'signup'
@@ -286,6 +288,8 @@ export interface AppStore {
   setJobsStatus: (s: 'idle' | 'loading' | 'ready' | 'error') => void
   setJobs: (jobs: Job[]) => void
   addJob: (job: Job) => void
+  jobSearch: { query: string; category: string | null; budgetMin: number | null; budgetMax: number | null; area: string | null }
+  setJobSearch: (s: Partial<AppStore['jobSearch']>) => void
 
   // Bookings
   bookings: Booking[]
@@ -353,6 +357,7 @@ export const useAppStore = create<AppStore>()(
       viewedWorkerId: null,
       authPanel: 'signup',
       reviewWorkerId: null,
+      viewedUsername: null,
       openReviews: (workerId) => {
         set({ reviewWorkerId: workerId, currentPage: 'ratings-reviews' })
         navigateToPage('ratings-reviews', { reviewWorkerId: workerId })
@@ -400,9 +405,11 @@ export const useAppStore = create<AppStore>()(
 
       jobs: [],
       jobsStatus: 'idle',
+      jobSearch: { query: '', category: null, budgetMin: null, budgetMax: null, area: null },
       setJobsStatus: (jobsStatus) => set({ jobsStatus }),
       setJobs: (jobs) => set({ jobs }),
       addJob: (job) => set((state) => ({ jobs: [job, ...state.jobs] })),
+      setJobSearch: (patch) => set(s => ({ jobSearch: { ...s.jobSearch, ...patch } })),
 
       bookings: [],
       setBookings: (bookings) => set({ bookings }),
@@ -625,3 +632,4 @@ export function goAfterAuth() {
     st.setCurrentPage('dashboard')
   }
 }
+

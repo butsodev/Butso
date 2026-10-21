@@ -118,7 +118,7 @@ export function LiveSupportChat() {
                         onClick={handleOpen}
                         // PHASE 4 FIX: Positioned above BottomNav on mobile (bottom-20), bottom-6 on desktop
                         className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-50 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg shadow-primary/30 flex items-center justify-center"
-                        aria-label="Open live support"
+                        aria-label="Open Butsó Assistant"
                     >
                         <MessageCircle size={24} />
                         {unreadCount > 0 && (

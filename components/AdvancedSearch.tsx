@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { ArrowLeft, Search, Filter, X } from 'lucide-react'
 import { useState } from 'react'
+import { WUKARI_AREAS } from '@/lib/areas'
 import { useAppStore, goBackTo } from '@/lib/store'
 
 const CATEGORIES = [
@@ -23,6 +24,7 @@ export function AdvancedSearch() {
   const [query,    setQuery]    = useState('')
   const [category, setCategory] = useState<string | null>(null)
   const [budget,   setBudget]   = useState<typeof BUDGET_RANGES[0] | null>(null)
+  const [area,     setArea]     = useState<string | null>(null)
   const [showFilters, setShowFilters] = useState(false)
 
   const activeFilters = [
@@ -38,13 +40,14 @@ export function AdvancedSearch() {
       category,
       budgetMin: budget?.min ?? null,
       budgetMax: budget?.max ?? null,
+      area: area ?? null,
     })
     setCurrentPage('jobs')
   }
 
   const handleClear = () => {
-    setQuery(''); setCategory(null); setBudget(null)
-    setJobSearch({ query: '', category: null, budgetMin: null, budgetMax: null })
+    setQuery(''); setCategory(null); setBudget(null); setArea(null)
+    setJobSearch({ query: '', category: null, budgetMin: null, budgetMax: null, area: null })
   }
 
   return (

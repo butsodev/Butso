@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { ArrowLeft, Bell, Lock, Globe, LogOut, User, Edit2, Shield } from 'lucide-react'
 import { useState } from 'react'
+import { WUKARI_AREAS } from '@/lib/areas'
 import { useAppStore, goBackTo } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
 import { signOutUser } from '@/lib/auth'
@@ -13,6 +14,7 @@ export function Settings() {
   const [isEditing, setIsEditing] = useState(false)
   const [editedName, setEditedName] = useState(currentUser?.name || '')
   const [editedBio, setEditedBio] = useState(currentUser?.bio || '')
+  const [editedArea, setEditedArea] = useState(currentUser?.location || '')
 
   const [saving, setSaving] = useState(false)
 
@@ -24,11 +26,11 @@ export function Settings() {
     const bio = editedBio.trim()
     const { error } = await supabase
       .from('profiles')
-      .update({ name, bio: bio || null })
+      .update({ name, bio: bio || null, location: editedArea || null })
       .eq('id', currentUser.id)
     setSaving(false)
     if (error) { showToast('error', 'Could not save your changes. Please try again.'); return }
-    setCurrentUser({ ...currentUser, name, bio: bio || undefined })
+    setCurrentUser({ ...currentUser, name, bio: bio || undefined, location: editedArea || undefined })
     setIsEditing(false)
     showToast('success', 'Profile updated')
   }
@@ -119,6 +121,17 @@ export function Settings() {
                   rows={3}
                   className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Your Area</label>
+                <select aria-label="Your area"
+                  value={editedArea}
+                  onChange={e => setEditedArea(e.target.value)}
+                  className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="">Select your area…</option>
+                  {WUKARI_AREAS.map(a => <option key={a} value={a}>{a}</option>)}
+                </select>
               </div>
               <div className="flex gap-2">
                 <button
