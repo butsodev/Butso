@@ -16,6 +16,7 @@ import { registerRouter, recordPath, navigatedRecently } from '@/lib/navigation'
 import { pageFromPath, pathFromLegacySearch, isEntryPage, isGuestPage, isOpenPage } from '@/lib/routes'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { Toast } from '@/components/Toast'
+import { SuccessHost } from '@/components/SuccessHost'
 
 /**
  * Wraps the whole app, once.
@@ -160,6 +161,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
       <Toast />
+      <SuccessHost />
       {children}
     </ThemeProvider>
   )

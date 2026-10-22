@@ -241,7 +241,7 @@ export function ShopsBrowsing() {
 
                         {/* Result count */}
                         <p className="text-xs text-muted-foreground mb-4 font-medium">
-                            {filtered.length === 0 ? 'No shops found' : `${filtered.length} shop${filtered.length !== 1 ? 's' : ''} in Wukari${selectedCat ? ` · ${selectedCat}` : ''}`}
+                            {filtered.length === 0 ? 'No shops found' : `${filtered.length} shop${filtered.length !== 1 ? 's' : ''}${selectedCat ? ` · ${selectedCat}` : ''}`}
                         </p>
 
                         {/* Shop grid */}

@@ -7,6 +7,7 @@ import { ChevronRight, MapPin, ArrowRight, CheckCircle, Award, Menu as MenuIcon,
 import { useAppStore } from '@/lib/store'
 import { HeroSlideshow } from '@/components/HeroSlideshow'
 import { IMAGES } from '@/lib/cloudinary'
+import { fetchWorkers, type PublicWorker } from '@/lib/data'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
 // ─── MEDIA SLOTS ──────────────────────────────────────────────────────────────
@@ -46,36 +47,6 @@ const MEDIA = {
 }
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
-const TICKER = [
-  'Plumber needed · Wukari GRA · ₦8,000',
-  'Electrician · 3-day job · ₦15,000',
-  'Office cleaner · Weekly · ₦5,000',
-  'Carpenter needed · Furniture build',
-  'House painter · 4 rooms · ₦20,000',
-  'Gardener · Monthly · ₦6,000',
-  'Event cook · Saturday · ₦12,000',
-  'Driver · School run · Daily',
-  'Welder · Gate repair · North Wukari',
-  'Bricklayer · Extension job · Urgent',
-]
-
-const WORKERS = [
-  { name: 'Wunuken Danladi', skill: 'Plumber', rating: 4.9, jobs: 34, location: 'Central Wukari', available: true, rate: '₦3,500/hr', initials: 'WD', color: '#1B9E6E', img: IMAGES.plumberman },
-  { name: 'Fatima Abdullahi', skill: 'Cleaner', rating: 4.8, jobs: 62, location: 'North Wukari', available: true, rate: '₦2,000/hr', initials: 'FA', color: '#F55D1E', img: IMAGES.cleanerwoman },
-  { name: 'Zando Ishaku', skill: 'Electrician', rating: 4.7, jobs: 28, location: 'South Wukari', available: false, rate: '₦4,000/hr', initials: 'ZI', color: '#8B5CF6', img: IMAGES.electricianman },
-  { name: 'Emeka Eze', skill: 'Carpenter', rating: 4.6, jobs: 19, location: 'Central Wukari', available: true, rate: '₦3,000/hr', initials: 'EE', color: '#F59E0B', img: IMAGES.carpenterman },
-  { name: 'Wapuken Amos', skill: 'Painter', rating: 4.9, jobs: 47, location: 'North Wukari', available: true, rate: '₦3,800/hr', initials: 'WA', color: '#EC4899', img: IMAGES.painterman },
-  { name: 'Yusuf Garba', skill: 'Mechanic', rating: 4.5, jobs: 23, location: 'South Wukari', available: true, rate: '₦4,500/hr', initials: 'YG', color: '#06B6D4', img: IMAGES.mechanicman },
-]
-
-const LIVE_JOBS = [
-  { title: 'Plumbing Repair', location: 'Central Wukari', budget: '₦8,000', ago: '2h ago', applicants: 2 },
-  { title: 'House Cleaning', location: 'South Wukari', budget: '₦5,000', ago: '1h ago', applicants: 0 },
-  { title: 'Electrical Wiring', location: 'North Wukari', budget: '₦15,000', ago: '3h ago', applicants: 5 },
-  { title: 'Fence Painting', location: 'North Wukari', budget: '₦12,000', ago: '30m ago', applicants: 1 },
-  { title: 'Generator Repair', location: 'Central Wukari', budget: '₦6,000', ago: '5h ago', applicants: 3 },
-]
-
 const CATEGORIES = [
   { emoji: '🔧', label: 'Plumbing', workers: 48, img: IMAGES.plumberman },
   { emoji: '⚡', label: 'Electrical', workers: 32, img: IMAGES.electricianman },
@@ -125,7 +96,7 @@ const SLIDES = [
   {
     tag: 'For everyone',
     headline: 'Direct messages, no middleman',
-    body: 'Chat directly with workers or employers. Agree a price, confirm the job, get it done. No agency taking a cut.',
+    body: 'Chat directly with workers or employers. Agree a price, confirm the job, get it done. No agency in the middle.',
     cta: 'Start messaging',
     img: MEDIA.slideHandshake,
     emoji: '💬',
@@ -174,44 +145,18 @@ function Img({ src, alt, emoji, label, style, className, eager }: {
   />
 }
 
-// ─── WORKER AVATAR — image with initials fallback (Upwork-style) ─────────
-function WorkerAvatar({ worker, size = 40, ringColor = '#111110' }: { worker: typeof WORKERS[0]; size?: number; ringColor?: string }) {
-  const [imgErr, setImgErr] = useState(false)
-  return (
-    <div style={{ position: 'relative', width: size, height: size, borderRadius: '50%', flexShrink: 0 }}>
-      {!imgErr && (
-        <img
-          src={worker.img}
-          alt={worker.name}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', borderRadius: '50%', position: 'absolute', inset: 0 }}
-          loading="lazy"
-          onError={() => setImgErr(true)}
-        />
-      )}
-      <div style={{
-        width: '100%', height: '100%', borderRadius: '50%',
-        background: worker.color + '28', border: `2px solid ${worker.color}44`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: size * 0.28, fontWeight: 800, color: worker.color,
-        visibility: imgErr ? 'visible' : 'hidden',
-      }}>
-        {worker.initials}
-      </div>
-      {/* Available dot */}
-      <div style={{
-        position: 'absolute', bottom: 0, right: 0,
-        width: size * 0.28, height: size * 0.28, borderRadius: '50%',
-        background: worker.available ? '#1B9E6E' : '#888',
-        border: `${size * 0.05}px solid ${ringColor}`,
-      }} />
-    </div>
-  )
-}
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export function LandingPage() {
   const { setCurrentPage, darkMode, toggleDarkMode } = useAppStore()
-  const [tickerPaused, setTickerPaused] = useState(false)
+  const jobs = useAppStore(st => st.jobs)
+  const openJobs = jobs.filter(j => j.status === 'open').slice(0, 5)
+  const [realWorkers, setRealWorkers] = useState<PublicWorker[]>([])
+  useEffect(() => {
+    let alive = true
+    fetchWorkers().then(({ workers }) => { if (alive) setRealWorkers(workers) })
+    return () => { alive = false }
+  }, [])
   const [menuOpen, setMenuOpen] = useState(false)
   const [slideIdx, setSlideIdx] = useState(0)
   const slideTimer = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -313,7 +258,7 @@ export function LandingPage() {
           {/* Right: desktop shows everything, mobile keeps only Join free + menu */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div style={{ alignItems: 'center', gap: 5, fontSize: '0.7rem', color: C.faint, background: C.pillBg, border: `1px solid ${C.border}`, padding: '0.25rem 0.65rem', borderRadius: 99, flexShrink: 0 }} className="ld-location">
-              <MapPin size={9} style={{ color: C.green }} />Wukari
+              <MapPin size={9} style={{ color: C.green }} />Near you
             </div>
             <button onClick={toggleDarkMode} aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               className="ld-desktop-only"
@@ -365,22 +310,12 @@ export function LandingPage() {
                 {darkMode ? '☀️' : '🌙'}
               </button>
               <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.75rem', color: C.muted }}>
-                <MapPin size={11} style={{ color: C.green }} />Wukari
+                <MapPin size={11} style={{ color: C.green }} />Near you
               </div>
             </div>
           </div>
         )}
       </header>
-
-      {/* ── TICKER ──────────────────────────────────────────────────────── */}
-      <div style={{ background: C.green, overflow: 'hidden', padding: '0.36rem 0' }}
-        onMouseEnter={() => setTickerPaused(true)} onMouseLeave={() => setTickerPaused(false)}>
-        <div style={{ display: 'flex', width: 'max-content', animation: tickerPaused ? 'none' : 'ld-ticker 32s linear infinite' }}>
-          {[...TICKER, ...TICKER].map((t, i) => (
-            <span key={i} style={{ whiteSpace: 'nowrap', fontSize: '0.67rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)', padding: '0 2.5rem' }}>{t}</span>
-          ))}
-        </div>
-      </div>
 
       {/* ── HERO — Fiverr video left + LinkedIn live-content right ───── */}
       <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 'calc(100vh - 96px)', overflow: 'hidden' }} className="ld-hero-grid">
@@ -397,7 +332,7 @@ export function LandingPage() {
             {/* Eyebrow */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.68rem', fontWeight: 700, color: C.green, background: C.greenBg, border: `1px solid rgba(27,158,110,0.25)`, padding: '0.25rem 0.8rem', borderRadius: 99, marginBottom: '1.25rem' }}>
-                "Butsó" means work in Jukun · Starting in Wukari, built for Taraba
+                "Butsó" means work in Jukun
               </span>
             </motion.div>
 
@@ -409,7 +344,7 @@ export function LandingPage() {
             >
               Skilled workers.<br />
               <span style={{ color: C.green }}>Real jobs.</span><br />
-              Right here in Wukari.
+              Right where you are.
             </motion.h1>
 
             {/* Subhead */}
@@ -437,13 +372,6 @@ export function LandingPage() {
             {/* Upwork-style social proof avatars */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35, duration: 0.5 }}
               style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ display: 'flex' }}>
-                {WORKERS.slice(0, 5).map((w, i) => (
-                  <div key={i} style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', border: '2px solid #111110', marginLeft: i > 0 ? -8 : 0, zIndex: 5 - i, flexShrink: 0, background: w.color }}>
-                    <img src={w.img} alt={w.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
-                  </div>
-                ))}
-              </div>
               <span style={{ fontSize: '0.75rem', color: 'rgba(240,239,235,0.5)' }}>
                 <strong style={{ color: '#F5F4F0' }}>Free to join</strong> · No CV needed
               </span>
@@ -454,81 +382,88 @@ export function LandingPage() {
         {/* RIGHT — LinkedIn live-content panel */}
         <div style={{ background: C.surface, borderLeft: `1px solid ${C.border}`, overflowY: 'auto', maxHeight: 'calc(100vh - 96px)', padding: '1.75rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="ld-right-panel">
 
-          {/* Workers near you */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
-              <p style={{ fontSize: '0.75rem', fontWeight: 800, color: C.text }}>Workers near you</p>
-              <button onClick={() => go('exploring')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.7rem', color: C.green, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 3 }}>
-                See all <ChevronRight size={11} />
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {WORKERS.map((w, i) => (
-                <motion.div key={i}
-                  initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  onClick={() => go('exploring')}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.7rem', borderRadius: 10, background: C.card, border: `1px solid ${C.border}`, cursor: 'pointer', transition: 'background 0.15s, border-color 0.15s' }}
-                  onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = C.cardHover; el.style.borderColor = 'rgba(27,158,110,0.3)' }}
-                  onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = C.card; el.style.borderColor = C.border }}
-                >
-                  <WorkerAvatar worker={w} size={38} ringColor={C.card} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 2 }}>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{w.name}</span>
-                      {w.available && <span style={{ fontSize: '0.58rem', fontWeight: 700, color: C.green, background: C.greenBg, padding: '0.1rem 0.4rem', borderRadius: 99, flexShrink: 0 }}>Available</span>}
-                    </div>
-                    <span style={{ fontSize: '0.68rem', color: C.muted }}>{w.skill} · {w.location}</span>
-                  </div>
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 3, justifyContent: 'flex-end', marginBottom: 2 }}>
-                      <Award size={11} color="#F59E0B" strokeWidth={2.2} />
-                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: C.text }}>{w.rating}</span>
-                    </div>
-                    <span style={{ fontSize: '0.65rem', color: C.faint }}>{w.rate}</span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div style={{ height: 1, background: C.border }} />
-
-          {/* Open jobs */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                <p style={{ fontSize: '0.75rem', fontWeight: 800, color: C.text }}>Example jobs</p>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.green, boxShadow: `0 0 5px ${C.green}`, flexShrink: 0 }} />
+          {realWorkers.length > 0 && (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 800, color: C.text }}>People on Butsó</p>
+                <button onClick={() => go('exploring')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.7rem', color: C.green, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2, minHeight: 44 }}>
+                  See all <ChevronRight size={11} />
+                </button>
               </div>
-              <button onClick={() => go('have-skill')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.7rem', color: C.green, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 3 }}>
-                Apply <ChevronRight size={11} />
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-              {LIVE_JOBS.map((job, i) => (
-                <motion.div key={i}
-                  initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.35 + i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  onClick={() => go('have-skill')}
-                  style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, padding: '0.65rem', borderRadius: 10, background: C.card, border: `1px solid ${C.border}`, cursor: 'pointer', transition: 'background 0.15s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.cardHover }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.card }}
-                >
-                  <div>
-                    <p style={{ fontSize: '0.78rem', fontWeight: 700, color: C.text, marginBottom: 3 }}>{job.title}</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <span style={{ fontSize: '0.65rem', color: C.muted }}>{job.location}</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {realWorkers.slice(0, 5).map((w, i) => (
+                  <motion.div key={w.id}
+                    initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    onClick={() => go('exploring')}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.7rem', borderRadius: 10, background: C.card, border: `1px solid ${C.border}`, cursor: 'pointer' }}
+                  >
+                    <div style={{ width: 38, height: 38, borderRadius: '50%', flexShrink: 0, background: C.greenBg, border: `2px solid ${C.green}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800, color: C.green }}>
+                      {w.username.slice(0, 2).toUpperCase()}
                     </div>
-                  </div>
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <p style={{ fontSize: '0.78rem', fontWeight: 800, color: C.green }}>{job.budget}</p>
-                  </div>
-                </motion.div>
-              ))}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>@{w.username}</span>
+                      <span style={{ fontSize: '0.68rem', color: C.muted }}>{w.skills.slice(0, 2).join(', ') || 'New member'}</span>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 3 }}>
+                      {w.rating != null ? (
+                        <>
+                          <Award size={11} color="#F59E0B" strokeWidth={2.2} />
+                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: C.text }}>{w.rating.toFixed(1)}</span>
+                        </>
+                      ) : (
+                        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: C.green }}>New</span>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+          {realWorkers.length > 0 && openJobs.length > 0 && <div style={{ height: 1, background: C.border }} />}
+
+          {openJobs.length > 0 && (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 800, color: C.text }}>Latest jobs</p>
+                <button onClick={() => go('have-skill')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.7rem', color: C.green, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2, minHeight: 44 }}>
+                  Apply <ChevronRight size={11} />
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                {openJobs.map((job, i) => (
+                  <motion.div key={job.id}
+                    initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    onClick={() => go('have-skill')}
+                    style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, padding: '0.65rem', borderRadius: 10, background: C.card, border: `1px solid ${C.border}`, cursor: 'pointer' }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ fontSize: '0.78rem', fontWeight: 700, color: C.text, marginBottom: 3 }}>{job.title}</p>
+                      {job.location && job.location !== 'Not specified' && (
+                        <span style={{ fontSize: '0.65rem', color: C.muted }}>{job.location}</span>
+                      )}
+                    </div>
+                    <p style={{ fontSize: '0.78rem', fontWeight: 800, color: C.green, flexShrink: 0 }}>₦{job.budget.toLocaleString()}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {realWorkers.length === 0 && openJobs.length === 0 && (
+            <div style={{ padding: '1.25rem', borderRadius: 12, background: C.card, border: `1px solid ${C.border}`, textAlign: 'center' }}>
+              <p style={{ fontSize: '0.9rem', fontWeight: 800, color: C.text, marginBottom: 6 }}>Be one of the first</p>
+              <p style={{ fontSize: '0.78rem', color: C.muted, lineHeight: 1.5, marginBottom: '1rem' }}>
+                Butsó is just getting started. Post a job or list your skills and show up first.
+              </p>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button onClick={() => go('need-done')} style={{ background: C.green, color: '#fff', border: 'none', borderRadius: 8, padding: '0 1rem', minHeight: 44, fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}>Post a job</button>
+                <button onClick={() => go('have-skill')} style={{ background: 'none', color: C.text, border: `1px solid ${C.border}`, borderRadius: 8, padding: '0 1rem', minHeight: 44, fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}>List your skills</button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -563,7 +498,7 @@ export function LandingPage() {
                 What do you need done?
               </h2>
               <p style={{ fontSize: '0.82rem', color: C.muted, lineHeight: 1.65 }}>
-                Skilled workers across every trade in Taraba, ready to be hired.
+                Skilled workers across every trade, ready to be hired.
               </p>
             </div>
             {/* Pill tags — LinkedIn pattern */}
@@ -662,8 +597,8 @@ export function LandingPage() {
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }} className="ld-two-col">
             {[
-              { img: MEDIA.tileHire, emoji: '🔍', title: 'Find a skilled worker near you', body: 'Browse workers in Taraba. Filter by trade, location and availability. Contact them directly.', cta: 'Find workers', situation: 'need-done' as Situation },
-              { img: MEDIA.tileWork, emoji: '📋', title: 'Post your skills and start earning', body: 'No CV, no agency fees. Create your profile, list your trade, and start getting hired by people near you.', cta: 'Offer your skills', situation: 'have-skill' as Situation },
+              { img: MEDIA.tileHire, emoji: '🔍', title: 'Find a skilled worker near you', body: 'Browse workers near you. Filter by trade, location and availability. Contact them directly.', cta: 'Find workers', situation: 'need-done' as Situation },
+              { img: MEDIA.tileWork, emoji: '📋', title: 'Post your skills and start earning', body: 'No CV, no agency in the middle. Create your profile, list your trade, and start getting hired by people near you.', cta: 'Offer your skills', situation: 'have-skill' as Situation },
             ].map((tile, i) => (
               <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
                 {/* 128×128 tile illustration — LinkedIn's exact size */}
@@ -695,7 +630,7 @@ export function LandingPage() {
               Who is Butsó for?
             </h2>
             <p style={{ fontSize: '0.85rem', color: C.muted, lineHeight: 1.7, marginBottom: '1.75rem' }}>
-              Anyone doing or needing work in Wukari, Taraba State.
+              Anyone doing or needing work.
             </p>
             {/* LinkedIn's chevron row list */}
             <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -728,7 +663,7 @@ export function LandingPage() {
       {/* ── STATS BAR ────────────────────────────────────────────────────── */}
       <div style={{ background: C.green, padding: '1.5rem' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem', textAlign: 'center' }}>
-          {[['₦0', 'To sign up'], ['No CV', 'Needed to get hired'], ['Wukari', 'Built for Taraba'], ['Direct', 'Chat, agree a price, done']].map(([v, l], i) => (
+          {[['₦0', 'To sign up'], ['No CV', 'Needed to get hired'], ['Local', 'Work near you'], ['Direct', 'Chat, agree a price, done']].map(([v, l], i) => (
             <div key={i}>
               <div style={{ fontSize: 'clamp(1.3rem,2.5vw,1.8rem)', fontWeight: 900, letterSpacing: '-0.03em', color: '#fff', lineHeight: 1 }}>{v}</div>
               <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.72)', marginTop: '0.25rem', fontWeight: 500 }}>{l}</div>
@@ -746,7 +681,7 @@ export function LandingPage() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '1.25rem' }}>
             {[
-              { e: '', t: 'Sign up free', b: 'Just your phone number. No CV, no documents or fees. Ever.' },
+              { e: '', t: 'Sign up free', b: 'Use your email or Google. No CV, no documents. Free to join.' },
               { e: '', t: 'Browse or post', b: 'Find skilled workers nearby or post your own skills and get hired.' },
               { e: '', t: 'Chat & agree', b: 'Message directly, agree on price. No middleman taking a cut.' },
               { e: '', t: 'Get it done', b: 'Work happens, payment tracked. Leave a rating when done.' },
@@ -774,10 +709,10 @@ export function LandingPage() {
               Join workers, employers, and shops already on Butsó
             </h2>
             <p style={{ fontSize: '0.88rem', color: 'rgba(245,244,240,0.75)', lineHeight: 1.7, marginBottom: '1.75rem' }}>
-              Started in Wukari, now Taraba's first real work marketplace. Free to join, free to post, free to apply.
+              Work and workers, near you. Free to join, free to post and free to apply while we grow.
             </p>
             <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-              {['No CV needed', 'No fees ever', 'Direct payments'].map(l => (
+              {['No CV needed', 'Free to join', 'Agree prices directly'].map(l => (
                 <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <CheckCircle size={13} style={{ color: C.green, flexShrink: 0 }} />
                   <span style={{ fontSize: '0.8rem', color: 'rgba(245,244,240,0.88)', fontWeight: 600 }}>{l}</span>
@@ -803,7 +738,7 @@ export function LandingPage() {
               <span style={{ color: '#fff', fontWeight: 900, fontSize: 10 }}>B</span>
             </div>
             <span style={{ fontWeight: 900, color: C.text, fontSize: '0.9rem', letterSpacing: '-0.02em' }}>Butsó</span>
-            <span style={{ fontSize: '0.68rem', color: C.faint }}>© 2026 · Wukari, Taraba State</span>
+            <span style={{ fontSize: '0.68rem', color: C.faint }}>© 2026 Butsó</span>
           </div>
           <div style={{ display: 'flex', gap: '1.25rem' }}>
             {[['Privacy', 'privacy'], ['Terms', 'terms'], ['Help', 'support']].map(([label, page]) => (

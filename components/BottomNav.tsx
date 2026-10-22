@@ -33,7 +33,7 @@ export function BottomNav() {
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border lg:hidden z-50"
+      className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border lg:hidden z-40"
     >
       <div className="flex justify-around items-center h-16 px-2 max-w-lg mx-auto">
         {navItems.map((item) => {

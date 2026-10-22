@@ -19,7 +19,7 @@ const DAY_LABELS: Record<string, string> = {
     mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
 }
 
-function ServiceCard({ svc, onBook }: { svc: ShopService; onBook: (svc: ShopService) => void }) {
+function ServiceCard({ svc, onBook, canBook }: { svc: ShopService; onBook: (svc: ShopService) => void; canBook: boolean }) {
     return (
         <motion.div whileHover={{ y: -2 }}
             className="flex items-center gap-4 p-4 bg-card border border-border rounded-2xl hover:border-primary/30 transition">
@@ -36,10 +36,12 @@ function ServiceCard({ svc, onBook }: { svc: ShopService; onBook: (svc: ShopServ
                     ) : null}
                 </div>
             </div>
-            <motion.button whileTap={{ scale: 0.95 }} onClick={() => onBook(svc)}
-                className="shrink-0 px-4 py-2 bg-primary text-primary-foreground rounded-xl font-bold text-xs hover:bg-primary/90 transition">
-                Book
-            </motion.button>
+            {canBook && (
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => onBook(svc)}
+                    className="shrink-0 px-4 min-h-[44px] bg-primary text-primary-foreground rounded-xl font-bold text-xs hover:bg-primary/90 transition">
+                    Book
+                </motion.button>
+            )}
         </motion.div>
     )
 }
@@ -54,6 +56,7 @@ export function ShopPage() {
     const [reviewComment, setReviewComment] = useState('')
     const [reviewSaving, setReviewSaving] = useState(false)
     const shop = shops.find(s => s.id === selectedShopId)
+    const isOwner = !!shop && !!currentUser && shop.ownerId === currentUser.id
     const hasReviewed = !!shop && !!currentUser && shop.reviews.some(r => r.userId === currentUser.id)
     const canReview = !!shop && !!currentUser && shop.ownerId !== currentUser.id && !hasReviewed &&
         bookings.some(b => b.shopId === shop.id && b.employerId === currentUser.id && b.status === 'completed')
@@ -201,12 +204,12 @@ export function ShopPage() {
                                 <p className="text-center text-muted-foreground py-8 text-sm">No services listed yet.</p>
                             ) : (
                                 shop.services.map(svc => (
-                                    <ServiceCard key={svc.id} svc={svc} onBook={handleBook} />
+                                    <ServiceCard key={svc.id} svc={svc} onBook={handleBook} canBook={!isOwner} />
                                 ))
                             )}
 
                             {/* Book all CTA */}
-                            {shop.services.length > 0 && (
+                            {shop.services.length > 0 && !isOwner && (
                                 <div className="pt-2">
                                     <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
                                         onClick={() => handleBook(shop.services[0])}
@@ -330,6 +333,12 @@ export function ShopPage() {
             {/* Sticky book button */}
             <div className="fixed bottom-16 left-0 right-0 lg:bottom-0 bg-background/95 backdrop-blur-sm border-t border-border p-4">
                 <div className="max-w-2xl mx-auto">
+                    {isOwner ? (
+                        <motion.button whileTap={{ scale: 0.97 }} onClick={() => setCurrentPage('shop-setup')}
+                            className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-black text-base shadow-lg shadow-primary/20">
+                            Edit my shop
+                        </motion.button>
+                    ) : (
                     <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}
                         onClick={() => handleBook(shop.services[0] ?? { id: '', name: '', price: 0, pricingType: 'fixed' })}
                         disabled={shop.services.length === 0}
@@ -338,6 +347,7 @@ export function ShopPage() {
                         <span className="opacity-70">·</span>
                         <span>from ₦{Math.min(...shop.services.map(s => s.price)).toLocaleString()}</span>
                     </motion.button>
+                    )}
                 </div>
             </div>
         </div>

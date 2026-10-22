@@ -20,8 +20,8 @@ const faqs = [
   },
   {
     id: 3,
-    question: 'What is escrow and how does it work?',
-    answer: 'Escrow is a secure payment system. Money is held until the job is completed and both parties confirm. This protects both workers and employers.'
+    question: 'Are in-app payments available?',
+    answer: 'Not yet. Secure in-app payments are coming soon. For now, agree the price with the other person and pay them directly. Only pay once you are happy with the work.'
   },
   {
     id: 4,
@@ -41,7 +41,7 @@ const faqs = [
   {
     id: 7,
     question: 'How are payments processed?',
-    answer: 'Employers fund jobs upfront into escrow. After job completion, payment is released to the worker. You can withdraw to your bank account anytime.'
+    answer: 'Right now you agree the price in chat or on the booking and pay each other directly. In-app payments are on the way, and we will tell you before anything changes.'
   },
   {
     id: 8,

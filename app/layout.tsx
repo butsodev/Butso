@@ -20,7 +20,7 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: 'Butsó: Your Local Work Network',
-  description: 'Butsó connects skilled workers and employers right here in Wukari, Taraba State. No CV needed. Just show up.',
+  description: 'Butsó connects skilled workers and employers near you. No CV needed. Free to join.',
   icons: {
     icon: [
       { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },

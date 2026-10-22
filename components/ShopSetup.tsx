@@ -12,6 +12,7 @@ import { useState } from 'react'
 import { useAppStore, DEFAULT_HOURS, type ShopService, type OpeningHours, type DayOfWeek, goBackTo } from '@/lib/store'
 import { saveShop } from '@/lib/dataShops'
 import { showToast } from '@/lib/toast'
+import { showSuccess } from '@/lib/success'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
 const SHOP_CATEGORIES = [
@@ -128,8 +129,18 @@ export function ShopSetup() {
             addShop(shop)
             setCurrentUser({ ...currentUser, shopId: shop.id })
         }
-        showToast('success', existing ? 'Shop updated.' : 'Your shop is live.')
         setCurrentPage('dashboard')
+        showSuccess({
+            title: existing ? 'Shop updated' : 'Your shop is live',
+            message: existing
+                ? 'Your changes are saved and visible to customers.'
+                : 'Customers can now find your shop and book your services.',
+            actionLabel: 'View my shop',
+            onAction: () => {
+                useAppStore.getState().setSelectedShopId(shop.id)
+                useAppStore.getState().setCurrentPage('shop')
+            },
+        })
     }
 
     const steps: Step[] = ['basics', 'services', 'hours', 'review']
@@ -221,7 +232,7 @@ export function ShopSetup() {
                                 {!isMobile && (
                                     <div className="relative">
                                         <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                                        <input aria-label="Shop location" value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. 12 Market Road, Central Wukari"
+                                        <input aria-label="Shop location" value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. 12 Market Road, Central"
                                             className="w-full pl-9 pr-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-sm transition" />
                                     </div>
                                 )}
@@ -242,7 +253,7 @@ export function ShopSetup() {
                                 <label className="block text-sm font-bold text-foreground mb-1">
                                     Tagline <span className="text-muted-foreground font-normal">(optional)</span>
                                 </label>
-                                <p className="text-xs text-muted-foreground mb-2">One punchy sentence shown under your shop name, e.g. "Cleanest fades in Wukari, guaranteed."</p>
+                                <p className="text-xs text-muted-foreground mb-2">One punchy sentence shown under your shop name, e.g. "Cleanest fades in town, guaranteed."</p>
                                 <input aria-label="Tagline" value={tagline} onChange={e => setTagline(e.target.value.slice(0, 80))} placeholder="What are you known for?"
                                     className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-sm transition" />
                                 <p className="text-xs text-muted-foreground text-right mt-1">{tagline.length}/80</p>
@@ -439,7 +450,7 @@ export function ShopSetup() {
 
                             <div className="flex gap-2 text-sm text-muted-foreground">
                                 <Check size={16} className="text-primary mt-0.5 shrink-0" />
-                                <p>Your shop will be visible to everyone in Wukari. You can edit it anytime from your dashboard.</p>
+                                <p>Your shop will be visible to everyone on Butsó. You can edit it anytime from your dashboard.</p>
                             </div>
                         </motion.div>
                     )}

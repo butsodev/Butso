@@ -170,7 +170,7 @@ export function UnifiedDashboard() {
         <span className="text-3xl"><EmojiIcon e="🔍" size={28} /></span>
         <div className="flex-1 text-left">
           <p className="font-black text-base">Browse Available Jobs</p>
-          <p className="text-primary-foreground/70 text-sm">Find work near you in Taraba</p>
+          <p className="text-primary-foreground/70 text-sm">Find work near you</p>
         </div>
         <ArrowRight size={20} className="text-primary-foreground/70" />
       </motion.button>

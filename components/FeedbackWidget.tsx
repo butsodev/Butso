@@ -74,7 +74,7 @@ const FAQS = [
     {
         emoji: '🌟',
         question: 'What is Butsó Insiders?',
-        answer: 'Butsó Insiders is our early member programme. Join early and you get 0% fees for your first 30 days. Refer friends and earn more fee-free jobs. Coming very soon.',
+        answer: 'Butsó Insiders is our early member programme. Join early to become a Founding Member and get recognised for it. Coming very soon.',
     },
     {
         emoji: '🚨',
@@ -124,7 +124,7 @@ async function getAIAnswer(question: string): Promise<string> {
         body: JSON.stringify({
             model: 'claude-sonnet-4-6',
             max_tokens: 1000,
-            system: `You are Butsó's helpful support assistant. Butsó is a Nigerian local services platform based in Wukari, Taraba State. It connects workers (plumbers, barbers, cleaners, tailors, electricians, carpenters, cooks, etc.) with people who need help. Users can also browse shops, post jobs, apply for work, message each other, and book services.
+            system: `You are Butsó's helpful support assistant. Butsó is a Nigerian local services platform. It connects workers (plumbers, barbers, cleaners, tailors, electricians, carpenters, cooks, etc.) with people who need help. Users can also browse shops, post jobs, apply for work, message each other, and book services.
 
 Answer questions about how the platform works in a warm, clear, simple tone. Keep answers short (2-4 sentences max). If you genuinely don't know something specific about Butsó, say so honestly and suggest they contact support via the live chat button. Never make up features that don't exist. Respond in the same language the user writes in — if they write in pidgin, respond in pidgin.`,
             messages: [{ role: 'user', content: question }],
