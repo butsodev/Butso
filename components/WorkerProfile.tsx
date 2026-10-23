@@ -109,7 +109,7 @@ export function WorkerProfile() {
 
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <MapPin size={16} />
-                  <span>Wukari, Taraba State</span>
+                  <span>Near you</span>
                 </div>
               </div>
             </div>

@@ -66,6 +66,8 @@ export function ShopSetup() {
     const [isMobile, setIsMobile] = useState(existing?.isMobile ?? false)
     const [phone, setPhone] = useState(existing?.phone ?? currentUser?.phone ?? '')
     const [tagline, setTagline] = useState(existing?.tagline ?? '')
+    const [acceptMessages, setAcceptMessages] = useState(existing?.acceptMessagesFromAnyone ?? true)
+    const [showPhone, setShowPhone] = useState(existing?.showPhonePublicly ?? false)
     const [defaultTab, setDefaultTab] = useState<'services' | 'portfolio' | 'reviews'>(existing?.defaultTab ?? 'services')
     const [services, setServices] = useState<ShopService[]>(existing?.services ?? [])
     const [hours, setHours] = useState<OpeningHours>(existing?.openingHours ?? DEFAULT_HOURS)
@@ -114,6 +116,7 @@ export function ShopSetup() {
                 ownerName: currentUser.name,
                 ownerUsername: currentUser.username,
                 name, tagline, category, description, location, isMobile, phone,
+                acceptMessagesFromAnyone: acceptMessages, showPhonePublicly: showPhone,
                 defaultTab, openingHours: hours, services,
             },
             existing?.id,
@@ -246,6 +249,24 @@ export function ShopSetup() {
                                     <input aria-label="Contact number" value={phone} onChange={e => setPhone(e.target.value)} placeholder="080XXXXXXXX" type="tel" inputMode="tel" autoComplete="tel"
                                         className="w-full pl-9 pr-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-sm transition" />
                                 </div>
+                            </div>
+
+                            {/* Privacy */}
+                            <div className="space-y-2">
+                                <label className="flex items-start gap-3 p-3 border-2 border-border rounded-xl cursor-pointer min-h-[44px]">
+                                    <input type="checkbox" checked={showPhone} onChange={e => setShowPhone(e.target.checked)} className="mt-1 w-4 h-4 accent-primary" />
+                                    <span className="text-sm">
+                                        <span className="font-bold text-foreground block">Show my number publicly</span>
+                                        <span className="text-muted-foreground">Off by default. When off, only people you have shared contact details with can see it.</span>
+                                    </span>
+                                </label>
+                                <label className="flex items-start gap-3 p-3 border-2 border-border rounded-xl cursor-pointer min-h-[44px]">
+                                    <input type="checkbox" checked={acceptMessages} onChange={e => setAcceptMessages(e.target.checked)} className="mt-1 w-4 h-4 accent-primary" />
+                                    <span className="text-sm">
+                                        <span className="font-bold text-foreground block">Accept messages from anyone</span>
+                                        <span className="text-muted-foreground">Turn off to stop new message requests. Customers can still book you.</span>
+                                    </span>
+                                </label>
                             </div>
 
                             {/* Tagline */}

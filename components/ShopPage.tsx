@@ -173,7 +173,7 @@ export function ShopPage() {
                             <MapPin size={13} className="text-primary" />
                             {shop.isMobile ? 'Mobile service that comes to you' : shop.location}
                         </span>
-                        {shop.phone && (
+                        {shop.phone && (shop.showPhonePublicly || shop.ownerId === currentUser?.id) && (
                             <a href={`tel:${shop.phone}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition">
                                 <Phone size={13} className="text-primary" /> {shop.phone}
                             </a>

@@ -8,15 +8,17 @@ import { markNotificationRead, markAllNotificationsRead, deleteNotification } fr
 import { showToast } from '@/lib/toast'
 
 export function Notifications() {
-  const { notifications, currentUser } = useAppStore()
+  const { notifications, currentUser, setCurrentPage } = useAppStore()
 
   const handleDelete = async (id: string) => {
     const error = await deleteNotification(id)
     if (error) showToast('error', 'Could not delete that notification.')
   }
 
-  const handleMarkAsRead = (id: string, alreadyRead: boolean) => {
+  const handleMarkAsRead = (id: string, alreadyRead: boolean, type?: string) => {
     if (!alreadyRead) markNotificationRead(id)
+    // Requests are answered in Messages
+    if (type === 'request') setCurrentPage('messaging')
   }
 
   const handleMarkAll = async () => {
@@ -32,6 +34,7 @@ export function Notifications() {
       case 'booking':
       case 'application':
       case 'review':
+      case 'request':
         return <CheckCircle size={24} className="text-primary" />
       default:
         return <Info size={24} className="text-primary" />
@@ -93,7 +96,7 @@ export function Notifications() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: index * 0.05 }}
-              onClick={() => handleMarkAsRead(notification.id, notification.read)}
+              onClick={() => handleMarkAsRead(notification.id, notification.read, notification.type)}
               className={`rounded-lg p-4 flex items-start gap-4 cursor-pointer transition ${notification.read
                 ? 'bg-card hover:bg-opacity-80'
                 : 'bg-primary bg-opacity-10 border-l-4 border-primary'

@@ -10,7 +10,7 @@ type NotificationRow = {
   created_at: string | null
 }
 
-const TYPES: Notification['type'][] = ['application', 'booking', 'message', 'payment', 'review']
+const TYPES: Notification['type'][] = ['application', 'booking', 'message', 'payment', 'review', 'request']
 
 export function mapNotification(r: NotificationRow): Notification {
   return {

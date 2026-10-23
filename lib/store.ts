@@ -85,7 +85,7 @@ export interface PendingChat {
 
 export interface Notification {
   id: string
-  type: 'application' | 'booking' | 'message' | 'payment' | 'review'
+  type: 'application' | 'booking' | 'message' | 'payment' | 'review' | 'request'
   title: string
   body: string
   read: boolean
@@ -174,6 +174,8 @@ export interface Shop {
   location: string
   isMobile: boolean
   phone?: string
+  acceptMessagesFromAnyone: boolean   // owner setting, default on
+  showPhonePublicly: boolean           // owner setting, default off
   services: ShopService[]
   portfolio: PortfolioItem[]      // owner's work showcase
   defaultTab: ShopDefaultTab      // which tab visitors see first

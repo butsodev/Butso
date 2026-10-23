@@ -26,7 +26,7 @@ export function BookingConfirmation() {
     },
     date: 'March 15, 2024',
     time: '9:00 AM - 2:00 PM',
-    location: 'Wukari, Taraba',
+    location: 'Your area',
     totalPrice: 25000,
     breakdown: {
       servicePrice: 20000,

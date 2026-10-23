@@ -99,9 +99,14 @@ export async function getOrCreateConversation(
   if (existing.error) return { conversation: null, error: existing.error.message }
   if (existing.data) return { conversation: mapConversation(existing.data as ConversationRow, me.id), error: null }
 
+  // Chats store usernames, not real names. Real names stay private until contact details are shared.
+  const handles = await supabase.from('public_profiles').select('id, username').in('id', [a.id, b.id])
+  const handleOf = (p: { id: string; name: string }) =>
+    (handles.data as { id: string; username: string | null }[] | null)?.find(h => h.id === p.id)?.username || p.name
+
   const { data, error } = await supabase
     .from('conversations')
-    .insert({ user_a: a.id, user_b: b.id, user_a_name: a.name, user_b_name: b.name, context: context ?? null })
+    .insert({ user_a: a.id, user_b: b.id, user_a_name: handleOf(a), user_b_name: handleOf(b), context: context ?? null })
     .select('*')
     .single()
   if (error) {

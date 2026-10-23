@@ -20,6 +20,7 @@ type ShopRow = {
   id: string; owner_id: string; owner_name: string | null; owner_username: string | null
   name: string | null; tagline: string | null; category: string | null; description: string | null
   location: string | null; is_mobile: boolean | null; phone: string | null; default_tab: string | null
+  accept_messages_from_anyone?: boolean | null; show_phone_publicly?: boolean | null
   opening_hours: OpeningHours | null; is_open: boolean | null; verified: boolean | null
   rating: number | string | null; review_count: number | null; created_at: string | null
   shop_services?: ServiceRow[] | null
@@ -72,6 +73,8 @@ export function mapShop(r: ShopRow): Shop {
     location: r.location ?? '',
     isMobile: r.is_mobile ?? false,
     phone: r.phone ?? undefined,
+    acceptMessagesFromAnyone: r.accept_messages_from_anyone ?? true,
+    showPhonePublicly: r.show_phone_publicly ?? false,
     services,
     portfolio,
     defaultTab: tab === 'portfolio' || tab === 'reviews' ? tab : 'services',
@@ -113,6 +116,8 @@ export type SaveShopInput = {
   location: string
   isMobile: boolean
   phone?: string
+  acceptMessagesFromAnyone: boolean
+  showPhonePublicly: boolean
   defaultTab?: ShopDefaultTab
   openingHours: OpeningHours
   services: ShopService[]
@@ -132,6 +137,8 @@ export async function saveShop(input: SaveShopInput, existingId?: string): Promi
     location: input.location,
     is_mobile: input.isMobile,
     phone: input.phone || null,
+    accept_messages_from_anyone: input.acceptMessagesFromAnyone,
+    show_phone_publicly: input.showPhonePublicly,
     default_tab: input.defaultTab ?? 'services',
     opening_hours: input.openingHours,
     is_open: isShopOpenNow(input.openingHours),
