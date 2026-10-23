@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { shareLink } from '@/lib/share'
 import { MapPin, Clock, User, ChevronLeft, Share2, Heart, Briefcase } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
 import { NairaIcon } from '@/components/NairaIcon'
@@ -175,6 +176,10 @@ export function JobDetails() {
               <Heart size={20} fill={isFavorite ? 'currentColor' : 'none'} />
             </motion.button>
             <motion.button aria-label="Share job"
+              onClick={async () => {
+                const r = await shareLink({ path: `/jobs/${job.id}`, title: `${job.title} | Job on Butsó`, text: `${job.title} on Butsó.` })
+                if (r === 'copied') showToast('success', 'Link copied')
+              }}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               className="p-2 bg-secondary text-muted-foreground hover:text-foreground rounded-lg transition"

@@ -7,6 +7,7 @@
  */
 
 import { motion, AnimatePresence } from 'framer-motion'
+import { shareLink } from '@/lib/share'
 import { ArrowLeft, MapPin, Phone, Award, Clock, Check, ChevronRight, Share2, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
 import { addShopReview } from '@/lib/dataShops'
@@ -106,10 +107,12 @@ export function ShopPage() {
         setCurrentPage('booking-slots')
     }
 
-    const handleShare = () => {
-        navigator.clipboard.writeText(`Check out ${shop.name} on Butsó!`)
-        setShowShareToast(true)
-        setTimeout(() => setShowShareToast(false), 2000)
+    const handleShare = async () => {
+        const r = await shareLink({ path: `/shops/${shop.id}`, title: `${shop.name} on Butsó`, text: `Check out ${shop.name} on Butsó.` })
+        if (r === 'copied') {
+            setShowShareToast(true)
+            setTimeout(() => setShowShareToast(false), 2000)
+        }
     }
 
     const openDays = Object.entries(shop.openingHours).filter(([, h]) => h.open)

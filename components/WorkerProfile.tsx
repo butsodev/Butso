@@ -1,5 +1,7 @@
 'use client'
 
+import { showToast } from '@/lib/toast'
+import { shareLink } from '@/lib/share'
 import { motion } from 'framer-motion'
 import { MapPin, Briefcase, Award, ChevronLeft, MessageCircle, Share2 } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
@@ -124,6 +126,12 @@ export function WorkerProfile() {
                 Message
               </motion.button>
               <motion.button aria-label="Share profile"
+                onClick={async () => {
+                  const handle = currentUser?.username
+                  if (!handle) return
+                  const r = await shareLink({ path: `/@${handle}`, title: `@${handle} on Butsó`, text: `Find me on Butsó.` })
+                  if (r === 'copied') showToast('success', 'Link copied')
+                }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="p-3 border border-border text-foreground rounded-lg hover:bg-secondary transition"
