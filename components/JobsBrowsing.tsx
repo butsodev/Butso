@@ -69,7 +69,7 @@ export function JobsBrowsing() {
             transition={{ delay: 0.1, type: 'spring', stiffness: 260 }}
           >
             <h1 className="text-2xl sm:text-3xl font-black mb-1">Available Jobs</h1>
-            <p className="text-primary-foreground/75 text-sm">Find work near you in Taraba</p>
+            <p className="text-primary-foreground/75 text-sm">Find work near you</p>
           </motion.div>
         </div>
       </div>
@@ -139,7 +139,7 @@ export function JobsBrowsing() {
           <EmptyState
             icon={Briefcase}
             title="No jobs posted yet"
-            description="Jobs people post in Wukari will show up here."
+            description="Jobs people post will show up here."
             action={currentUser?.role === 'employer' ? { label: 'Post a job', onClick: () => setCurrentPage('post-job') } : undefined}
           />
         ) : filteredJobs.length === 0 ? (

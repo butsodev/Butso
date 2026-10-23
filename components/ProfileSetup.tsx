@@ -540,7 +540,7 @@ export function ProfileSetup() {
           value={area} onChange={e => setArea(e.target.value)}
           className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground bg-background transition text-sm"
         >
-          <option value="">Select your area in Wukari…</option>
+          <option value="">Select your area…</option>
           {WUKARI_AREAS.map(a => <option key={a} value={a}>{a}</option>)}
         </select>
       </div>
@@ -550,7 +550,7 @@ export function ProfileSetup() {
           Short Bio <span className="text-muted-foreground font-normal">(optional)</span>
         </label>
         <textarea aria-label="Short bio"
-          placeholder={isWorker ? 'e.g. Experienced plumber, 5 years in Wukari' : 'e.g. Looking for reliable workers for home projects'}
+          placeholder={isWorker ? 'e.g. Experienced plumber, 5 years experience' : 'e.g. Looking for reliable workers for home projects'}
           value={bio} onChange={e => setBio(e.target.value.slice(0, 150))} rows={3}
           className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/50 resize-none transition text-sm"
         />

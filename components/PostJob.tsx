@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { WUKARI_AREAS } from '@/lib/areas'
 import { useAppStore, goBackTo } from '@/lib/store'
 import { createJob } from '@/lib/data'
+import { showSuccess } from '@/lib/success'
 
 export function PostJob() {
   const { currentUser, setCurrentPage, addJob } = useAppStore()
@@ -14,7 +15,7 @@ export function PostJob() {
     description: '',
     category: 'Construction',
     budget: '',
-    location: 'Wukari',
+    location: '',
     deadline: '',
   })
   const [isLoading, setIsLoading] = useState(false)
@@ -45,7 +46,7 @@ export function PostJob() {
       description: formData.description.trim(),
       category: formData.category,
       budget,
-      location: formData.location.trim() || 'Wukari',
+      location: formData.location.trim() || 'Not specified',
       employerId: currentUser.id,
       deadline: formData.deadline || undefined,
     })
@@ -53,6 +54,11 @@ export function PostJob() {
     if (saveError || !job) { setError(saveError ?? 'Could not post the job. Try again.'); return }
     addJob(job)
     setCurrentPage('dashboard')
+    showSuccess({
+      title: 'Your job is live',
+      message: 'Workers can see it now and apply. We will notify you when someone does.',
+      actionLabel: 'Got it',
+    })
   }
 
   return (
