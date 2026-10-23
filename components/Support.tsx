@@ -26,17 +26,17 @@ const faqs = [
   {
     id: 4,
     question: 'How do I book a service?',
-    answer: 'After applying or being selected for a job, you can create a booking. Choose your preferred dates and time slots. The booking goes through payment and confirmation.'
+    answer: 'Open a shop, pick a service, then choose a date and time. The shop owner accepts or declines your booking, and you both see the update in Bookings. You agree the price and pay each other directly for now.'
   },
   {
     id: 5,
     question: 'How do I get verified on Butsó?',
-    answer: 'Complete your profile with accurate information, get 5+ positive reviews, and pass our identity verification process. Verified badges appear on your profile.'
+    answer: 'Verification badges are not available yet. For now, a complete profile and good reviews after finished jobs are the best way to build trust. We will announce verification before it starts.'
   },
   {
     id: 6,
     question: 'What if there\'s a dispute between employer and worker?',
-    answer: 'Our support team reviews disputes. We encourage communication first. If unresolved, we make a fair decision based on job terms and evidence provided.'
+    answer: 'Talk to the other person first in Messages. If that does not work, use Contact support on this page and describe what happened. A formal dispute process is not available yet.'
   },
   {
     id: 7,
@@ -46,7 +46,7 @@ const faqs = [
   {
     id: 8,
     question: 'Is my personal information safe?',
-    answer: 'Yes. We use encryption and follow strict data protection practices. We never share your information without consent.'
+    answer: 'Your phone number and real name stay hidden from other people until you accept a request or a booking. You can block or report anyone from Messages. We do not share your details without a reason you can see in the app.'
   }
 ]
 

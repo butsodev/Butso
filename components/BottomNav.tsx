@@ -30,6 +30,7 @@ export function BottomNav() {
 
   return (
     <motion.nav
+      data-bottom-nav
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}

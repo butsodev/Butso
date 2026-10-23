@@ -353,7 +353,7 @@ export function LandingPage() {
               transition={{ delay: 0.14, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               style={{ fontSize: '0.92rem', color: 'rgba(240,239,235,0.62)', lineHeight: 1.7, marginBottom: '2rem', maxWidth: 380 }}
             >
-              Need work done? Find trusted workers nearby. Looking for work? List your skills and get hired. No agency. No CV. No wahala.
+              Need work done? Find skilled workers near you. Looking for work? List your skills and get hired. No agency. No CV. No wahala.
             </motion.p>
 
             {/* CTAs */}

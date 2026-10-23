@@ -232,3 +232,8 @@ body::before {
     scroll-behavior: auto !important;
   }
 }
+/* Dialogs sit inside animated wrappers, which trap their z-index below the mobile bottom nav.
+   While any full-screen overlay is open, tuck the nav away so dialog buttons are never covered. */
+body:has(.fixed.inset-0) [data-bottom-nav] {
+  display: none;
+}
