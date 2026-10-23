@@ -83,6 +83,13 @@ export async function fetchApplicants(jobId: string): Promise<{ applicants: Appl
 export async function setApplicationStatus(
   applicationId: string, status: 'accepted' | 'rejected', jobId: string, workerId: string,
 ): Promise<string | null> {
+  if (status === 'accepted') {
+    // Do not hire twice: someone may already be hired, directly or from another applicant
+    const { data: job } = await supabase.from('jobs').select('status, selected_worker_id').eq('id', jobId).maybeSingle()
+    if (job && (job.selected_worker_id || job.status !== 'open')) {
+      return 'Someone is already hired for this job.'
+    }
+  }
   const { error } = await supabase.from('job_applications').update({ status }).eq('id', applicationId)
   if (error) return error.message
   if (status === 'accepted') {
