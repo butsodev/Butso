@@ -6,7 +6,10 @@ import { RatingBadge } from '@/components/Rating'
 import { useState, useEffect } from 'react'
 import { proximityLabel } from '@/lib/areas'
 import { useAppStore } from '@/lib/store'
-import { fetchWorkers, type PublicWorker } from '@/lib/data'
+import { fetchWorkers, refreshJobs, type PublicWorker } from '@/lib/data'
+import { fetchInvitesToWorker, sendJobInvite, type InviteStatus } from '@/lib/dataInvites'
+import { useHireIntent } from '@/lib/hireIntent'
+import { showToast } from '@/lib/toast'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
 const skillFilters = [
@@ -34,7 +37,7 @@ const card = {
 }
 
 export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
-  const { setCurrentPage, currentUser, preferences, trackSearch, viewedWorkerId, viewedUsername, openChatWith } = useAppStore()
+  const { setCurrentPage, currentUser, preferences, trackSearch, viewedWorkerId, viewedUsername, openChatWith, jobs, openAuth } = useAppStore()
   const [workers, setWorkers] = useState<PublicWorker[]>([])
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading')
   const [reloadKey, setReloadKey] = useState(0)
@@ -43,6 +46,35 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
   const [availableOnly, setAvailableOnly] = useState(false)
   const [showAllFilters, setShowAllFilters] = useState(false)
   const [selectedWorker, setSelectedWorker] = useState<PublicWorker | null>(null)
+
+  // ── Hire this person ──
+  const [hireOpen, setHireOpen] = useState(false)
+  const [invited, setInvited] = useState<Map<string, InviteStatus>>(new Map())
+  const [sendingJobId, setSendingJobId] = useState<string | null>(null)
+  const openHire = async () => {
+    if (!currentUser) { openAuth('login'); return }
+    if (!selectedWorker) return
+    setHireOpen(true)
+    await refreshJobs()
+    setInvited(await fetchInvitesToWorker(currentUser.id, selectedWorker.id))
+  }
+  const hireForJob = async (jobId: string) => {
+    if (!selectedWorker) return
+    setSendingJobId(jobId)
+    const err = await sendJobInvite(jobId, selectedWorker.id)
+    setSendingJobId(null)
+    if (err) { showToast('error', err); return }
+    setInvited(prev => new Map(prev).set(jobId, 'pending'))
+    showToast('success', `Invite sent to ${selectedWorker.name}`)
+  }
+  const postJobFor = () => {
+    if (!selectedWorker) return
+    useHireIntent.getState().setTarget({ id: selectedWorker.id, name: selectedWorker.name })
+    setHireOpen(false)
+    setCurrentPage('post-job')
+  }
+  const myOpenJobs = jobs.filter(j => j.employerId === currentUser?.id && j.status === 'open' && !j.selectedWorkerId)
+  const isSelfProfile = !!currentUser && selectedWorker?.id === currentUser.id
 
   // Load real workers from Supabase
   useEffect(() => {
@@ -212,22 +244,26 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                 Phone number is hidden until you connect. Send a message to get started.
               </p>
 
-              <div className="flex gap-3">
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => openChatWith({ userId: selectedWorker.id, name: selectedWorker.name })}
-                  className="flex-1 py-3 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition text-sm"
-                >
-                  Send Message
-                </motion.button>
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => setCurrentPage('post-job')}
-                  className="flex-1 py-3 bg-secondary text-foreground font-bold rounded-xl hover:bg-secondary/80 transition text-sm border border-border"
-                >
-                  Hire for Job
-                </motion.button>
-              </div>
+              {isSelfProfile ? (
+                <p className="text-sm text-muted-foreground">This is how your profile looks to others.</p>
+              ) : (
+                <div className="flex gap-3">
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => openChatWith({ userId: selectedWorker.id, name: selectedWorker.name })}
+                    className="flex-1 py-3 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition text-sm"
+                  >
+                    Send Message
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    onClick={openHire}
+                    className="flex-1 py-3 bg-secondary text-foreground font-bold rounded-xl hover:bg-secondary/80 transition text-sm border border-border"
+                  >
+                    Hire for Job
+                  </motion.button>
+                </div>
+              )}
               <button
                 onClick={() => useAppStore.getState().openReviews(selectedWorker.id)}
                 className="mt-3 w-full py-3 border border-border text-foreground font-semibold rounded-xl hover:bg-secondary transition text-sm"
@@ -237,6 +273,45 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
             </motion.div>
           </div>
         </motion.div>
+
+        {hireOpen && (
+          <div key="hire-modal" className="fixed inset-0 z-[70] bg-black/50 flex items-end sm:items-center justify-center p-4 pb-24 sm:pb-4" onClick={() => setHireOpen(false)}>
+            <div role="dialog" aria-label="Hire for a job" onClick={e => e.stopPropagation()}
+              className="bg-card border border-border rounded-2xl w-full max-w-md max-h-[70vh] overflow-y-auto p-5">
+              <div className="flex items-center justify-between mb-1">
+                <h2 className="text-lg font-black text-foreground">Hire {selectedWorker.name}</h2>
+                <button aria-label="Close" onClick={() => setHireOpen(false)} className="p-2 hover:bg-secondary rounded-xl"><X size={18} /></button>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">Pick one of your open jobs. They get an invite and can accept or decline.</p>
+              <div className="space-y-2">
+                {myOpenJobs.map(j => {
+                  const st = invited.get(j.id)
+                  return (
+                    <div key={j.id} className="flex items-center justify-between gap-3 border border-border rounded-xl p-3">
+                      <div className="min-w-0">
+                        <p className="font-bold text-sm text-foreground truncate">{j.title}</p>
+                        <p className="text-xs text-muted-foreground">₦{j.budget.toLocaleString()} · {j.category}</p>
+                      </div>
+                      {st === 'pending' ? <span className="text-xs font-bold text-muted-foreground shrink-0">Invited</span>
+                        : st === 'declined' ? <span className="text-xs font-bold text-muted-foreground shrink-0">Declined</span>
+                        : (
+                          <button onClick={() => hireForJob(j.id)} disabled={sendingJobId === j.id}
+                            className="px-3 py-2 bg-primary text-primary-foreground text-xs font-bold rounded-lg disabled:opacity-50 shrink-0">
+                            {sendingJobId === j.id ? 'Sending...' : 'Invite'}
+                          </button>
+                        )}
+                    </div>
+                  )
+                })}
+                {myOpenJobs.length === 0 && <p className="text-sm text-muted-foreground py-2">You have no open jobs yet.</p>}
+              </div>
+              <button onClick={postJobFor}
+                className="mt-4 w-full py-3 border border-border text-foreground font-bold rounded-xl hover:bg-secondary transition text-sm">
+                + Post a new job for {selectedWorker.name}
+              </button>
+            </div>
+          </div>
+        )}
       </AnimatePresence>
     )
   }

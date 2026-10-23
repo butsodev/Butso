@@ -9,12 +9,37 @@ import { useState, useEffect } from 'react'
 import { useAppStore, goBackTo } from '@/lib/store'
 import { fetchProfile, timeAgo, type PublicProfile } from '@/lib/data'
 import { Avatar } from '@/components/Avatar'
+import { fetchMyPendingInvite, respondJobInvite, type JobInvite } from '@/lib/dataInvites'
+import { refreshJobs } from '@/lib/data'
+import { showToast } from '@/lib/toast'
 
 export function JobDetails() {
   const { setCurrentPage, jobs, jobsStatus, selectedJobId, currentUser } = useAppStore()
   const [isFavorite, setIsFavorite] = useState(false)
   const [isApplying, setIsApplying] = useState(false)
   const [employer, setEmployer] = useState<PublicProfile | null>(null)
+  const [invite, setInvite] = useState<JobInvite | null>(null)
+  const [answering, setAnswering] = useState(false)
+
+  useEffect(() => {
+    if (!selectedJobId || !currentUser) { setInvite(null); return }
+    let cancelled = false
+    fetchMyPendingInvite(selectedJobId, currentUser.id).then(i => { if (!cancelled) setInvite(i) })
+    return () => { cancelled = true }
+  }, [selectedJobId, currentUser?.id])
+
+  const answerInvite = async (accept: boolean) => {
+    if (!invite) return
+    setAnswering(true)
+    const { result, error } = await respondJobInvite(invite.id, accept)
+    setAnswering(false)
+    if (error) { showToast('error', error); return }
+    setInvite(null)
+    await refreshJobs()
+    if (result === 'accepted') { showToast('success', 'You took the job. Check Messages to chat.'); setCurrentPage('messaging') }
+    else if (result === 'declined') showToast('info', 'Invite declined.')
+    else showToast('error', 'Sorry, this job was filled by someone else.')
+  }
 
   const job = jobs.find(j => j.id === selectedJobId)
 
@@ -173,6 +198,19 @@ export function JobDetails() {
                     <span className="text-muted-foreground">{employer.completedJobs} jobs completed</span>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {invite && !isOwnJob && (
+            <div className="bg-primary/10 border border-primary/30 rounded-xl p-4">
+              <p className="font-black text-foreground mb-1">You were invited to this job</p>
+              <p className="text-sm text-muted-foreground mb-3">Accept to take the job. You and the employer will see each other&apos;s contact details.</p>
+              <div className="flex gap-3">
+                <button onClick={() => answerInvite(true)} disabled={answering}
+                  className="flex-1 py-3 bg-primary text-primary-foreground font-bold rounded-lg disabled:opacity-50">Accept</button>
+                <button onClick={() => answerInvite(false)} disabled={answering}
+                  className="flex-1 py-3 border border-border text-foreground font-bold rounded-lg hover:bg-secondary disabled:opacity-50">Decline</button>
               </div>
             </div>
           )}

@@ -2,14 +2,20 @@
 
 import { motion } from 'framer-motion'
 import { ChevronRight, ArrowLeft } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { WUKARI_AREAS } from '@/lib/areas'
 import { useAppStore, goBackTo } from '@/lib/store'
 import { createJob } from '@/lib/data'
 import { showSuccess } from '@/lib/success'
+import { useHireIntent } from '@/lib/hireIntent'
+import { sendJobInvite } from '@/lib/dataInvites'
+import { showToast } from '@/lib/toast'
 
 export function PostJob() {
   const { currentUser, setCurrentPage, addJob } = useAppStore()
+  const hireTarget = useHireIntent(s => s.target)
+  // Leaving this screen cancels "post a job for this person"
+  useEffect(() => () => useHireIntent.getState().setTarget(null), [])
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -53,10 +59,21 @@ export function PostJob() {
     setIsLoading(false)
     if (saveError || !job) { setError(saveError ?? 'Could not post the job. Try again.'); return }
     addJob(job)
+    // Posted from someone's profile: invite that person to this new job
+    const target = useHireIntent.getState().target
+    let invitedName: string | null = null
+    if (target) {
+      useHireIntent.getState().setTarget(null)
+      const inviteError = await sendJobInvite(job.id, target.id)
+      if (inviteError) showToast('error', `Job posted, but the invite failed: ${inviteError}`)
+      else invitedName = target.name
+    }
     setCurrentPage('dashboard')
     showSuccess({
       title: 'Your job is live',
-      message: 'Workers can see it now and apply. We will notify you when someone does.',
+      message: invitedName
+        ? `${invitedName} has been invited. Other workers can see it and apply too.`
+        : 'Workers can see it now and apply. We will notify you when someone does.',
       actionLabel: 'Got it',
     })
   }
@@ -90,6 +107,13 @@ export function PostJob() {
 
       {/* Form */}
       <div className="max-w-2xl mx-auto px-4 -mt-6 pb-8">
+        {hireTarget && (
+          <div className="mb-3 bg-card border border-primary/30 rounded-2xl p-4 flex items-center justify-between gap-3">
+            <p className="text-sm text-foreground">This job will also be sent to <span className="font-black">{hireTarget.name}</span>.</p>
+            <button type="button" onClick={() => useHireIntent.getState().setTarget(null)}
+              className="text-sm font-bold text-primary hover:underline shrink-0">Remove</button>
+          </div>
+        )}
         <motion.form
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
