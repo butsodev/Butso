@@ -9,8 +9,9 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, MapPin, X, SlidersHorizontal, Store, Users } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useAppStore, type Shop } from '@/lib/store'
+import { refreshShops } from '@/lib/dataShops'
 import { PeopleSearch } from '@/components/PeopleSearch'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
@@ -111,6 +112,10 @@ export function ShopsBrowsing() {
     const [onlyOpen, setOnlyOpen] = useState(false)
     const [showFilters, setShowFilters] = useState(false)
     const [tab, setTab] = useState<'shops' | 'people'>('shops')
+
+    // Shops are loaded once when the app opens, so reload them each time this screen opens.
+    // Otherwise a shop created after you opened the app does not show up until a full refresh.
+    useEffect(() => { void refreshShops() }, [])
 
     // Personalised category order
     const rankedCats = getRankedCategories(CATEGORIES.map(c => c.name))
