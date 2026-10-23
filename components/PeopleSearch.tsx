@@ -3,10 +3,10 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, MapPin, Zap, SlidersHorizontal, X } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { proximityLabel } from '@/lib/areas'
 import { useAppStore } from '@/lib/store'
-import { fetchWorkers, refreshJobs, type PublicWorker } from '@/lib/data'
+import { fetchWorkers, fetchWorkerByRef, refreshJobs, type PublicWorker } from '@/lib/data'
 import { fetchInvitesToWorker, sendJobInvite, type InviteStatus } from '@/lib/dataInvites'
 import { useHireIntent } from '@/lib/hireIntent'
 import { showToast } from '@/lib/toast'
@@ -76,33 +76,59 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
   const myOpenJobs = jobs.filter(j => j.employerId === currentUser?.id && j.status === 'open' && !j.selectedWorkerId)
   const isSelfProfile = !!currentUser && selectedWorker?.id === currentUser.id
 
-  // Load real workers from Supabase
+  // Fair, paged worker list. A new seed each visit means the order rotates and nobody holds a fixed top spot.
+  const PAGE = 40
+  const seedRef = useRef(Math.random().toString(36).slice(2))
+  const [hasMore, setHasMore] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [debouncedQuery, setDebouncedQuery] = useState('')
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query.trim()), 300)
+    return () => clearTimeout(t)
+  }, [query])
+
   useEffect(() => {
     let cancelled = false
     setLoadState('loading')
-    fetchWorkers(currentUser?.id).then(({ workers: list, error }) => {
+    fetchWorkers(currentUser?.id, { seed: seedRef.current, query: debouncedQuery, skill: selectedSkill, limit: PAGE }).then(({ workers: list, error }) => {
       if (cancelled) return
       if (error) { setLoadState('error'); return }
       setWorkers(list)
+      setHasMore(list.length === PAGE)
       setLoadState('ready')
     })
     return () => { cancelled = true }
-  }, [currentUser?.id, reloadKey])
+  }, [currentUser?.id, reloadKey, debouncedQuery, selectedSkill])
 
-  // Open a specific worker when another screen asks for one
+  const loadMore = async () => {
+    setLoadingMore(true)
+    const { workers: more, error } = await fetchWorkers(currentUser?.id, {
+      seed: seedRef.current, query: debouncedQuery, skill: selectedSkill, limit: PAGE, offset: workers.length,
+    })
+    setLoadingMore(false)
+    if (error) { showToast('error', 'Could not load more people.'); return }
+    setWorkers(prev => [...prev, ...more.filter(m => !prev.some(p => p.id === m.id))])
+    setHasMore(more.length === PAGE)
+  }
+
+  // Open a specific worker when another screen asks for one (works even if they are not on the first page)
   useEffect(() => {
     if (!viewedWorkerId || loadState === 'loading') return
-    const worker = workers.find(w => w.id === viewedWorkerId)
-    if (worker) setSelectedWorker(worker)
+    const id = viewedWorkerId
     useAppStore.setState({ viewedWorkerId: null })
+    const worker = workers.find(w => w.id === id)
+    if (worker) setSelectedWorker(worker)
+    else fetchWorkerByRef({ id }).then(w => { if (w) setSelectedWorker(w) })
   }, [viewedWorkerId, workers, loadState])
 
-  // /@username — open a worker's profile directly from their public link
+  // /@username: open a worker's profile directly from their public link
   useEffect(() => {
     if (!viewedUsername || loadState === 'loading') return
-    const worker = workers.find(w => w.username?.toLowerCase() === viewedUsername.toLowerCase())
-    if (worker) setSelectedWorker(worker)
+    const uname = viewedUsername
     useAppStore.setState({ viewedUsername: null })
+    const worker = workers.find(w => w.username?.toLowerCase() === uname.toLowerCase())
+    if (worker) setSelectedWorker(worker)
+    else fetchWorkerByRef({ username: uname }).then(w => { if (w) setSelectedWorker(w) })
   }, [viewedUsername, workers, loadState])
 
   // Recent searches — top 4 by frequency, min 1 search
@@ -125,8 +151,6 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
   const filtered = workers.filter(w => {
     const q = query.toLowerCase()
     const matchesQuery =
-      w.name.toLowerCase().includes(q) ||
-      w.bio.toLowerCase().includes(q) ||
       w.skills.some(s => s.toLowerCase().includes(q)) ||
       (w.location ?? '').toLowerCase().includes(q) ||
       w.username.toLowerCase().includes(q)
@@ -327,7 +351,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
           <input
             type="text"
             aria-label="Search people"
-            placeholder="Search by name, skill, or @username..."
+            placeholder="Search by skill or @username..."
             value={query}
             onChange={e => handleSearch(e.target.value)}
             className="w-full pl-11 pr-4 py-3.5 border border-border rounded-2xl focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/60 bg-card shadow-sm transition text-sm"
@@ -422,6 +446,12 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
             ))}
           </div>
         )}
+        {hasMore && !loadingMore && filtered.length > 0 && (
+          <button onClick={loadMore} className="mt-4 w-full py-3 border border-border text-foreground font-bold rounded-xl hover:bg-secondary transition text-sm">
+            Show more people
+          </button>
+        )}
+        {loadingMore && <p className="mt-4 text-center text-sm text-muted-foreground">Loading...</p>}
       </div>
     )
   }
@@ -448,7 +478,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
           <input
             type="text"
             aria-label="Search people"
-            placeholder="Search by name, skill, or @username..."
+            placeholder="Search by skill or @username..."
             value={query}
             onChange={e => handleSearch(e.target.value)}
             className="w-full pl-11 pr-4 py-3.5 border border-border rounded-2xl focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/60 bg-card shadow-sm transition text-sm"
@@ -619,6 +649,12 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
             </motion.div>
           </AnimatePresence>
         )}
+        {hasMore && !loadingMore && filtered.length > 0 && (
+          <button onClick={loadMore} className="mt-4 w-full py-3 border border-border text-foreground font-bold rounded-xl hover:bg-secondary transition text-sm">
+            Show more people
+          </button>
+        )}
+        {loadingMore && <p className="mt-4 text-center text-sm text-muted-foreground">Loading...</p>}
       </div>
     </motion.div>
   )
