@@ -10,6 +10,7 @@ import { useAppStore, type UserRole, goAfterAuth } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
 import { refreshJobs } from '@/lib/data'
 import { stopMessagesRealtime } from '@/lib/dataMessages'
+import { stopNotificationsRealtime } from '@/lib/dataNotifications'
 import { loadUserData } from '@/lib/loadUserData'
 import { refreshShops } from '@/lib/dataShops'
 import { registerRouter, recordPath, navigatedRecently } from '@/lib/navigation'
@@ -113,6 +114,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
       if (event === 'SIGNED_OUT') {
         st().setCurrentUser(null)
         stopMessagesRealtime()
+        stopNotificationsRealtime()
         st().setBookings([]); st().setNotifications([])
         st().setMessages([]); st().setConversations([])
       }

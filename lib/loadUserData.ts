@@ -1,5 +1,5 @@
 import { refreshBookings } from '@/lib/dataBookings'
-import { refreshNotifications } from '@/lib/dataNotifications'
+import { refreshNotifications, startNotificationsRealtime } from '@/lib/dataNotifications'
 import { refreshMessages, startMessagesRealtime } from '@/lib/dataMessages'
 
 /** Everything that belongs to the signed-in user. Shops and jobs are public and load separately. */
@@ -10,5 +10,6 @@ export async function loadUserData(userId: string) {
     refreshMessages(userId),
   ])
   startMessagesRealtime(userId) // live chat updates for the rest of the session
+  startNotificationsRealtime(userId) // live notifications too
   return results
 }

@@ -90,6 +90,7 @@ export interface Notification {
   body: string
   read: boolean
   createdAt: string
+  refId?: string   // the booking, job or person the notification is about
 }
 
 export interface Transaction {
