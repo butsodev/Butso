@@ -12,6 +12,9 @@ import { Avatar } from '@/components/Avatar'
 import { fetchMyPendingInvite, respondJobInvite, type JobInvite } from '@/lib/dataInvites'
 import { refreshJobs } from '@/lib/data'
 import { showToast } from '@/lib/toast'
+import { WUKARI_AREAS } from '@/lib/areas'
+import { isJobSaved, setJobSaved } from '@/lib/dataSaved'
+import { updateJobDetails, setJobOpen, deleteJob } from '@/lib/dataJobsManage'
 
 export function JobDetails() {
   const { setCurrentPage, jobs, jobsStatus, selectedJobId, currentUser } = useAppStore()
@@ -20,6 +23,66 @@ export function JobDetails() {
   const [employer, setEmployer] = useState<PublicProfile | null>(null)
   const [invite, setInvite] = useState<JobInvite | null>(null)
   const [answering, setAnswering] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [form, setForm] = useState({ title: '', description: '', budget: '', location: '' })
+
+  // Saved jobs persist per account
+  useEffect(() => {
+    if (!selectedJobId || !currentUser) { setIsFavorite(false); return }
+    let cancelled = false
+    isJobSaved(currentUser.id, selectedJobId).then(v => { if (!cancelled) setIsFavorite(v) })
+    return () => { cancelled = true }
+  }, [selectedJobId, currentUser?.id])
+
+  const toggleSaved = async () => {
+    if (!currentUser) { useAppStore.getState().openAuth('login'); return }
+    if (!selectedJobId) return
+    const next = !isFavorite
+    setIsFavorite(next) // optimistic
+    const err = await setJobSaved(currentUser.id, selectedJobId, next)
+    if (err) { setIsFavorite(!next); showToast('error', err) }
+    else showToast('success', next ? 'Job saved' : 'Removed from saved')
+  }
+
+  const startEdit = () => {
+    if (!job) return
+    setForm({ title: job.title, description: job.description, budget: String(job.budget), location: job.location })
+    setEditing(true)
+  }
+  const saveEdit = async () => {
+    if (!job) return
+    const budget = Number(form.budget)
+    if (!form.title.trim() || !form.description.trim() || !budget || budget < 0) {
+      showToast('error', 'Fill in the title, description and a valid budget.'); return
+    }
+    setBusy(true)
+    const err = await updateJobDetails(job.id, { title: form.title.trim(), description: form.description.trim(), budget, location: form.location })
+    if (err) { setBusy(false); showToast('error', err); return }
+    await refreshJobs()
+    setBusy(false); setEditing(false)
+    showToast('success', 'Job updated')
+  }
+  const toggleClosed = async () => {
+    if (!job) return
+    setBusy(true)
+    const err = await setJobOpen(job.id, job.status !== 'open')
+    if (err) { setBusy(false); showToast('error', err); return }
+    await refreshJobs()
+    setBusy(false)
+    showToast('success', job.status === 'open' ? 'Job closed. It is hidden from the jobs list.' : 'Job reopened')
+  }
+  const removeJob = async () => {
+    if (!job) return
+    if (!window.confirm('Delete this job for good? This cannot be undone.')) return
+    setBusy(true)
+    const err = await deleteJob(job.id)
+    if (err) { setBusy(false); showToast('error', err); return }
+    await refreshJobs()
+    setBusy(false)
+    showToast('success', 'Job deleted')
+    setCurrentPage('dashboard')
+  }
 
   useEffect(() => {
     if (!selectedJobId || !currentUser) { setInvite(null); return }
@@ -103,7 +166,7 @@ export function JobDetails() {
             <motion.button aria-label={isFavorite ? 'Remove from saved jobs' : 'Save job'} aria-pressed={isFavorite}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setIsFavorite(!isFavorite)}
+              onClick={toggleSaved}
               className={`p-2 rounded-lg transition ${isFavorite
                 ? 'bg-destructive/15 text-destructive'
                 : 'bg-secondary text-muted-foreground hover:text-foreground'
@@ -226,7 +289,33 @@ export function JobDetails() {
             </motion.button>
           )}
 
-          {!isOwnJob && currentUser?.role === 'worker' && (
+          {isOwnJob && (
+            <div className="space-y-2">
+              {job.status !== 'open' && (
+                <p className="text-sm font-bold text-muted-foreground text-center">
+                  {job.status === 'cancelled' ? 'This job is closed.' : job.status === 'in-progress' ? 'Someone is hired for this job.' : 'This job is finished.'}
+                </p>
+              )}
+              <div className="flex gap-2">
+                {(job.status === 'open' || job.status === 'cancelled') && (
+                  <button onClick={startEdit} disabled={busy}
+                    className="flex-1 py-3 border border-border text-foreground font-bold rounded-lg hover:bg-secondary transition disabled:opacity-50">Edit</button>
+                )}
+                {(job.status === 'open' || job.status === 'cancelled') && (
+                  <button onClick={toggleClosed} disabled={busy}
+                    className="flex-1 py-3 border border-border text-foreground font-bold rounded-lg hover:bg-secondary transition disabled:opacity-50">
+                    {job.status === 'open' ? 'Close job' : 'Reopen'}
+                  </button>
+                )}
+                {!job.selectedWorkerId && (
+                  <button onClick={removeJob} disabled={busy}
+                    className="flex-1 py-3 border border-destructive/40 text-destructive font-bold rounded-lg hover:bg-destructive/10 transition disabled:opacity-50">Delete</button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {!isOwnJob && currentUser?.role === 'worker' && job.status === 'open' && (
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -239,6 +328,31 @@ export function JobDetails() {
           )}
         </motion.div>
       </div>
+      {editing && (
+        <div className="fixed inset-0 z-[70] bg-black/50 flex items-end sm:items-center justify-center p-4 pb-24 sm:pb-4" onClick={() => setEditing(false)}>
+          <div role="dialog" aria-label="Edit job" onClick={e => e.stopPropagation()}
+            className="bg-card border border-border rounded-2xl w-full max-w-md max-h-[75vh] overflow-y-auto p-5 space-y-3">
+            <h2 className="text-lg font-black text-foreground">Edit job</h2>
+            <input aria-label="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })}
+              className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground" />
+            <textarea aria-label="Description" rows={4} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
+              className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground" />
+            <input aria-label="Budget" type="number" min={0} value={form.budget} onChange={e => setForm({ ...form, budget: e.target.value })}
+              className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground" />
+            <select aria-label="Location" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })}
+              className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground">
+              {!WUKARI_AREAS.includes(form.location as never) && <option>{form.location}</option>}
+              {WUKARI_AREAS.map(a => <option key={a}>{a}</option>)}
+            </select>
+            <div className="flex gap-3 pt-1">
+              <button onClick={() => setEditing(false)} className="flex-1 py-3 border border-border font-bold rounded-lg">Cancel</button>
+              <button onClick={saveEdit} disabled={busy} className="flex-1 py-3 bg-primary text-primary-foreground font-bold rounded-lg disabled:opacity-50">
+                {busy ? 'Saving...' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   )
 }
