@@ -51,7 +51,7 @@ function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
 }
 
 export function ShopPage() {
-    const { selectedShopId, shops, setCurrentPage, currentUser, goBack, openChatWith, bookings } = useAppStore()
+    const { selectedShopId, shops, setCurrentPage, currentUser, goBack, openChatWith, bookings, setPendingBooking } = useAppStore()
     const [reviewRating, setReviewRating] = useState(0)
     const [reviewComment, setReviewComment] = useState('')
     const [reviewSaving, setReviewSaving] = useState(false)
@@ -72,7 +72,6 @@ export function ShopPage() {
         showToast('success', 'Thanks for your review.')
     }
     const [activeTab, setActiveTab] = useState<'services' | 'reviews' | 'hours'>('services')
-    const [bookingService, setBookingService] = useState<ShopService | null>(null)
     const [showShareToast, setShowShareToast] = useState(false)
 
     if (!shop) return (
@@ -93,7 +92,17 @@ export function ShopPage() {
             setCurrentPage('auth')
             return
         }
-        setBookingService(svc)
+        if (shop.ownerId === currentUser.id) { showToast('error', 'You cannot book your own shop.'); return }
+        if (!svc.id) { showToast('error', 'This shop has not added any services yet.'); return }
+        // The booking screen reads everything it needs from here
+        setPendingBooking({
+            shopId: shop.id,
+            shopName: shop.name,
+            serviceId: svc.id,
+            serviceName: svc.name,
+            servicePrice: svc.price,
+            durationMinutes: svc.durationMinutes || undefined,
+        })
         setCurrentPage('booking-slots')
     }
 
@@ -339,14 +348,14 @@ export function ShopPage() {
                             Edit my shop
                         </motion.button>
                     ) : (
-                    <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}
-                        onClick={() => handleBook(shop.services[0] ?? { id: '', name: '', price: 0, pricingType: 'fixed' })}
-                        disabled={shop.services.length === 0}
-                        className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-black text-base shadow-lg shadow-primary/20 disabled:opacity-40 flex items-center justify-center gap-2">
-                        <span>{shop.isOpen ? 'Book Now' : 'Book Ahead'}</span>
-                        <span className="opacity-70">·</span>
-                        <span>from ₦{Math.min(...shop.services.map(s => s.price)).toLocaleString()}</span>
-                    </motion.button>
+                        <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}
+                            onClick={() => handleBook(shop.services[0] ?? { id: '', name: '', price: 0, pricingType: 'fixed' })}
+                            disabled={shop.services.length === 0}
+                            className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-black text-base shadow-lg shadow-primary/20 disabled:opacity-40 flex items-center justify-center gap-2">
+                            <span>{shop.isOpen ? 'Book Now' : 'Book Ahead'}</span>
+                            <span className="opacity-70">·</span>
+                            <span>from ₦{Math.min(...shop.services.map(s => s.price)).toLocaleString()}</span>
+                        </motion.button>
                     )}
                 </div>
             </div>
