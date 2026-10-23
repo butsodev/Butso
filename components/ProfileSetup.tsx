@@ -103,9 +103,9 @@ function UsernameField({ value, name, autoMode, onChange, onValidChange, allUser
     const t = setTimeout(async () => {
       let taken = !isUsernameAvailable(value, allUsers, excludeId)
       if (!taken) {
-        const { data, error } = await supabase.from('profiles').select('id').eq('username', value).maybeSingle()
+        const { data, error } = await supabase.rpc('username_holder', { p_username: value })
         // If the lookup itself fails we let it through; the insert still enforces uniqueness
-        if (!error && data && data.id !== excludeId) taken = true
+        if (!error && data && data !== excludeId) taken = true
       }
       if (cancelled) return
       setStatus(taken ? 'taken' : 'available')

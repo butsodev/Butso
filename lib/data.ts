@@ -81,7 +81,7 @@ export type PublicProfile = {
 
 export async function fetchProfile(id: string): Promise<PublicProfile | null> {
   const { data } = await supabase
-    .from('profiles')
+    .from('public_profiles')
     .select('id, name, username, bio, rating, completed_jobs')
     .eq('id', id)
     .maybeSingle()

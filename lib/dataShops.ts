@@ -23,12 +23,13 @@ type ShopRow = {
   accept_messages_from_anyone?: boolean | null; show_phone_publicly?: boolean | null
   opening_hours: OpeningHours | null; is_open: boolean | null; verified: boolean | null
   rating: number | string | null; review_count: number | null; created_at: string | null
+  shop_private?: { phone: string | null }[] | { phone: string | null } | null
   shop_services?: ServiceRow[] | null
   portfolio_items?: PortfolioRow[] | null
   shop_reviews?: ReviewRow[] | null
 }
 
-const SHOP_SELECT = '*, shop_services(*), portfolio_items(*), shop_reviews(*)'
+const SHOP_SELECT = '*, shop_private(phone), shop_services(*), portfolio_items(*), shop_reviews(*)'
 
 export function mapShop(r: ShopRow): Shop {
   const hours = r.opening_hours ?? DEFAULT_HOURS
@@ -72,7 +73,7 @@ export function mapShop(r: ShopRow): Shop {
     description: r.description ?? '',
     location: r.location ?? '',
     isMobile: r.is_mobile ?? false,
-    phone: r.phone ?? undefined,
+    phone: (Array.isArray(r.shop_private) ? r.shop_private[0]?.phone : r.shop_private?.phone) ?? undefined,
     acceptMessagesFromAnyone: r.accept_messages_from_anyone ?? true,
     showPhonePublicly: r.show_phone_publicly ?? false,
     services,
