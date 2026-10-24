@@ -137,7 +137,8 @@ export async function saveShop(input: SaveShopInput, existingId?: string): Promi
     description: input.description,
     location: input.location,
     is_mobile: input.isMobile,
-    phone: input.phone || null,
+    // '' means "remove my number" (the database trigger clears the private copy); null would mean "leave it alone"
+    phone: (input.phone ?? '').trim(),
     accept_messages_from_anyone: input.acceptMessagesFromAnyone,
     show_phone_publicly: input.showPhonePublicly,
     default_tab: input.defaultTab ?? 'services',
@@ -155,11 +156,6 @@ export async function saveShop(input: SaveShopInput, existingId?: string): Promi
   if (existingId) {
     const { error } = await supabase.from('shops').update(fields).eq('id', existingId)
     if (error) return { shop: null, error: error.message }
-    // Clearing the phone must also clear the private copy, otherwise the old number stays saved.
-    if (!input.phone) {
-      const { error: phoneErr } = await supabase.from('shop_private').update({ phone: null }).eq('shop_id', existingId)
-      if (phoneErr) return { shop: null, error: phoneErr.message }
-    }
   } else {
     const { data, error } = await supabase
       .from('shops')
