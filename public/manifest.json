@@ -1,7 +1,7 @@
 {
   "name": "Butsó: Your Local Work Network",
   "short_name": "Butsó",
-  "description": "Skilled workers and employers in Wukari, Taraba State. No CV needed.",
+  "description": "Find skilled workers and local work near you. Free to join. No CV needed.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

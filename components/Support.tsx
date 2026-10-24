@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowLeft, MessageCircle, HelpCircle, Mail, Phone, ChevronDown } from 'lucide-react'
+import { ArrowLeft, MessageCircle, HelpCircle, Mail, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { showToast } from '@/lib/toast'
@@ -98,17 +98,12 @@ export function Support() {
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8"
         >
           <div className="bg-card rounded-lg p-4 text-center">
             <Mail size={28} className="text-primary mx-auto mb-2" />
             <p className="text-sm text-muted-foreground">Email</p>
             <p className="font-medium text-foreground text-sm">support@butso.ng</p>
-          </div>
-          <div className="bg-card rounded-lg p-4 text-center">
-            <Phone size={28} className="text-primary mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">Phone</p>
-            <p className="font-medium text-foreground text-sm">+234 700 000 000</p>
           </div>
           <div className="bg-card rounded-lg p-4 text-center cursor-pointer hover:bg-opacity-80 transition"
             onClick={() => setCurrentPage('messaging')}>
