@@ -1,5 +1,5 @@
 import { navigateToPage, navigateToPath, navigateBack } from '@/lib/navigation'
-import { pathFor } from '@/lib/routes'
+import { pathFor, pageFromPath, isGuestPage } from '@/lib/routes'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -366,6 +366,7 @@ export const useAppStore = create<AppStore>()(
         navigateToPage('ratings-reviews', { reviewWorkerId: workerId })
       },
       openAuth: (panel) => {
+        rememberReturnTo()
         set({ authPanel: panel, currentPage: 'auth' })
         navigateToPage('auth', { authPanel: panel })
       },
@@ -585,54 +586,65 @@ export function goBackTo(fallback: string) {
 }
 
 /* ─── Return to where you were after signing in ───────────────────────────── */
-// A signed-out visitor browses jobs / shops, taps "Join" or "Book", signs up, and should land
-// back on that screen, not the dashboard. Kept in sessionStorage so it survives the Google
-// sign-in redirect (a full page reload).
+// A signed-out visitor opens a shared link (a job, a shop, a profile), taps "Join", "Apply" or
+// "Message", signs up or logs in, and lands back on that exact page, not the dashboard.
+// Kept in localStorage (with an expiry) so it survives the Google sign-in redirect (a full
+// page reload) and an email-confirmation link opened in a new tab.
 const RETURN_KEY = 'butso-return-to'
-const RETURNABLE = ['jobs', 'job-details', 'people', 'shops', 'shop']
-type ReturnTo = { page: string; shopId: string | null; jobId: string | null }
-let recentReturn: { rt: ReturnTo | null; at: number } | null = null
+const RETURN_MAX_AGE_MS = 2 * 60 * 60 * 1000 // 2 hours
+let recentReturn: { path: string | null; at: number } | null = null
 
-/** Call right before sending a signed-out visitor to sign in / sign up. */
+/** Only public browsing pages can be returned to. Never sign-in screens or private pages. */
+function isReturnablePath(path: string): boolean {
+  if (!path.startsWith('/') || path.startsWith('//')) return false
+  return isGuestPage(pageFromPath(path.split('?')[0]).page)
+}
+
+/**
+ * Call right before sending a signed-out visitor to sign in / sign up
+ * (openAuth already does this, so most callers do not need to).
+ * Saves the exact page they are on, query string included.
+ */
 export function rememberReturnTo() {
   if (typeof window === 'undefined') return
-  const s = useAppStore.getState()
   try {
-    if (RETURNABLE.includes(s.currentPage)) {
-      const rt: ReturnTo = { page: s.currentPage, shopId: s.selectedShopId, jobId: s.selectedJobId }
-      sessionStorage.setItem(RETURN_KEY, JSON.stringify(rt))
-    } else {
-      sessionStorage.removeItem(RETURN_KEY)
+    const here = window.location.pathname + window.location.search
+    if (isReturnablePath(here)) {
+      localStorage.setItem(RETURN_KEY, JSON.stringify({ path: here, at: Date.now() }))
+    } else if (window.location.pathname === '/') {
+      // Opened sign-in from the landing page: forget any old saved page
+      localStorage.removeItem(RETURN_KEY)
     }
+    // On /login or /signup (switching panels) keep whatever was saved
   } catch { /* storage blocked: just fall back to the dashboard */ }
 }
 
-function takeReturnTo(): ReturnTo | null {
+function takeReturnTo(): string | null {
   // Sign-in can finish in two places at once; both get the same answer within a few seconds
-  if (recentReturn && Date.now() - recentReturn.at < 15000) return recentReturn.rt
-  let rt: ReturnTo | null = null
+  if (recentReturn && Date.now() - recentReturn.at < 15000) return recentReturn.path
+  let path: string | null = null
   try {
-    const raw = sessionStorage.getItem(RETURN_KEY)
-    if (raw) rt = JSON.parse(raw)
-    sessionStorage.removeItem(RETURN_KEY)
+    const raw = localStorage.getItem(RETURN_KEY)
+    if (raw) {
+      const saved = JSON.parse(raw) as { path?: string; at?: number }
+      if (saved.path && saved.at && Date.now() - saved.at < RETURN_MAX_AGE_MS && isReturnablePath(saved.path)) {
+        path = saved.path
+      }
+    }
+    localStorage.removeItem(RETURN_KEY)
   } catch { /* ignore */ }
-  if (rt && !RETURNABLE.includes(rt.page)) rt = null
-  recentReturn = { rt, at: Date.now() }
-  return rt
+  recentReturn = { path, at: Date.now() }
+  return path
 }
 
 /** Where to go once someone is signed in: back where they were, otherwise the dashboard. */
 export function goAfterAuth() {
   const st = useAppStore.getState()
-  const rt = takeReturnTo()
-  if (rt) {
-    useAppStore.setState({
-      selectedShopId: rt.shopId ?? st.selectedShopId,
-      selectedJobId: rt.jobId ?? st.selectedJobId,
-    })
-    st.setCurrentPage(rt.page)
+  const path = takeReturnTo()
+  if (path) {
+    // The URL is the source of truth: AuthGate turns it back into the right screen
+    navigateToPath(path, { replace: true })
   } else {
     st.setCurrentPage('dashboard')
   }
 }
-
