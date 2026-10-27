@@ -19,7 +19,7 @@ type ReviewRow = {
 type ShopRow = {
   id: string; owner_id: string; owner_name: string | null; owner_username: string | null
   name: string | null; tagline: string | null; category: string | null; description: string | null
-  location: string | null; is_mobile: boolean | null; phone: string | null; default_tab: string | null
+  location: string | null; is_mobile: boolean | null; phone: string | null; photo_url?: string | null; default_tab: string | null
   accept_messages_from_anyone?: boolean | null; show_phone_publicly?: boolean | null
   opening_hours: OpeningHours | null; is_open: boolean | null; verified: boolean | null
   rating: number | string | null; review_count: number | null; created_at: string | null
@@ -73,6 +73,7 @@ export function mapShop(r: ShopRow): Shop {
     description: r.description ?? '',
     location: r.location ?? '',
     isMobile: r.is_mobile ?? false,
+    photoUrl: r.photo_url ?? undefined,
     phone: (Array.isArray(r.shop_private) ? r.shop_private[0]?.phone : r.shop_private?.phone) ?? undefined,
     acceptMessagesFromAnyone: r.accept_messages_from_anyone ?? true,
     showPhonePublicly: r.show_phone_publicly ?? false,
@@ -116,6 +117,7 @@ export type SaveShopInput = {
   description: string
   location: string
   isMobile: boolean
+  photoUrl?: string
   phone?: string
   acceptMessagesFromAnyone: boolean
   showPhonePublicly: boolean
@@ -137,6 +139,7 @@ export async function saveShop(input: SaveShopInput, existingId?: string): Promi
     description: input.description,
     location: input.location,
     is_mobile: input.isMobile,
+    photo_url: input.photoUrl || null,
     // '' means "remove my number" (the database trigger clears the private copy); null would mean "leave it alone"
     phone: (input.phone ?? '').trim(),
     accept_messages_from_anyone: input.acceptMessagesFromAnyone,
@@ -227,5 +230,31 @@ export async function addShopReview(
     const fresh = mapShop(data as ShopRow)
     useAppStore.getState().updateShop(shopId, fresh)
   }
+  return null
+}
+
+
+/** Add one work photo to a shop's gallery (owner only; the database enforces this). */
+export async function addPortfolioPhoto(shopId: string, imageUrl: string, caption: string): Promise<{ item: PortfolioItem | null; error: string | null }> {
+  const { data, error } = await supabase
+    .from('portfolio_items')
+    .insert({ shop_id: shopId, image_url: imageUrl, caption: caption.trim() || null })
+    .select('*')
+    .single()
+  if (error || !data) return { item: null, error: error?.message ?? 'Could not save the photo' }
+  const r = data as PortfolioRow
+  const item: PortfolioItem = {
+    id: r.id, imageUrl: r.image_url ?? '', caption: r.caption ?? '', serviceId: r.service_id ?? undefined,
+    pinned: r.pinned ?? false, createdAt: r.created_at ?? new Date().toISOString(),
+  }
+  useAppStore.getState().addPortfolioItem(shopId, item)
+  return { item, error: null }
+}
+
+/** Remove one work photo from the gallery. */
+export async function removePortfolioPhoto(shopId: string, itemId: string): Promise<string | null> {
+  const { error } = await supabase.from('portfolio_items').delete().eq('id', itemId)
+  if (error) return error.message
+  useAppStore.getState().removePortfolioItem(shopId, itemId)
   return null
 }

@@ -8,9 +8,12 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { shareLink } from '@/lib/share'
-import { ArrowLeft, MapPin, Phone, Award, Clock, Check, ChevronRight, Share2, MessageCircle } from 'lucide-react'
+import { ArrowLeft, MapPin, Phone, Award, Clock, Check, ChevronRight, Share2, MessageCircle, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { addShopReview } from '@/lib/dataShops'
+import { addShopReview, addPortfolioPhoto, removePortfolioPhoto } from '@/lib/dataShops'
+import { PhotoPicker } from '@/components/PhotoPicker'
+import { FoundingBadge } from '@/components/FoundingBadge'
+import { imgUrl } from '@/lib/upload'
 import { showToast } from '@/lib/toast'
 import { useAppStore, type Shop, type ShopService, rememberReturnTo } from '@/lib/store'
 
@@ -72,7 +75,8 @@ export function ShopPage() {
         setReviewComment('')
         showToast('success', 'Thanks for your review.')
     }
-    const [activeTab, setActiveTab] = useState<'services' | 'reviews' | 'hours'>('services')
+    const [activeTab, setActiveTab] = useState<'services' | 'work' | 'reviews' | 'hours'>('services')
+    const [workCaption, setWorkCaption] = useState('')
     const [showShareToast, setShowShareToast] = useState(false)
 
     if (!shop) return (
@@ -153,9 +157,14 @@ export function ShopPage() {
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="pt-5 pb-6">
                     <div className="flex items-start gap-4 mb-4">
                         {/* Shop avatar */}
+                        {shop.photoUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={imgUrl(shop.photoUrl, 'f_auto,q_auto,w_160,h_160,c_fill')} alt={shop.name} className="w-16 h-16 rounded-2xl object-cover flex-shrink-0 border border-primary/20" />
+                        ) : (
                         <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0 border border-primary/20">
                             {shop.category === 'Barbing' ? '' : shop.category === 'Cleaning' ? '' : shop.category === 'Tailoring' ? '' : shop.category === 'Cooking' ? '' : shop.category === 'Auto Repair' ? '' : ''}
                         </div>
+                        )}
                         <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2">
                                 <h1 className="font-black text-foreground text-xl leading-tight">{shop.name}</h1>
@@ -165,7 +174,10 @@ export function ShopPage() {
                                     </span>
                                 )}
                             </div>
-                            <p className="text-sm text-muted-foreground mt-0.5">by @{shop.ownerUsername}</p>
+                            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                <p className="text-sm text-muted-foreground">by @{shop.ownerUsername}</p>
+                                <FoundingBadge userId={shop.ownerId} />
+                            </div>
                             <div className="flex items-center gap-3 mt-2 flex-wrap">
                                 <div className="flex items-center gap-1.5">
                                     <StarRating rating={shop.rating} />
@@ -198,10 +210,10 @@ export function ShopPage() {
 
                 {/* ── Tabs ── */}
                 <div className="flex border-b border-border mb-5">
-                    {(['services', 'reviews', 'hours'] as const).map(tab => (
+                    {(['services', 'work', 'reviews', 'hours'] as const).map(tab => (
                         <button key={tab} onClick={() => setActiveTab(tab)}
                             className={`flex-1 py-2.5 text-sm font-bold capitalize transition border-b-2 -mb-px ${activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
-                            {tab === 'reviews' ? `Reviews (${shop.reviewCount})` : tab === 'hours' ? 'Hours' : 'Services'}
+                            {tab === 'reviews' ? `Reviews (${shop.reviewCount})` : tab === 'hours' ? 'Hours' : tab === 'work' ? `Work (${shop.portfolio.length})` : 'Services'}
                         </button>
                     ))}
                 </div>
@@ -237,6 +249,51 @@ export function ShopPage() {
                     )}
 
                     {/* Reviews */}
+                    {/* Work photos */}
+                    {activeTab === 'work' && (
+                        <motion.div key="work" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pb-6 space-y-4">
+                            {isOwner && (
+                                <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
+                                    <p className="text-sm font-bold text-foreground">Show your work</p>
+                                    <input aria-label="Photo caption" value={workCaption} onChange={e => setWorkCaption(e.target.value.slice(0, 80))}
+                                        placeholder="Caption (optional), e.g. Knotless braids"
+                                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-sm transition" />
+                                    <PhotoPicker label="Add a work photo" folder="butso/portfolio" disabled={shop.portfolio.length >= 12}
+                                        onUploaded={async url => {
+                                            const { error } = await addPortfolioPhoto(shop.id, url, workCaption)
+                                            if (error) showToast('error', error)
+                                            else { setWorkCaption(''); showToast('success', 'Photo added') }
+                                        }} />
+                                    <p className="text-xs text-muted-foreground">{shop.portfolio.length} of 12 photos. Only post your own work.</p>
+                                </div>
+                            )}
+                            {shop.portfolio.length === 0 ? (
+                                <p className="text-center text-muted-foreground py-8 text-sm">{isOwner ? 'No photos yet. Add your first one above.' : 'No work photos yet.'}</p>
+                            ) : (
+                                <div className="grid grid-cols-2 gap-3">
+                                    {[...shop.portfolio].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map(p => (
+                                        <div key={p.id} className="relative rounded-2xl overflow-hidden border border-border bg-card">
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img src={imgUrl(p.imageUrl, 'f_auto,q_auto,w_500,h_500,c_fill')} alt={p.caption || `Work by ${shop.name}`} loading="lazy" className="w-full aspect-square object-cover" />
+                                            {p.caption && <p className="px-3 py-2 text-xs text-foreground">{p.caption}</p>}
+                                            {isOwner && (
+                                                <button aria-label="Delete photo"
+                                                    onClick={async () => {
+                                                        if (!window.confirm('Delete this photo?')) return
+                                                        const err = await removePortfolioPhoto(shop.id, p.id)
+                                                        if (err) showToast('error', err)
+                                                    }}
+                                                    className="absolute top-2 right-2 w-9 h-9 rounded-full bg-black/60 text-white flex items-center justify-center">
+                                                    <Trash2 size={15} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </motion.div>
+                    )}
+
                     {activeTab === 'reviews' && (
                         <motion.div key="reviews" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4 pb-6">
                             {/* Summary */}

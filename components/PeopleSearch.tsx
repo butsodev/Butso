@@ -1,5 +1,6 @@
 'use client'
 
+import { FoundingBadge } from '@/components/FoundingBadge'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, MapPin, Zap, SlidersHorizontal, X } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
@@ -187,6 +188,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <h1 className="text-2xl font-black text-white">{selectedWorker.name}</h1>
+                  <FoundingBadge userId={selectedWorker.id} />
                   {selectedWorker.available && (
                     <span className="text-xs bg-green-400/25 text-green-200 border border-green-400/40 px-2 py-0.5 rounded-full font-bold">
                       Available
@@ -415,7 +417,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <h3 className="font-black text-foreground text-sm truncate">{worker.name}</h3>
+                      <div className="flex items-center gap-1.5 min-w-0"><h3 className="font-black text-foreground text-sm truncate">{worker.name}</h3><FoundingBadge userId={worker.id} compact /></div>
                       {worker.available === true ? <span className="shrink-0 w-2 h-2 rounded-full bg-green-500" title="Available" /> : worker.available === false ? <span className="shrink-0 w-2 h-2 rounded-full bg-muted-foreground/30" title="Busy" /> : null}
                     </div>
                     {worker.location && (
@@ -608,7 +610,7 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <h3 className="font-black text-foreground truncate">{worker.name}</h3>
+                        <div className="flex items-center gap-1.5 min-w-0"><h3 className="font-black text-foreground truncate">{worker.name}</h3><FoundingBadge userId={worker.id} compact /></div>
                         {worker.available === true ? (
                           <span className="shrink-0 w-2 h-2 rounded-full bg-green-500" title="Available" />
                         ) : worker.available === false ? (

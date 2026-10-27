@@ -15,6 +15,8 @@ import { showToast } from '@/lib/toast'
 import { showSuccess } from '@/lib/success'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
+import { PhotoPicker } from '@/components/PhotoPicker'
+import { imgUrl } from '@/lib/upload'
 const SHOP_CATEGORIES = [
     { emoji: '✂️', name: 'Barbing' },
     { emoji: '👗', name: 'Tailoring' },
@@ -66,6 +68,7 @@ export function ShopSetup() {
     const [isMobile, setIsMobile] = useState(existing?.isMobile ?? false)
     const [phone, setPhone] = useState(existing?.phone ?? currentUser?.phone ?? '')
     const [tagline, setTagline] = useState(existing?.tagline ?? '')
+    const [photoUrl, setPhotoUrl] = useState(existing?.photoUrl ?? '')
     const [acceptMessages, setAcceptMessages] = useState(existing?.acceptMessagesFromAnyone ?? true)
     const [showPhone, setShowPhone] = useState(existing?.showPhonePublicly ?? false)
     const [defaultTab, setDefaultTab] = useState<'services' | 'portfolio' | 'reviews'>(existing?.defaultTab ?? 'services')
@@ -115,7 +118,7 @@ export function ShopSetup() {
                 ownerId: currentUser.id,
                 ownerName: currentUser.name,
                 ownerUsername: currentUser.username,
-                name, tagline, category, description, location, isMobile, phone,
+                name, tagline, category, description, location, isMobile, phone, photoUrl,
                 acceptMessagesFromAnyone: acceptMessages, showPhonePublicly: showPhone,
                 defaultTab, openingHours: hours, services,
             },
@@ -190,6 +193,26 @@ export function ShopSetup() {
                             <div>
                                 <h2 className="text-xl font-black text-foreground mb-1">Shop basics</h2>
                                 <p className="text-sm text-muted-foreground">Tell people what your shop is about.</p>
+                            </div>
+
+                            {/* Shop photo */}
+                            <div>
+                                <label className="block text-sm font-bold text-foreground mb-2">Shop photo</label>
+                                <div className="flex items-center gap-4">
+                                    <div className="w-20 h-20 rounded-2xl bg-primary/10 border border-primary/20 overflow-hidden flex items-center justify-center text-xs text-muted-foreground text-center shrink-0">
+                                        {photoUrl
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            ? <img src={imgUrl(photoUrl, 'f_auto,q_auto,w_200,h_200,c_fill')} alt="Your shop" className="w-full h-full object-cover" />
+                                            : 'No photo'}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <PhotoPicker label={photoUrl ? 'Change photo' : 'Add a photo'} onUploaded={setPhotoUrl} folder="butso/shops" />
+                                        {photoUrl && (
+                                            <button type="button" onClick={() => setPhotoUrl('')} className="block text-xs text-muted-foreground underline">Remove photo</button>
+                                        )}
+                                    </div>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-2">A real photo of your shop or your work. You can add more work photos from your shop page after saving.</p>
                             </div>
 
                             {/* Name */}

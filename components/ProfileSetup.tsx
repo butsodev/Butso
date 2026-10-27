@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { WUKARI_AREAS } from '@/lib/areas'
+import { isReservedUsername } from '@/lib/usernames'
 import { useAppStore, generateUsernameFromName, isUsernameAvailable, type UserRole, type AppStore, goAfterAuth } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
 
@@ -78,7 +79,7 @@ function randomUsername(name: string): string {
   return styles[Math.floor(Math.random() * styles.length)].slice(0, 24)
 }
 
-type UsernameStatus = 'idle' | 'invalid' | 'checking' | 'available' | 'taken'
+type UsernameStatus = 'idle' | 'invalid' | 'checking' | 'available' | 'taken' | 'reserved'
 
 /* ─── Username field ─────────────────────────────────────────────────────── */
 function UsernameField({ value, name, autoMode, onChange, onValidChange, allUsers, excludeId }: {
@@ -98,6 +99,12 @@ function UsernameField({ value, name, autoMode, onChange, onValidChange, allUser
   useEffect(() => {
     if (!value) { setStatus('idle'); onValidChange(false); return }
     if (!formatOk) { setStatus('invalid'); onValidChange(false); return }
+    if (isReservedUsername(value)) {
+      setStatus('reserved'); onValidChange(false)
+      // An auto-generated name landed on a held-back word: quietly pick another
+      if (autoMode && autoRetries.current < 5) { autoRetries.current += 1; onChange(randomUsername(name), false) }
+      return
+    }
     setStatus('checking'); onValidChange(false)
     let cancelled = false
     const t = setTimeout(async () => {
@@ -129,7 +136,7 @@ function UsernameField({ value, name, autoMode, onChange, onValidChange, allUser
 
   const borderClass =
     status === 'available' ? 'border-green-500 focus:border-green-500'
-      : status === 'taken' || status === 'invalid' ? 'border-destructive focus:border-destructive'
+      : status === 'taken' || status === 'invalid' || status === 'reserved' ? 'border-destructive focus:border-destructive'
         : 'border-border focus:border-primary'
 
   return (
@@ -162,7 +169,7 @@ function UsernameField({ value, name, autoMode, onChange, onValidChange, allUser
               <span className="block w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
             )}
             {status === 'available' && <Check size={16} className="text-green-500" />}
-            {(status === 'taken' || status === 'invalid') && <X size={16} className="text-destructive" />}
+            {(status === 'taken' || status === 'invalid' || status === 'reserved') && <X size={16} className="text-destructive" />}
           </div>
         </div>
         <button
@@ -178,6 +185,7 @@ function UsernameField({ value, name, autoMode, onChange, onValidChange, allUser
       <div className="mt-1.5 min-h-[1.25rem] text-xs">
         {status === 'idle' && <p className="text-muted-foreground">Type your name above, or pick your own. Letters, numbers and _ only.</p>}
         {status === 'invalid' && <p className="text-destructive">Use at least 3 characters (letters, numbers or _).</p>}
+        {status === 'reserved' && !autoMode && <p className="text-destructive">@{value} is kept for Butsó. Please choose another.</p>}
         {status === 'checking' && <p className="text-muted-foreground">Checking if @{value} is free...</p>}
         {status === 'available' && <p className="text-green-600">@{value} is available.</p>}
         {status === 'taken' && !autoMode && (

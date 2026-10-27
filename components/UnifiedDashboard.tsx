@@ -1,5 +1,6 @@
 'use client'
 
+import { FirstJobChecklist } from '@/components/FirstJobChecklist'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Award, Briefcase, Clock, ArrowRight, Bell, Plus, Users, Compass, Search, Calendar, MessageCircle, Wallet, Store, Pin, User } from 'lucide-react'
 import { NairaIcon } from '@/components/NairaIcon'
@@ -160,6 +161,8 @@ export function UnifiedDashboard() {
           )
         })}
       </motion.div>
+
+      <motion.div variants={item}><FirstJobChecklist /></motion.div>
 
       {SuggestionStrip}
 

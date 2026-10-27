@@ -174,6 +174,7 @@ export interface Shop {
   description: string
   location: string
   isMobile: boolean
+  photoUrl?: string               // shop photo (Cloudinary)
   phone?: string
   acceptMessagesFromAnyone: boolean   // owner setting, default on
   showPhonePublicly: boolean           // owner setting, default off
