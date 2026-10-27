@@ -1,5 +1,6 @@
 'use client'
 
+import { AmountInput } from '@/components/AmountInput'
 import { motion } from 'framer-motion'
 import { shareLink } from '@/lib/share'
 import { MapPin, Clock, User, ChevronLeft, Share2, Heart, Briefcase } from 'lucide-react'
@@ -342,7 +343,7 @@ export function JobDetails() {
               className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground" />
             <textarea aria-label="Description" rows={4} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
               className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground" />
-            <input aria-label="Budget" type="number" min={0} value={form.budget} onChange={e => setForm({ ...form, budget: e.target.value })}
+            <AmountInput aria-label="Budget" value={form.budget} onChange={v => setForm({ ...form, budget: v })}
               className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground" />
             <select aria-label="Location" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })}
               className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground">

@@ -1,5 +1,6 @@
 'use client'
 
+import { AmountInput } from '@/components/AmountInput'
 import { motion } from 'framer-motion'
 import { ChevronRight, ArrowLeft } from 'lucide-react'
 import { useState, useEffect } from 'react'
@@ -175,14 +176,11 @@ export function PostJob() {
             <label className="block text-sm font-semibold text-foreground mb-2">
               Budget (₦) *
             </label>
-            <input aria-label="Budget in naira"
-              type="number"
-              inputMode="numeric"
+            <AmountInput aria-label="Budget in naira"
               name="budget"
               placeholder="Enter budget in Naira"
               value={formData.budget}
-              onChange={handleChange}
-              min="1000"
+              onChange={v => setFormData(prev => ({ ...prev, budget: v }))}
               className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted-foreground"
             />
           </div>

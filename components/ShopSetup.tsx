@@ -15,6 +15,7 @@ import { showToast } from '@/lib/toast'
 import { showSuccess } from '@/lib/success'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
+import { AmountInput } from '@/components/AmountInput'
 import { PhotoPicker } from '@/components/PhotoPicker'
 import { imgUrl } from '@/lib/upload'
 const SHOP_CATEGORIES = [
@@ -370,7 +371,7 @@ export function ShopSetup() {
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div>
                                                     <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1.5">Price (₦) *</label>
-                                                    <input aria-label="Service price in naira" type="number" value={editingSvc.price ?? ''} onChange={e => setEditingSvc(s => ({ ...s, price: Number(e.target.value) }))}
+                                                    <AmountInput aria-label="Service price in naira" value={editingSvc.price ?? ''} onChange={v => setEditingSvc(s => ({ ...s, price: Number(v) }))}
                                                         placeholder="1500"
                                                         className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground text-sm transition" />
                                                 </div>

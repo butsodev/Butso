@@ -1,5 +1,6 @@
 'use client'
 
+import { AmountInput } from '@/components/AmountInput'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, CheckCircle, Zap, FileText, ChevronDown, ChevronUp } from 'lucide-react'
 import { useState } from 'react'
@@ -320,11 +321,10 @@ export function ApplyJob() {
                         <label className="block text-sm font-bold text-foreground mb-1">
                           Expected daily rate (₦) <span className="text-muted-foreground font-normal">(optional)</span>
                         </label>
-                        <input aria-label="Your proposed price in naira (optional)"
-                          type="number"
+                        <AmountInput aria-label="Your proposed price in naira (optional)"
                           placeholder="Leave blank to negotiate"
                           value={expectedRate}
-                          onChange={(e) => setExpectedRate(e.target.value)}
+                          onChange={setExpectedRate}
                           className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/50 transition"
                         />
                       </div>
