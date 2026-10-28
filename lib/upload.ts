@@ -51,7 +51,7 @@ export async function uploadImage(file: File, folder = 'butso/user-uploads'): Pr
     form.append('file', body)
     form.append('upload_preset', PRESET)
     if (withFolder) form.append('asset_folder', folder)
-    form.append('public_id', crypto.randomUUID()) // random name, so two people can never overwrite each other
+    // No public_id sent: the preset gives every photo its own unguessable ID, so nobody can overwrite anyone
     const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: form })
     const json = await res.json().catch(() => null)
     return { res, json }
