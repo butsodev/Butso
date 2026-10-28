@@ -1,5 +1,6 @@
 'use client'
 
+import { HowToGuide } from '@/components/HowToGuide'
 import { motion } from 'framer-motion'
 import { ArrowLeft, MessageCircle, HelpCircle, Mail, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
@@ -117,6 +118,8 @@ export function Support() {
             <p className="font-medium text-foreground text-sm">Message us</p>
           </div>
         </motion.div>
+
+        <HowToGuide />
 
         {/* FAQ Section */}
         <motion.div
