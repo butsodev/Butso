@@ -45,14 +45,22 @@ export async function uploadImage(file: File, folder = 'butso/user-uploads'): Pr
     if (file.size > 3 * 1024 * 1024) return { url: null, error: 'Could not prepare that photo. Try a different one.' }
   }
 
-  const form = new FormData()
-  form.append('file', body)
-  form.append('upload_preset', PRESET)
-  form.append('folder', folder)
-  form.append('public_id', crypto.randomUUID()) // random name, so two people can never overwrite each other
-  try {
+  // Cloudinary accounts on "dynamic folders" sort uploads with asset_folder (the old "folder" is deprecated there)
+  const send = async (withFolder: boolean) => {
+    const form = new FormData()
+    form.append('file', body)
+    form.append('upload_preset', PRESET)
+    if (withFolder) form.append('asset_folder', folder)
+    form.append('public_id', crypto.randomUUID()) // random name, so two people can never overwrite each other
     const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: form })
     const json = await res.json().catch(() => null)
+    return { res, json }
+  }
+
+  try {
+    let { res, json } = await send(true)
+    // If this account rejects the folder setting, retry once without it: the photo still uploads, just unsorted
+    if (!res.ok && /folder/i.test(json?.error?.message ?? '')) ({ res, json } = await send(false))
     if (!res.ok || !json?.secure_url) return { url: null, error: json?.error?.message ?? 'Upload failed. Check your connection and try again.' }
     return { url: json.secure_url as string, error: null }
   } catch {
