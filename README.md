@@ -1,6 +1,6 @@
 # Butsó
 
-**A free local marketplace for jobs, skilled workers and small shops.**
+**Where skills meet opportunity.** Find work, connect with skilled people, and help local businesses grow.
 
 Butsó connects workers and employers, and helps shops get found and booked, with privacy built in: strangers see a username, not your real name or phone number, until you choose to share them. Launching first in Taraba State, Nigeria.
 
