@@ -9,9 +9,10 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { shareLink } from '@/lib/share'
 import { ArrowLeft, MapPin, Phone, Award, Clock, Check, ChevronRight, Share2, MessageCircle, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { addShopReview, addPortfolioPhoto, removePortfolioPhoto } from '@/lib/dataShops'
 import { PhotoPicker } from '@/components/PhotoPicker'
+import { PhotoViewer, type ViewerPhoto } from '@/components/PhotoViewer'
 import { FoundingBadge } from '@/components/FoundingBadge'
 import { imgUrl } from '@/lib/upload'
 import { showToast } from '@/lib/toast'
@@ -78,6 +79,22 @@ export function ShopPage() {
     const [activeTab, setActiveTab] = useState<'services' | 'work' | 'reviews' | 'hours'>('services')
     const [workCaption, setWorkCaption] = useState('')
     const [showShareToast, setShowShareToast] = useState(false)
+    const [viewerIndex, setViewerIndex] = useState<number | null>(null)
+    const openedFromLink = useRef(false)
+    // Newest work first
+    const photos = useMemo<ViewerPhoto[]>(
+        () => shop ? [...shop.portfolio].sort((a, b) => b.createdAt.localeCompare(a.createdAt)) : [],
+        [shop],
+    )
+    // A shared photo link (/shops/ID?photo=PHOTO_ID) opens straight onto that photo
+    useEffect(() => {
+        if (openedFromLink.current || photos.length === 0) return
+        const id = new URLSearchParams(window.location.search).get('photo')
+        if (!id) { openedFromLink.current = true; return }
+        const idx = photos.findIndex(p => p.id === id)
+        if (idx >= 0) { setViewerIndex(idx); setActiveTab('work') }
+        openedFromLink.current = true
+    }, [photos])
 
     if (!shop) return (
         <div className="min-h-screen bg-background flex items-center justify-center">
@@ -119,6 +136,15 @@ export function ShopPage() {
         }
     }
 
+    const sharePhoto = async (p: ViewerPhoto) => {
+        const r = await shareLink({
+            path: `/shops/${shop.id}?photo=${p.id}`,
+            title: `${shop.name} on Butsó`,
+            text: p.caption ? `${p.caption}: work by ${shop.name} on Butsó.` : `See this work by ${shop.name} on Butsó.`,
+        })
+        if (r === 'copied') showToast('success', 'Photo link copied')
+    }
+
     const openDays = Object.entries(shop.openingHours).filter(([, h]) => h.open)
 
     return (
@@ -155,13 +181,21 @@ export function ShopPage() {
 
                 {/* ── Hero ── */}
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="pt-5 pb-6">
+                    {/* Cover banner */}
+                    <div className="relative w-full aspect-[3/1] rounded-2xl overflow-hidden bg-gradient-to-r from-primary/25 via-primary/10 to-primary/5 mb-3">
+                        {shop.coverUrl && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={imgUrl(shop.coverUrl, 'f_auto,q_auto,w_1200,h_400,c_fill,g_auto')} alt={`${shop.name} cover`} className="absolute inset-0 w-full h-full object-cover" />
+                        )}
+                    </div>
+
                     <div className="flex items-start gap-4 mb-4">
-                        {/* Shop avatar */}
+                        {/* Shop avatar (dp), overlapping the cover */}
                         {shop.photoUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={imgUrl(shop.photoUrl, 'f_auto,q_auto,w_160,h_160,c_fill')} alt={shop.name} className="w-16 h-16 rounded-2xl object-cover flex-shrink-0 border border-primary/20" />
+                            <img src={imgUrl(shop.photoUrl, 'f_auto,q_auto,w_160,h_160,c_fill')} alt={shop.name} className="relative z-10 w-20 h-20 -mt-12 ml-2 rounded-2xl object-cover flex-shrink-0 ring-4 ring-background" />
                         ) : (
-                        <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0 border border-primary/20">
+                        <div className="relative z-10 w-20 h-20 -mt-12 ml-2 bg-secondary rounded-2xl flex items-center justify-center text-3xl flex-shrink-0 ring-4 ring-background">
                             {shop.category === 'Barbing' ? '' : shop.category === 'Cleaning' ? '' : shop.category === 'Tailoring' ? '' : shop.category === 'Cooking' ? '' : shop.category === 'Auto Repair' ? '' : ''}
                         </div>
                         )}
@@ -208,8 +242,37 @@ export function ShopPage() {
                     <p className="text-sm text-muted-foreground mt-4 leading-relaxed">{shop.description}</p>
                 </motion.div>
 
+                {/* ── Recent work peek ── */}
+                {photos.length > 0 ? (
+                    <div className="pb-5">
+                        <div className="flex items-center justify-between mb-2">
+                            <h2 className="text-sm font-black text-foreground">Recent work</h2>
+                            <button onClick={() => { setActiveTab('work'); document.getElementById('shop-tabs')?.scrollIntoView({ behavior: 'smooth' }) }}
+                                className="text-xs font-bold text-primary min-h-[32px]">See all ({photos.length})</button>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2">
+                            {photos.slice(0, 4).map((p, idx) => (
+                                <button key={p.id} aria-label={`Open photo ${idx + 1} of ${photos.length}`}
+                                    onClick={() => setViewerIndex(idx)}
+                                    className="relative aspect-square rounded-xl overflow-hidden bg-secondary">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={imgUrl(p.imageUrl, 'f_auto,q_auto,w_240,h_240,c_fill')} alt={p.caption || `Work by ${shop.name}`} loading="lazy" className="w-full h-full object-cover" />
+                                    {idx === 3 && photos.length > 4 && (
+                                        <span className="absolute inset-0 bg-black/55 text-white text-sm font-black flex items-center justify-center">+{photos.length - 4}</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                ) : isOwner ? (
+                    <button onClick={() => { setActiveTab('work'); document.getElementById('shop-tabs')?.scrollIntoView({ behavior: 'smooth' }) }}
+                        className="w-full mb-5 py-3 rounded-2xl border-2 border-dashed border-border text-sm font-bold text-muted-foreground hover:border-primary hover:text-primary transition">
+                        Add photos of your work
+                    </button>
+                ) : null}
+
                 {/* ── Tabs ── */}
-                <div className="flex border-b border-border mb-5">
+                <div id="shop-tabs" className="flex border-b border-border mb-5 scroll-mt-16">
                     {(['services', 'work', 'reviews', 'hours'] as const).map(tab => (
                         <button key={tab} onClick={() => setActiveTab(tab)}
                             className={`flex-1 py-2.5 text-sm font-bold capitalize transition border-b-2 -mb-px ${activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
@@ -270,12 +333,13 @@ export function ShopPage() {
                             {shop.portfolio.length === 0 ? (
                                 <p className="text-center text-muted-foreground py-8 text-sm">{isOwner ? 'No photos yet. Add your first one above.' : 'No work photos yet.'}</p>
                             ) : (
-                                <div className="grid grid-cols-2 gap-3">
-                                    {[...shop.portfolio].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map(p => (
-                                        <div key={p.id} className="relative rounded-2xl overflow-hidden border border-border bg-card">
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img src={imgUrl(p.imageUrl, 'f_auto,q_auto,w_500,h_500,c_fill')} alt={p.caption || `Work by ${shop.name}`} loading="lazy" className="w-full aspect-square object-cover" />
-                                            {p.caption && <p className="px-3 py-2 text-xs text-foreground">{p.caption}</p>}
+                                <div className="grid grid-cols-3 gap-2">
+                                    {photos.map((p, idx) => (
+                                        <div key={p.id} className="relative aspect-square rounded-xl overflow-hidden bg-secondary">
+                                            <button aria-label={`Open photo ${idx + 1} of ${photos.length}`} onClick={() => setViewerIndex(idx)} className="absolute inset-0">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img src={imgUrl(p.imageUrl, 'f_auto,q_auto,w_360,h_360,c_fill')} alt={p.caption || `Work by ${shop.name}`} loading="lazy" className="w-full h-full object-cover" />
+                                            </button>
                                             {isOwner && (
                                                 <button aria-label="Delete photo"
                                                     onClick={async () => {
@@ -283,8 +347,8 @@ export function ShopPage() {
                                                         const err = await removePortfolioPhoto(shop.id, p.id)
                                                         if (err) showToast('error', err)
                                                     }}
-                                                    className="absolute top-2 right-2 w-9 h-9 rounded-full bg-black/60 text-white flex items-center justify-center">
-                                                    <Trash2 size={15} />
+                                                    className="absolute top-1.5 right-1.5 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center">
+                                                    <Trash2 size={13} />
                                                 </button>
                                             )}
                                         </div>
@@ -419,6 +483,11 @@ export function ShopPage() {
                     )}
                 </div>
             </div>
+
+            {viewerIndex !== null && (
+                <PhotoViewer photos={photos} startIndex={viewerIndex} title={shop.name}
+                    onClose={() => setViewerIndex(null)} onShare={sharePhoto} />
+            )}
         </div>
     )
 }

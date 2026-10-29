@@ -70,6 +70,7 @@ export function ShopSetup() {
     const [phone, setPhone] = useState(existing?.phone ?? currentUser?.phone ?? '')
     const [tagline, setTagline] = useState(existing?.tagline ?? '')
     const [photoUrl, setPhotoUrl] = useState(existing?.photoUrl ?? '')
+    const [coverUrl, setCoverUrl] = useState(existing?.coverUrl ?? '')
     const [acceptMessages, setAcceptMessages] = useState(existing?.acceptMessagesFromAnyone ?? true)
     const [showPhone, setShowPhone] = useState(existing?.showPhonePublicly ?? false)
     const [defaultTab, setDefaultTab] = useState<'services' | 'portfolio' | 'reviews'>(existing?.defaultTab ?? 'services')
@@ -119,7 +120,7 @@ export function ShopSetup() {
                 ownerId: currentUser.id,
                 ownerName: currentUser.name,
                 ownerUsername: currentUser.username,
-                name, tagline, category, description, location, isMobile, phone, photoUrl,
+                name, tagline, category, description, location, isMobile, phone, photoUrl, coverUrl,
                 acceptMessagesFromAnyone: acceptMessages, showPhonePublicly: showPhone,
                 defaultTab, openingHours: hours, services,
             },
@@ -196,9 +197,25 @@ export function ShopSetup() {
                                 <p className="text-sm text-muted-foreground">Tell people what your shop is about.</p>
                             </div>
 
-                            {/* Shop photo */}
+                            {/* Cover photo */}
                             <div>
-                                <label className="block text-sm font-bold text-foreground mb-2">Shop photo</label>
+                                <label className="block text-sm font-bold text-foreground mb-2">Cover photo</label>
+                                <div className="w-full aspect-[3/1] rounded-2xl bg-gradient-to-r from-primary/25 via-primary/10 to-primary/5 border border-primary/20 overflow-hidden flex items-center justify-center text-xs text-muted-foreground">
+                                    {coverUrl
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        ? <img src={imgUrl(coverUrl, 'f_auto,q_auto,w_1200,h_400,c_fill,g_auto')} alt="Your shop cover" className="w-full h-full object-cover" />
+                                        : 'No cover photo yet'}
+                                </div>
+                                <div className="flex items-center gap-3 mt-2">
+                                    <PhotoPicker label={coverUrl ? 'Change cover' : 'Add a cover photo'} onUploaded={setCoverUrl} folder="butso/covers" />
+                                    {coverUrl && <button type="button" onClick={() => setCoverUrl('')} className="text-xs text-muted-foreground underline">Remove cover</button>}
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-2">A wide photo of your shop or your best work. It shows across the top of your page, so use a landscape photo.</p>
+                            </div>
+
+                            {/* Shop photo (dp) */}
+                            <div>
+                                <label className="block text-sm font-bold text-foreground mb-2">Profile picture</label>
                                 <div className="flex items-center gap-4">
                                     <div className="w-20 h-20 rounded-2xl bg-primary/10 border border-primary/20 overflow-hidden flex items-center justify-center text-xs text-muted-foreground text-center shrink-0">
                                         {photoUrl
@@ -213,7 +230,7 @@ export function ShopSetup() {
                                         )}
                                     </div>
                                 </div>
-                                <p className="text-xs text-muted-foreground mt-2">A real photo of your shop or your work. You can add more work photos from your shop page after saving.</p>
+                                <p className="text-xs text-muted-foreground mt-2">A clear square-ish photo, like your logo or the front of your shop. You can add work photos from your shop page after saving.</p>
                             </div>
 
                             {/* Name */}
