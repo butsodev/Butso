@@ -180,25 +180,20 @@ export function ShopPage() {
             <div className="max-w-2xl mx-auto px-4">
 
                 {/* ── Hero ── */}
-                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="pt-5 pb-6">
-                    {/* Cover banner */}
-                    <div className="relative w-full aspect-[3/1] rounded-2xl overflow-hidden bg-gradient-to-r from-primary/25 via-primary/10 to-primary/5 mb-3">
-                        {shop.coverUrl && (
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="pb-6">
+                    {/* Main shop photo: one wide picture, square corners, edge to edge */}
+                    <div className="relative -mx-4 aspect-[3/1] bg-gradient-to-r from-primary/25 via-primary/10 to-primary/5 flex items-center justify-center text-5xl mb-4">
+                        {shop.photoUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={imgUrl(shop.coverUrl, 'f_auto,q_auto,w_1200,h_400,c_fill,g_auto')} alt={`${shop.name} cover`} className="absolute inset-0 w-full h-full object-cover" />
+                            <img src={imgUrl(shop.photoUrl, 'f_auto,q_auto,w_1200,h_400,c_fill,g_auto')} alt={shop.name} className="absolute inset-0 w-full h-full object-cover" />
+                        ) : (
+                            <span aria-hidden="true">
+                                {shop.category === 'Barbing' ? '' : shop.category === 'Cleaning' ? '' : shop.category === 'Tailoring' ? '' : shop.category === 'Cooking' ? '' : shop.category === 'Auto Repair' ? '' : ''}
+                            </span>
                         )}
                     </div>
 
                     <div className="flex items-start gap-4 mb-4">
-                        {/* Shop avatar (dp), overlapping the cover */}
-                        {shop.photoUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={imgUrl(shop.photoUrl, 'f_auto,q_auto,w_160,h_160,c_fill')} alt={shop.name} className="relative z-10 w-20 h-20 -mt-12 ml-2 rounded-2xl object-cover flex-shrink-0 ring-4 ring-background" />
-                        ) : (
-                        <div className="relative z-10 w-20 h-20 -mt-12 ml-2 bg-secondary rounded-2xl flex items-center justify-center text-3xl flex-shrink-0 ring-4 ring-background">
-                            {shop.category === 'Barbing' ? '' : shop.category === 'Cleaning' ? '' : shop.category === 'Tailoring' ? '' : shop.category === 'Cooking' ? '' : shop.category === 'Auto Repair' ? '' : ''}
-                        </div>
-                        )}
                         <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2">
                                 <h1 className="font-black text-foreground text-xl leading-tight">{shop.name}</h1>
@@ -244,7 +239,7 @@ export function ShopPage() {
 
                 {/* ── Recent work peek ── */}
                 {photos.length > 0 ? (
-                    <div className="pb-5">
+                    <div className="mb-5 bg-card border border-border rounded-2xl p-3">
                         <div className="flex items-center justify-between mb-2">
                             <h2 className="text-sm font-black text-foreground">Recent work</h2>
                             <button onClick={() => { setActiveTab('work'); document.getElementById('shop-tabs')?.scrollIntoView({ behavior: 'smooth' }) }}

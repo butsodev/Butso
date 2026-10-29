@@ -174,8 +174,7 @@ export interface Shop {
   description: string
   location: string
   isMobile: boolean
-  photoUrl?: string               // shop dp (Cloudinary)
-  coverUrl?: string               // wide cover banner (Cloudinary)
+  photoUrl?: string               // main shop photo, shown as the wide banner (Cloudinary)
   phone?: string
   acceptMessagesFromAnyone: boolean   // owner setting, default on
   showPhonePublicly: boolean           // owner setting, default off
