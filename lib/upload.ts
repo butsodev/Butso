@@ -1,13 +1,13 @@
 // Photo uploads straight from the phone to Cloudinary.
 // Data is expensive, so every photo is shrunk on the phone first (about 150 to 300 KB).
 // Needs NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: the name of an UNSIGNED upload preset.
-import { CLOUD_NAME } from '@/lib/cloudinary'
+import { UPLOAD_CLOUD_NAME } from '@/lib/cloudinary'
 
 const PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
 const MAX_PICK_BYTES = 15 * 1024 * 1024
 
 /** Only images hosted on our own Cloudinary account are accepted (the database checks this too). */
-export const OUR_IMAGE_PREFIX = `https://res.cloudinary.com/${CLOUD_NAME}/`
+export const OUR_IMAGE_PREFIX = `https://res.cloudinary.com/${UPLOAD_CLOUD_NAME}/`
 
 /** Add Cloudinary transformations (size, format) to a stored image URL. */
 export function imgUrl(url: string, transforms = 'f_auto,q_auto,w_700'): string {
@@ -52,7 +52,7 @@ export async function uploadImage(file: File, folder = 'butso/user-uploads'): Pr
     form.append('upload_preset', PRESET)
     if (withFolder) form.append('asset_folder', folder)
     // No public_id sent: the preset gives every photo its own unguessable ID, so nobody can overwrite anyone
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: form })
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${UPLOAD_CLOUD_NAME}/image/upload`, { method: 'POST', body: form })
     const json = await res.json().catch(() => null)
     return { res, json }
   }

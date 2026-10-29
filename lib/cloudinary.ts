@@ -5,6 +5,12 @@
 
 export const CLOUD_NAME = 'dupugzphf'
 
+// LEGACY cloud: the landing page images above live here, so cld() keeps using it.
+// New user uploads (shop and work photos) go to our own cloud below, using the unsigned
+// preset created there. Once the landing images are re-uploaded to the cloud below,
+// CLOUD_NAME can be removed and everything can use one cloud.
+export const UPLOAD_CLOUD_NAME = 'kqgcosmz'
+
 /**
  * Build a Cloudinary delivery URL for a given public ID.
  * f_auto,q_auto = auto format (WebP/AVIF where supported) + auto compression.
