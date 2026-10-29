@@ -1,18 +1,20 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { X, ChevronLeft, ChevronRight, Share2 } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, Share2, Download } from 'lucide-react'
 import { imgUrl } from '@/lib/upload'
 
 export interface ViewerPhoto { id: string; imageUrl: string; caption?: string }
 
 /** Full-screen photo viewer: swipe or use the arrows, with a share button on every photo. */
-export function PhotoViewer({ photos, startIndex, title, onClose, onShare }: {
+export function PhotoViewer({ photos, startIndex, title, onClose, onShare, allowDownload = true }: {
   photos: ViewerPhoto[]
   startIndex: number
   title: string
   onClose: () => void
   onShare: (photo: ViewerPhoto) => void
+  /** Shop photos can be saved. Never turn this on for people's own profile pictures. */
+  allowDownload?: boolean
 }) {
   const [i, setI] = useState(Math.min(Math.max(startIndex, 0), photos.length - 1))
   const touchX = useRef<number | null>(null)
@@ -48,8 +50,15 @@ export function PhotoViewer({ photos, startIndex, title, onClose, onShare }: {
       }}>
       <div className="flex items-center justify-between px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2 text-white">
         <button ref={closeRef} aria-label="Close photos" onClick={onClose} className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center"><X size={20} /></button>
-        <span className="text-sm font-bold">{i + 1} / {photos.length}</span>
-        <button aria-label="Share this photo" onClick={() => onShare(p)} className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center"><Share2 size={18} /></button>
+        <span className="text-sm font-bold">{photos.length > 1 ? `${i + 1} / ${photos.length}` : ''}</span>
+        <div className="flex items-center gap-2">
+          {allowDownload && (
+            // fl_attachment makes Cloudinary send the file as a download
+            <a aria-label="Download this photo" href={imgUrl(p.imageUrl, 'fl_attachment')} download
+              className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center"><Download size={18} /></a>
+          )}
+          <button aria-label="Share this photo" onClick={() => onShare(p)} className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center"><Share2 size={18} /></button>
+        </div>
       </div>
 
       <div className="relative flex-1 min-h-0 flex items-center justify-center">

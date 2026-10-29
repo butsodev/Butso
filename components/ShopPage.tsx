@@ -8,7 +8,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { shareLink } from '@/lib/share'
-import { ArrowLeft, MapPin, Phone, Award, Clock, Check, ChevronRight, Share2, MessageCircle, Trash2 } from 'lucide-react'
+import { ArrowLeft, MapPin, Phone, Award, Clock, Check, ChevronRight, Share2, MessageCircle, Trash2, Camera } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { addShopReview, addPortfolioPhoto, removePortfolioPhoto } from '@/lib/dataShops'
 import { PhotoPicker } from '@/components/PhotoPicker'
@@ -80,6 +80,8 @@ export function ShopPage() {
     const [workCaption, setWorkCaption] = useState('')
     const [showShareToast, setShowShareToast] = useState(false)
     const [viewerIndex, setViewerIndex] = useState<number | null>(null)
+    const [bannerOpen, setBannerOpen] = useState(false)
+    const [emptyNote, setEmptyNote] = useState(false)
     const openedFromLink = useRef(false)
     // Newest work first
     const photos = useMemo<ViewerPhoto[]>(
@@ -185,7 +187,9 @@ export function ShopPage() {
                     <div className="relative -mx-4 aspect-[3/1] bg-gradient-to-r from-primary/25 via-primary/10 to-primary/5 flex items-center justify-center text-5xl mb-4">
                         {shop.photoUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={imgUrl(shop.photoUrl, 'f_auto,q_auto,w_1200,h_400,c_fill,g_auto')} alt={shop.name} className="absolute inset-0 w-full h-full object-cover" />
+                            <button aria-label="View shop photo full screen" onClick={() => setBannerOpen(true)} className="absolute inset-0 w-full h-full">
+                                <img src={imgUrl(shop.photoUrl, 'f_auto,q_auto,w_1200,h_400,c_fill,g_auto')} alt={shop.name} className="w-full h-full object-cover" />
+                            </button>
                         ) : (
                             <span aria-hidden="true">
                                 {shop.category === 'Barbing' ? '' : shop.category === 'Cleaning' ? '' : shop.category === 'Tailoring' ? '' : shop.category === 'Cooking' ? '' : shop.category === 'Auto Repair' ? '' : ''}
@@ -237,34 +241,53 @@ export function ShopPage() {
                     <p className="text-sm text-muted-foreground mt-4 leading-relaxed">{shop.description}</p>
                 </motion.div>
 
-                {/* ── Recent work peek ── */}
-                {photos.length > 0 ? (
-                    <div className="mb-5 bg-card border border-border rounded-2xl p-3">
-                        <div className="flex items-center justify-between mb-2">
-                            <h2 className="text-sm font-black text-foreground">Recent work</h2>
+                {/* ── Recent work: three boxes ── */}
+                <div className="mb-5">
+                    <div className="flex items-center justify-between mb-2">
+                        <h2 className="text-sm font-black text-foreground">Recent work</h2>
+                        {photos.length > 0 && (
                             <button onClick={() => { setActiveTab('work'); document.getElementById('shop-tabs')?.scrollIntoView({ behavior: 'smooth' }) }}
                                 className="text-xs font-bold text-primary min-h-[32px]">See all ({photos.length})</button>
-                        </div>
-                        <div className="grid grid-cols-4 gap-2">
-                            {photos.slice(0, 4).map((p, idx) => (
-                                <button key={p.id} aria-label={`Open photo ${idx + 1} of ${photos.length}`}
-                                    onClick={() => setViewerIndex(idx)}
-                                    className="relative aspect-square rounded-xl overflow-hidden bg-secondary">
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={imgUrl(p.imageUrl, 'f_auto,q_auto,w_240,h_240,c_fill')} alt={p.caption || `Work by ${shop.name}`} loading="lazy" className="w-full h-full object-cover" />
-                                    {idx === 3 && photos.length > 4 && (
-                                        <span className="absolute inset-0 bg-black/55 text-white text-sm font-black flex items-center justify-center">+{photos.length - 4}</span>
-                                    )}
-                                </button>
-                            ))}
-                        </div>
+                        )}
                     </div>
-                ) : isOwner ? (
-                    <button onClick={() => { setActiveTab('work'); document.getElementById('shop-tabs')?.scrollIntoView({ behavior: 'smooth' }) }}
-                        className="w-full mb-5 py-3 rounded-2xl border-2 border-dashed border-border text-sm font-bold text-muted-foreground hover:border-primary hover:text-primary transition">
-                        Add photos of your work
-                    </button>
-                ) : null}
+                    <div className="grid grid-cols-3 gap-2">
+                        {[0, 1, 2].map(slot => {
+                            const p = photos[slot]
+                            const box = 'relative aspect-square overflow-hidden bg-gradient-to-br from-primary/15 to-primary/5 border border-border flex items-center justify-center'
+                            if (p) {
+                                return (
+                                    <button key={p.id} aria-label={`Open gallery, photo ${slot + 1} of ${photos.length}`}
+                                        onClick={() => { setEmptyNote(false); setViewerIndex(slot) }} className={box}>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={imgUrl(p.imageUrl, 'f_auto,q_auto,w_360,h_360,c_fill')} alt={p.caption || `Work by ${shop.name}`} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+                                        {slot === 2 && photos.length > 3 && (
+                                            <span className="absolute inset-0 bg-black/55 text-white text-base font-black flex items-center justify-center">+{photos.length - 3}</span>
+                                        )}
+                                    </button>
+                                )
+                            }
+                            return (
+                                <button key={`empty-${slot}`} aria-label="Empty gallery slot"
+                                    onClick={() => {
+                                        if (photos.length === 0) setEmptyNote(n => !n)
+                                        else if (isOwner) { setActiveTab('work'); document.getElementById('shop-tabs')?.scrollIntoView({ behavior: 'smooth' }) }
+                                    }}
+                                    className={box}>
+                                    <Camera size={22} className="text-muted-foreground/50" aria-hidden="true" />
+                                </button>
+                            )
+                        })}
+                    </div>
+                    {emptyNote && photos.length === 0 && (
+                        <p className="mt-2 text-sm text-muted-foreground text-center" role="status">
+                            {isOwner ? 'Your gallery is empty. ' : 'This shop has not added any work photos yet.'}
+                            {isOwner && (
+                                <button onClick={() => { setActiveTab('work'); document.getElementById('shop-tabs')?.scrollIntoView({ behavior: 'smooth' }) }}
+                                    className="font-bold text-primary underline">Add photos</button>
+                            )}
+                        </p>
+                    )}
+                </div>
 
                 {/* ── Tabs ── */}
                 <div id="shop-tabs" className="flex border-b border-border mb-5 scroll-mt-16">
@@ -478,6 +501,11 @@ export function ShopPage() {
                     )}
                 </div>
             </div>
+
+            {bannerOpen && shop.photoUrl && (
+                <PhotoViewer photos={[{ id: 'shop-photo', imageUrl: shop.photoUrl, caption: shop.name }]} startIndex={0}
+                    title={shop.name} onClose={() => setBannerOpen(false)} onShare={() => { handleShare() }} />
+            )}
 
             {viewerIndex !== null && (
                 <PhotoViewer photos={photos} startIndex={viewerIndex} title={shop.name}
