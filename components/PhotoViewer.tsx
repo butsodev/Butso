@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
+import { useFocusTrap } from '@/lib/useFocusTrap'
 import { X, ChevronLeft, ChevronRight, Share2, Download } from 'lucide-react'
 import { imgUrl } from '@/lib/upload'
 
@@ -19,6 +21,8 @@ export function PhotoViewer({ photos, startIndex, title, onClose, onShare, allow
   const [i, setI] = useState(Math.min(Math.max(startIndex, 0), photos.length - 1))
   const touchX = useRef<number | null>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
+  useFocusTrap(rootRef)
   const last = photos.length - 1
   const go = (d: number) => setI(n => Math.min(Math.max(n + d, 0), last))
 
@@ -40,7 +44,8 @@ export function PhotoViewer({ photos, startIndex, title, onClose, onShare, allow
   const next = photos[i + 1]
 
   return (
-    <div className="fixed inset-0 z-[110] bg-black flex flex-col" role="dialog" aria-modal="true" aria-label={`${title} photos`}
+    <motion.div ref={rootRef} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
+      className="fixed inset-0 z-[110] bg-black flex flex-col" role="dialog" aria-modal="true" aria-label={`${title} photos`}
       onTouchStart={e => { touchX.current = e.touches[0].clientX }}
       onTouchEnd={e => {
         if (touchX.current == null) return
@@ -63,7 +68,9 @@ export function PhotoViewer({ photos, startIndex, title, onClose, onShare, allow
 
       <div className="relative flex-1 min-h-0 flex items-center justify-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img key={p.id} src={imgUrl(p.imageUrl, 'f_auto,q_auto,w_1400')} alt={p.caption || title} className="max-w-full max-h-full object-contain select-none" draggable={false} />
+        <motion.img key={p.id} src={imgUrl(p.imageUrl, 'f_auto,q_auto,w_1400')} alt={p.caption || title}
+          initial={{ opacity: 0, scale: 0.985 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.15 }}
+          className="max-w-full max-h-full object-contain select-none" draggable={false} />
         {i > 0 && (
           <button aria-label="Previous photo" onClick={() => go(-1)} className="hidden sm:flex absolute left-3 w-11 h-11 rounded-full bg-white/15 text-white items-center justify-center"><ChevronLeft size={22} /></button>
         )}
@@ -81,6 +88,6 @@ export function PhotoViewer({ photos, startIndex, title, onClose, onShare, allow
         {p.caption && <p className="text-sm">{p.caption}</p>}
         <p className="text-xs text-white/60 mt-1">{title}</p>
       </div>
-    </div>
+    </motion.div>
   )
 }

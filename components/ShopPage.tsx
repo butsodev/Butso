@@ -11,6 +11,7 @@ import { shareLink } from '@/lib/share'
 import { ArrowLeft, MapPin, Phone, Award, Clock, Check, ChevronRight, Share2, MessageCircle, Trash2, Camera } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { addShopReview, addPortfolioPhoto, removePortfolioPhoto } from '@/lib/dataShops'
+import { confirmAction } from '@/lib/confirm'
 import { PhotoPicker } from '@/components/PhotoPicker'
 import { PhotoViewer, type ViewerPhoto } from '@/components/PhotoViewer'
 import { FoundingBadge } from '@/components/FoundingBadge'
@@ -361,7 +362,7 @@ export function ShopPage() {
                                             {isOwner && (
                                                 <button aria-label="Delete photo"
                                                     onClick={async () => {
-                                                        if (!window.confirm('Delete this photo?')) return
+                                                        if (!(await confirmAction({ title: 'Delete this photo?', confirmLabel: 'Delete', danger: true }))) return
                                                         const err = await removePortfolioPhoto(shop.id, p.id)
                                                         if (err) showToast('error', err)
                                                     }}
@@ -502,15 +503,17 @@ export function ShopPage() {
                 </div>
             </div>
 
+            <AnimatePresence>
             {bannerOpen && shop.photoUrl && (
-                <PhotoViewer photos={[{ id: 'shop-photo', imageUrl: shop.photoUrl, caption: shop.name }]} startIndex={0}
+                <PhotoViewer key="banner" photos={[{ id: 'shop-photo', imageUrl: shop.photoUrl, caption: shop.name }]} startIndex={0}
                     title={shop.name} onClose={() => setBannerOpen(false)} onShare={() => { handleShare() }} />
             )}
 
             {viewerIndex !== null && (
-                <PhotoViewer photos={photos} startIndex={viewerIndex} title={shop.name}
+                <PhotoViewer key="gallery" photos={photos} startIndex={viewerIndex} title={shop.name}
                     onClose={() => setViewerIndex(null)} onShare={sharePhoto} />
             )}
+            </AnimatePresence>
         </div>
     )
 }

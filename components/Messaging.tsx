@@ -1,5 +1,6 @@
 'use client'
 
+import { confirmAction } from '@/lib/confirm'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Send, Phone, Video, Search, ArrowLeft, MoreVertical, Lock, Ban, Flag, Check, X } from 'lucide-react'
 import { useState, useRef, useEffect, useMemo } from 'react'
@@ -260,7 +261,7 @@ export function Messaging() {
       if (error) { showToast('error', error); return }
       showToast('success', 'Unblocked.')
     } else {
-      if (!window.confirm(`Block ${selectedConv.otherName}? They will not be able to message or book you.`)) return
+      if (!(await confirmAction({ title: `Block ${selectedConv.otherName}?`, message: 'They will not be able to message or book you.', confirmLabel: 'Block', danger: true }))) return
       const error = await blockUser(otherId)
       if (error) { showToast('error', error); return }
       showToast('success', 'Blocked.')

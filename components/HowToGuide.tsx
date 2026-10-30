@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
+import { AnimatePresence } from 'framer-motion'
 import { BookOpen, ChevronDown, PlayCircle } from 'lucide-react'
 import { GUIDES, type Guide } from '@/lib/guideContent'
 
@@ -48,7 +49,9 @@ export function HowToGuide() {
         ))}
       </div>
 
-      {playing && <StepGuide guide={playing} onClose={() => setPlaying(null)} />}
+      <AnimatePresence>
+        {playing && <StepGuide key={playing.id} guide={playing} onClose={() => setPlaying(null)} />}
+      </AnimatePresence>
     </section>
   )
 }

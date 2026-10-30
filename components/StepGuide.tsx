@@ -4,6 +4,7 @@
 // Loaded only when someone opens a guide (see HowToGuide), so it never slows the rest of the app.
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { useFocusTrap } from '@/lib/useFocusTrap'
 import { X, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react'
 import type { Guide } from '@/lib/guideContent'
 
@@ -16,6 +17,8 @@ export default function StepGuide({ guide, onClose }: { guide: Guide; onClose: (
   const last = guide.steps.length - 1
   const step = guide.steps[i]
   const closeRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  useFocusTrap(panelRef)
 
   useEffect(() => {
     closeRef.current?.focus()
@@ -36,9 +39,11 @@ export default function StepGuide({ guide, onClose }: { guide: Guide; onClose: (
   }, [playing, i, last])
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4"
+    <motion.div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4"
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
       role="dialog" aria-modal="true" aria-label={guide.title} onClick={onClose}>
-      <div className="w-full sm:max-w-md bg-background rounded-t-3xl sm:rounded-3xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] max-h-[92vh] overflow-y-auto"
+      <motion.div ref={panelRef} initial={{ y: 28, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 16, opacity: 0 }} transition={{ duration: 0.22 }}
+        className="w-full sm:max-w-md bg-background rounded-t-3xl sm:rounded-3xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] max-h-[92vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}>
         <div className="flex items-start justify-between gap-3 mb-4">
           <div>
@@ -98,7 +103,7 @@ export default function StepGuide({ guide, onClose }: { guide: Guide; onClose: (
             <button onClick={onClose} className="flex-1 min-h-[48px] rounded-xl bg-primary text-primary-foreground font-bold text-sm">Done</button>
           )}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }

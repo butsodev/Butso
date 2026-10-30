@@ -237,3 +237,28 @@ body::before {
 body:has(.fixed.inset-0) [data-bottom-nav] {
   display: none;
 }
+
+/* Small, quick press feedback on every button (the "scale" property so it never fights other transforms) */
+@layer base {
+  button {
+    transition-property: scale, background-color, color, border-color, opacity;
+    transition-duration: 120ms;
+    transition-timing-function: ease-out;
+  }
+  button:not(:disabled):active {
+    scale: 0.97;
+  }
+}
+
+/* On touch screens, icon-only buttons and links get at least a 44px tap area.
+   Add class "no-touch-target" to opt a specific one out. */
+@media (pointer: coarse) {
+  button:has(> svg:only-child):not(.no-touch-target),
+  a:has(> svg:only-child):not(.no-touch-target) {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

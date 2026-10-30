@@ -1,5 +1,6 @@
 'use client'
 
+import { confirmAction } from '@/lib/confirm'
 import { AmountInput } from '@/components/AmountInput'
 import { motion } from 'framer-motion'
 import { shareLink } from '@/lib/share'
@@ -76,7 +77,7 @@ export function JobDetails() {
   }
   const removeJob = async () => {
     if (!job) return
-    if (!window.confirm('Delete this job for good? This cannot be undone.')) return
+    if (!(await confirmAction({ title: 'Delete this job?', message: 'It will be gone for good. This cannot be undone.', confirmLabel: 'Delete', danger: true }))) return
     setBusy(true)
     const err = await deleteJob(job.id)
     if (err) { setBusy(false); showToast('error', err); return }
