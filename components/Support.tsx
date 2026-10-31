@@ -40,6 +40,21 @@ const faqs = [
     answer: 'Talk to the other person first in Messages. If that does not work, use Contact support on this page and describe what happened. A formal dispute process is not available yet.'
   },
   {
+    id: 10,
+    question: 'Who can use Butsó?',
+    answer: 'Butsó is for people aged 18 and over. We ask for your date of birth when you sign up, and it stays private. Junior accounts approved by a parent or legal guardian are planned, but they are not available yet.'
+  },
+  {
+    id: 11,
+    question: 'How do I stay safe?',
+    answer: 'Meet in a public place the first time, tell someone you trust where you are going, and never pay anyone to apply for or get a job. Agree the price before work starts and pay only when you are happy with the work. If someone makes you uncomfortable, open the chat menu and tap Block or Report.'
+  },
+  {
+    id: 12,
+    question: 'Can I delete my account or get a copy of my data?',
+    answer: 'Yes. In Settings, tap Download my data for a copy, or Delete my account to ask us to delete it. We process deletion requests within 30 days.'
+  },
+  {
     id: 9,
     question: 'Does Butsó charge fees?',
     answer: 'Butsó is free to join, free to post and free to apply while we grow. When secure in-app payments launch, we may take a small cut from the person who earns, never from the person hiring, and only on payments made through the app. We will give you at least 30 days\' notice before any fee starts.'

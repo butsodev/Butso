@@ -5,12 +5,12 @@ Butsó is free to join. These guides cover the main things you can do. The same 
 > This file is generated from `lib/guideContent.ts`. Edit that file, then run `npx tsx scripts/make-guide-md.ts`.
 
 ## Join and set up your profile
-*For: Everyone.* Free to join. Takes about three minutes.
+*For: Everyone.* Free to join, for people 18 and over. Takes about three minutes.
 
 1. Open Butsó and tap Join. Sign up with your email, or with Google.
-2. Pick what you want to do first: find work or hire people. You can always do both later.
-3. Verify your phone number when asked. Other people never see it unless you share it.
-4. Pick a username. People see @username, not your real name, until you share your contact details.
+2. Confirm your date of birth and that you are 18 or over, and agree to the Terms and Privacy Policy. Your date of birth stays private.
+3. Pick what you want to do first: find work or hire people. You can always do both later.
+4. Pick a username. People see @username, not your real name, until you share your contact details. A phone number is optional, and we do not check it yet.
 5. Add your area, your skills and a short bio. Workers with a complete profile who start applying are shown to employers first for 30 days.
 
 ## Find work and apply

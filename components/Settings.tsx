@@ -1,13 +1,14 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowLeft, Bell, Lock, Globe, LogOut, User, Edit2, Shield } from 'lucide-react'
+import { ArrowLeft, Bell, Lock, Globe, LogOut, User, Edit2, Shield, Download, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { WUKARI_AREAS } from '@/lib/areas'
 import { useAppStore, goBackTo } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
 import { signOutUser } from '@/lib/auth'
 import { showToast } from '@/lib/toast'
+import { confirmAction } from '@/lib/confirm'
 
 export function Settings() {
   const { currentUser, setCurrentPage, setCurrentUser, darkMode, toggleDarkMode } = useAppStore()
@@ -17,6 +18,41 @@ export function Settings() {
   const [editedArea, setEditedArea] = useState(currentUser?.location || '')
 
   const [saving, setSaving] = useState(false)
+  const [exporting, setExporting] = useState(false)
+
+  // Your data: download a copy of everything we hold about you
+  const handleExport = async () => {
+    if (exporting) return
+    setExporting(true)
+    const { data, error } = await supabase.rpc('export_my_data')
+    setExporting(false)
+    if (error || !data) { showToast('error', error?.message ?? 'Could not prepare your data.'); return }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `butso-my-data-${new Date().toISOString().slice(0, 10)}.json`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+    showToast('success', 'Your data was downloaded.')
+  }
+
+  // Ask us to delete the account. We process requests by hand within 30 days.
+  const handleDeleteRequest = async () => {
+    if (!currentUser) return
+    const ok = await confirmAction({
+      title: 'Delete your account?',
+      message: 'We will delete your account and personal data within 30 days. Some records may be kept where the law or safety needs it. You will not be able to undo this.',
+      confirmLabel: 'Request deletion',
+      danger: true,
+    })
+    if (!ok) return
+    const { error } = await supabase.from('deletion_requests').insert({ user_id: currentUser.id })
+    if (error && error.code !== '23505') { showToast('error', error.message); return }
+    showToast('success', error ? 'You already asked us to delete this account.' : 'Deletion requested. We will process it within 30 days.')
+  }
 
   const handleSaveProfile = async () => {
     if (!currentUser || saving) return
@@ -223,6 +259,17 @@ export function Settings() {
         className="px-4 sm:px-6 mt-8"
       >
         <h3 className="text-sm font-bold text-muted-foreground uppercase mb-3">
+          Your data
+        </h3>
+        <button
+          onClick={handleExport}
+          disabled={exporting}
+          className="w-full bg-card hover:bg-secondary text-foreground rounded-lg p-4 flex items-center gap-3 transition mb-3 disabled:opacity-60"
+        >
+          <Download size={20} />
+          <span className="font-medium">{exporting ? 'Preparing...' : 'Download my data'}</span>
+        </button>
+        <h3 className="text-sm font-bold text-muted-foreground uppercase mb-3 mt-6">
           Danger Zone
         </h3>
         <button
@@ -231,6 +278,13 @@ export function Settings() {
         >
           <LogOut size={20} />
           <span className="font-medium">Log Out</span>
+        </button>
+        <button
+          onClick={handleDeleteRequest}
+          className="w-full mt-3 bg-card hover:bg-destructive/10 dark:hover:bg-destructive/10 text-destructive rounded-lg p-4 flex items-center gap-3 transition"
+        >
+          <Trash2 size={20} />
+          <span className="font-medium">Delete my account</span>
         </button>
       </motion.div>
     </motion.div>

@@ -1,6 +1,6 @@
 # Butsó
 
-**Where skills meet opportunity.** Find work, connect with skilled people, and help local businesses grow.
+**A free local marketplace for jobs, skilled workers and small shops.**
 
 Butsó connects workers and employers, and helps shops get found and booked, with privacy built in: strangers see a username, not your real name or phone number, until you choose to share them. Launching first in Taraba State, Nigeria.
 
@@ -11,8 +11,10 @@ Butsó connects workers and employers, and helps shops get found and booked, wit
 - **Jobs:** post a job, apply, and hire from the people who applied (up to 30 applicants per job). Hire someone directly from their profile.
 - **Shops and bookings:** shops list services, prices, opening hours and up to 12 work photos. Customers book a time, and shops accept or decline.
 - **Messages and requests:** first contact is a short message request. Contact details are shared only after a request is accepted, a hire, or an accepted booking.
+- **18+ only for now:** an age and consent step at signup, with the date of birth kept private. Junior accounts with guardian approval are planned.
 - **Privacy by default:** real names, photos and phone numbers are hidden from strangers, enforced in the database, not just on screen.
 - **Fair discovery:** everyone gets a turn. Same-area workers show first, serious new members get a 30-day boost, and a per-visit shuffle stops anyone owning the top spot. Rating and past jobs never decide who is seen.
+- **Your data:** download a copy of your data or request account deletion from Settings.
 - **Trust:** reviews only after a completed booking, block and report, and a Founding Member badge for the first 100 members.
 - **Sharing:** every profile, job and shop has a share link with a WhatsApp preview.
 - **Help built in:** step-by-step guides in the app (Help & Support). See also [docs/HOW-TO-USE.md](docs/HOW-TO-USE.md).
@@ -74,7 +76,7 @@ Create an unsigned upload preset with unique filenames on, overwrite off, allowe
 
 ```
 app/
-  (entry)/        sign-up, log-in, onboarding, phone verification
+  (entry)/        sign-up, log-in, onboarding
   (main)/         dashboard, jobs, bookings, messages, shop, notifications, payments
   u/[username]/   public profile links (/@username)
 components/       UI and screens

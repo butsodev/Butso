@@ -3,8 +3,10 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronRight, Briefcase, HardHat, Search, X, Check, AtSign, Shuffle,
-  Wrench, ClipboardList, Users, UserRound, CheckCircle2, type LucideIcon,
+  Wrench, ClipboardList, Users, UserRound, CheckCircle2, ShieldCheck, type LucideIcon,
 } from 'lucide-react'
+import { LEGAL_VERSION, ageFromBirthDate, ADULT_AGE } from '@/lib/legal'
+import { signOutUser } from '@/lib/auth'
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { WUKARI_AREAS } from '@/lib/areas'
 import { isReservedUsername } from '@/lib/usernames'
@@ -312,7 +314,7 @@ function SkillsPicker({ selected, onChange }: { selected: string[]; onChange: (s
 }
 
 /* ─── Main ───────────────────────────────────────────────────────────────── */
-type Step = 'role' | 'basic' | 'gender' | 'skills' | 'next'
+type Step = 'age' | 'role' | 'basic' | 'gender' | 'skills' | 'next'
 
 export function ProfileSetup() {
   const {
@@ -341,6 +343,9 @@ export function ProfileSetup() {
   const [authPhone, setAuthPhone] = useState<string | null>(null)
   const [phoneInput, setPhoneInput] = useState('')
   const [submitError, setSubmitError] = useState('')
+  const [birthDate, setBirthDate] = useState('')
+  const [agreed, setAgreed] = useState(false)
+  const [tooYoung, setTooYoung] = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -365,16 +370,16 @@ export function ProfileSetup() {
   // Steps: role (skipped if already chosen) → basic → gender → skills (workers) → next
   const allSteps: Step[] = roleAlreadyChosen
     ? isWorker
-      ? ['basic', 'gender', 'skills', 'next']
-      : ['basic', 'gender', 'next']
+      ? ['age', 'basic', 'gender', 'skills', 'next']
+      : ['age', 'basic', 'gender', 'next']
     : selectedRole === null
-      ? ['role']
+      ? ['age', 'role']
       : isWorker
-        ? ['role', 'basic', 'gender', 'skills', 'next']
-        : ['role', 'basic', 'gender', 'next']
+        ? ['age', 'role', 'basic', 'gender', 'skills', 'next']
+        : ['age', 'role', 'basic', 'gender', 'next']
 
   // Start on first step (skips role if already chosen)
-  const [step, setStep] = useState<Step>(allSteps[0])
+  const [step, setStep] = useState<Step>('age') // everyone confirms their age and accepts the Terms first
   const stepIndex = allSteps.indexOf(step)
 
   // Keep the username in sync with the name until the user types their own
@@ -388,6 +393,18 @@ export function ProfileSetup() {
   const createUser = async () => {
     if (!authUserId) {
       setSubmitError('You appear to be signed out. Please log in again.')
+      return null
+    }
+    // Date of birth and consent go in a private table only you and the database can see.
+    // The database refuses a profile unless this row exists and shows 18 or over.
+    const { error: legalError } = await supabase.from('profile_private').insert({
+      user_id: authUserId,
+      birth_date: birthDate,
+      terms_version: LEGAL_VERSION,
+    })
+    // 23505 = already saved on an earlier try (for example, the username was taken): that is fine
+    if (legalError && legalError.code !== '23505') {
+      setSubmitError(legalError.message.includes('18') ? 'Butsó is for people aged 18 and over.' : legalError.message)
       return null
     }
     const profileData = {
@@ -450,6 +467,61 @@ export function ProfileSetup() {
   }
 
   // ── Step renderers ───────────────────────────────────────────────────────
+
+  const StepAge = tooYoung ? (
+    <motion.div key="age-blocked" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} className="space-y-5">
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10">
+        <ShieldCheck size={22} className="text-primary" />
+      </div>
+      <div>
+        <h1 className="text-2xl font-black text-foreground mb-2 tracking-tight">Butsó is for people {ADULT_AGE} and over</h1>
+        <p className="text-muted-foreground text-sm leading-relaxed">
+          We are working on Junior accounts that a parent or legal guardian can approve, with extra safety rules.
+          They are not ready yet. Please come back when you are {ADULT_AGE}, or ask a parent or guardian to follow
+          our updates. We have not saved your details.
+        </p>
+      </div>
+      <button onClick={async () => { await signOutUser(); setCurrentPage('splash') }}
+        className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition">
+        Log out
+      </button>
+    </motion.div>
+  ) : (
+    <motion.div key="age" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} className="space-y-5">
+      <div>
+        <h1 className="text-2xl font-black text-foreground mb-1 tracking-tight">Before we start</h1>
+        <p className="text-muted-foreground text-sm">Butsó is for people {ADULT_AGE} and over. Your date of birth stays private. Nobody else sees it.</p>
+      </div>
+      <div>
+        <label htmlFor="birth-date" className="block text-sm font-bold text-foreground mb-1">Date of birth</label>
+        <input id="birth-date" type="date" value={birthDate} min="1920-01-01" max={new Date().toISOString().slice(0, 10)}
+          onChange={e => setBirthDate(e.target.value)}
+          className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground bg-background transition" />
+      </div>
+      <label className="flex items-start gap-3 text-sm text-foreground cursor-pointer">
+        <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} className="mt-1 w-5 h-5 accent-primary shrink-0" />
+        <span>
+          I confirm I am {ADULT_AGE} or over, and I agree to the{' '}
+          <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline text-primary">Terms of Service</a> and{' '}
+          <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline text-primary">Privacy Policy</a>.
+        </span>
+      </label>
+      {birthDate && ageFromBirthDate(birthDate) === null && (
+        <p className="text-sm text-destructive">Please enter a valid date of birth.</p>
+      )}
+      <motion.button whileTap={{ scale: 0.98 }}
+        disabled={!birthDate || !agreed}
+        onClick={() => {
+          const age = ageFromBirthDate(birthDate)
+          if (age === null) return
+          if (age < ADULT_AGE) { setTooYoung(true); return }
+          setStep(roleAlreadyChosen ? 'basic' : 'role')
+        }}
+        className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition disabled:opacity-40 flex items-center justify-center gap-2">
+        Continue <ChevronRight size={20} />
+      </motion.button>
+    </motion.div>
+  )
 
   const StepRole = (
     <motion.div key="role" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} className="space-y-4">
@@ -729,6 +801,7 @@ export function ProfileSetup() {
         </div>
 
         <AnimatePresence mode="wait">
+          {step === 'age' && StepAge}
           {step === 'role' && StepRole}
           {step === 'basic' && StepBasic}
           {step === 'gender' && StepGender}

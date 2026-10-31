@@ -1,7 +1,7 @@
-import { PhoneVerification } from '@/components/PhoneVerification'
+import { redirect } from 'next/navigation'
 
-export const metadata = { title: 'Verify your phone · Butsó' }
-
+// The old phone-code screen was a placeholder that accepted any code, so it has been removed.
+// Real phone verification will come back once an SMS provider is set up.
 export default function VerifyPhoneRoute() {
-  return <PhoneVerification />
+  redirect('/signup')
 }
