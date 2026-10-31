@@ -26,14 +26,6 @@ export const ALL_SKILLS = [
   'Teaching', 'Tutoring', 'Event Planning', 'Moving & Packing', 'IT Support',
 ]
 
-/* ─── Gender options ─────────────────────────────────────────────────────── */
-type Gender = 'male' | 'female' | 'other'
-const GENDER_OPTIONS: { value: Gender; label: string }[] = [
-  { value: 'male', label: 'Male' },
-  { value: 'female', label: 'Female' },
-  { value: 'other', label: 'Other / Prefer not to say' },
-]
-
 /* ─── "What now?" options ────────────────────────────────────────────────── */
 const NEXT_OPTIONS: {
   id: string; icon: LucideIcon; title: string; body: string; color: string; page: string; mode: 'find-work' | 'need-help'
@@ -314,7 +306,7 @@ function SkillsPicker({ selected, onChange }: { selected: string[]; onChange: (s
 }
 
 /* ─── Main ───────────────────────────────────────────────────────────────── */
-type Step = 'age' | 'role' | 'basic' | 'gender' | 'skills' | 'next'
+type Step = 'age' | 'role' | 'basic' | 'skills' | 'next'
 
 export function ProfileSetup() {
   const {
@@ -328,7 +320,6 @@ export function ProfileSetup() {
   const [usernameEdited, setUsernameEdited] = useState(false)
   const [bio, setBio] = useState('')
   const [area, setArea] = useState<string>('')
-  const [gender, setGender] = useState<Gender | null>(null)
   const [skills, setSkills] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [pressedNext, setPressedNext] = useState<string | null>(null)
@@ -367,16 +358,16 @@ export function ProfileSetup() {
   // Skip role step if already chosen on landing page
   const roleAlreadyChosen = !!sessionStorage.getItem('selectedRole')
 
-  // Steps: role (skipped if already chosen) → basic → gender → skills (workers) → next
+  // Steps: role (skipped if already chosen) → basic → skills (workers) → next
   const allSteps: Step[] = roleAlreadyChosen
     ? isWorker
-      ? ['age', 'basic', 'gender', 'skills', 'next']
-      : ['age', 'basic', 'gender', 'next']
+      ? ['age', 'basic', 'skills', 'next']
+      : ['age', 'basic', 'next']
     : selectedRole === null
       ? ['age', 'role']
       : isWorker
-        ? ['age', 'role', 'basic', 'gender', 'skills', 'next']
-        : ['age', 'role', 'basic', 'gender', 'next']
+        ? ['age', 'role', 'basic', 'skills', 'next']
+        : ['age', 'role', 'basic', 'next']
 
   // Start on first step (skips role if already chosen)
   const [step, setStep] = useState<Step>('age') // everyone confirms their age and accepts the Terms first
@@ -414,7 +405,6 @@ export function ProfileSetup() {
       username: username.trim(),
       role,
       bio: bio.trim() || null,
-      gender: gender ?? null,
       location: area.trim() || null,
       skills: isWorker && skills.length > 0 ? skills : [],
     }
@@ -439,7 +429,6 @@ export function ProfileSetup() {
       username: data.username,
       role: data.role,
       bio: data.bio ?? undefined,
-      gender: data.gender ?? undefined,
       skills: data.skills?.length ? data.skills : undefined,
       rating: data.rating ?? 5,
       completedJobs: data.completed_jobs ?? 0,
@@ -638,60 +627,11 @@ export function ProfileSetup() {
       </div>
 
       <motion.button whileTap={{ scale: 0.98 }}
-        onClick={() => setStep('gender')}
+        onClick={() => setStep(isWorker ? 'skills' : 'next')}
         disabled={!name.trim() || !usernameValid || !phoneOk}
         className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition disabled:opacity-40 flex items-center justify-center gap-2 text-base">
         Next <ChevronRight size={20} />
       </motion.button>
-    </motion.div>
-  )
-
-  const StepGender = (
-    <motion.div key="gender" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
-      <div className="text-center mb-4">
-        <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-2xl mb-3">
-          <UserRound className="text-primary" size={28} />
-        </div>
-        <h1 className="text-2xl font-black text-foreground mb-1">Quick question</h1>
-        <p className="text-muted-foreground text-sm">
-          Helps personalise hair & beauty services for you.<br />
-          <span className="text-xs">Note: everyone can book any service. This is just for recommendations.</span>
-        </p>
-      </div>
-
-      <div className="space-y-3">
-        {GENDER_OPTIONS.map(opt => (
-          <motion.button key={opt.value} whileTap={{ scale: 0.97 }}
-            onClick={() => setGender(opt.value)}
-            className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl border-2 text-left transition-all ${gender === opt.value
-              ? 'border-primary bg-primary/8'
-              : 'border-border hover:border-primary/40'
-              }`}>
-            <span className="font-semibold text-foreground">{opt.label}</span>
-            {gender === opt.value && (
-              <span className="ml-auto w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
-                <Check size={12} className="text-white" />
-              </span>
-            )}
-          </motion.button>
-        ))}
-      </div>
-
-      <motion.button whileTap={{ scale: 0.98 }}
-        onClick={() => setStep(isWorker ? 'skills' : 'next')}
-        disabled={!gender}
-        className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition disabled:opacity-40 flex items-center justify-center gap-2 text-base">
-        Next <ChevronRight size={20} />
-      </motion.button>
-
-      <button onClick={() => setStep(isWorker ? 'skills' : 'next')}
-        className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition py-1">
-        Skip this question
-      </button>
-
-      <button onClick={() => setStep('basic')} className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition py-1">
-        ← Back
-      </button>
     </motion.div>
   )
 
@@ -713,7 +653,7 @@ export function ProfileSetup() {
         {skills.length === 0 ? 'Skip for now' : 'Next'} <ChevronRight size={20} />
       </motion.button>
 
-      <button onClick={() => setStep('gender')} className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition py-1">
+      <button onClick={() => setStep('basic')} className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition py-1">
         ← Back
       </button>
     </motion.div>
@@ -804,7 +744,6 @@ export function ProfileSetup() {
           {step === 'age' && StepAge}
           {step === 'role' && StepRole}
           {step === 'basic' && StepBasic}
-          {step === 'gender' && StepGender}
           {step === 'skills' && StepSkills}
           {step === 'next' && StepNext}
         </AnimatePresence>

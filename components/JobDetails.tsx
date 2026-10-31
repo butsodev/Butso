@@ -1,5 +1,6 @@
 'use client'
 
+import { ReportButton } from '@/components/ReportDialog'
 import { confirmAction } from '@/lib/confirm'
 import { AmountInput } from '@/components/AmountInput'
 import { motion } from 'framer-motion'
@@ -188,6 +189,8 @@ export function JobDetails() {
             >
               <Share2 size={20} />
             </motion.button>
+            <ReportButton targetUserId={job.employerId} kind="job" refId={job.id}
+              className="p-2 bg-secondary text-muted-foreground hover:text-foreground rounded-lg transition" />
           </div>
         </div>
       </div>

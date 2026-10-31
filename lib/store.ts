@@ -13,7 +13,6 @@ export interface User {
   username: string          // unique, chosen at signup
   role: UserRole
   avatar?: string
-  gender?: 'male' | 'female' | 'other'
   bio?: string
   location?: string
   skills?: string[]

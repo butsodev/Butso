@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { WifiOff } from 'lucide-react'
 import { useConfirmStore, answerConfirm } from '@/lib/confirm'
 import { useFocusTrap } from '@/lib/useFocusTrap'
+import { LegalGate } from '@/components/LegalGate'
 
 function ConfirmHost() {
   const { open, opts } = useConfirmStore()
@@ -223,6 +224,7 @@ export function GlobalUI() {
       <ConfirmHost />
       <TipHost />
       <OfflineBanner />
+      <LegalGate />
     </>
   )
 }

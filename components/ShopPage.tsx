@@ -6,6 +6,7 @@
  * Shows: hero, portfolio/about, services, reviews, owner info
  */
 
+import { ReportButton } from '@/components/ReportDialog'
 import { motion, AnimatePresence } from 'framer-motion'
 import { shareLink } from '@/lib/share'
 import { ArrowLeft, MapPin, Phone, Award, Clock, Check, ChevronRight, Share2, MessageCircle, Trash2, Camera } from 'lucide-react'
@@ -173,6 +174,7 @@ export function ShopPage() {
                         <button aria-label="Share shop" onClick={handleShare} className="p-2 hover:bg-secondary rounded-xl transition">
                             <Share2 size={18} className="text-muted-foreground" />
                         </button>
+                        <ReportButton targetUserId={shop.ownerId} kind="shop" refId={shop.id} />
                         <button aria-label="Message shop" onClick={() => openChatWith({ userId: shop.ownerId, name: shop.ownerName || shop.name, context: shop.name })} className="p-2 hover:bg-secondary rounded-xl transition">
                             <MessageCircle size={18} className="text-muted-foreground" />
                         </button>
@@ -415,7 +417,7 @@ export function ShopPage() {
                                     <div key={review.id} className="p-4 bg-card border border-border rounded-2xl">
                                         <div className="flex items-start justify-between gap-2 mb-2">
                                             <div>
-                                                <p className="font-bold text-foreground text-sm">{review.userName}</p>
+                                                <div className="flex items-center gap-1"><p className="font-bold text-foreground text-sm">{review.userName}</p><ReportButton targetUserId={review.userId} kind="review" refId={review.id} className="p-1 text-muted-foreground/60 hover:text-foreground" /></div>
                                                 <StarRating rating={review.rating} size={12} />
                                             </div>
                                             <p className="text-xs text-muted-foreground shrink-0">

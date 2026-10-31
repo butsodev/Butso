@@ -1,5 +1,6 @@
 'use client'
 
+import { ReportButton } from '@/components/ReportDialog'
 import { FoundingBadge } from '@/components/FoundingBadge'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, MapPin, Zap, SlidersHorizontal, X } from 'lucide-react'
@@ -288,6 +289,8 @@ export function PeopleSearch({ embedded = false }: { embedded?: boolean }) {
                   >
                     Hire for Job
                   </motion.button>
+                  <ReportButton targetUserId={selectedWorker.id} kind="profile" refId={selectedWorker.id}
+                    className="px-4 py-3 bg-secondary rounded-xl border border-border text-muted-foreground hover:text-foreground transition" />
                 </div>
               )}
               <button

@@ -79,7 +79,6 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
           username: p.username,
           role: p.role as UserRole,
           bio: p.bio ?? undefined,
-          gender: p.gender ?? undefined,
           skills: p.skills?.length ? p.skills : undefined,
           rating: Number(p.rating ?? 5),
           completedJobs: p.completed_jobs ?? 0,

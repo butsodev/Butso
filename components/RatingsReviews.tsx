@@ -1,5 +1,6 @@
 'use client'
 
+import { ReportButton } from '@/components/ReportDialog'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Star } from 'lucide-react'
@@ -201,7 +202,7 @@ export function RatingsReviews() {
                           <p className="text-xs text-muted-foreground">{timeAgo(r.createdAt)}</p>
                         </div>
                       </div>
-                      <RatingBadge value={r.rating} size="sm" />
+                      <div className="flex items-center gap-1"><RatingBadge value={r.rating} size="sm" /><ReportButton targetUserId={r.reviewerId} kind="review" refId={r.id} className="p-1 text-muted-foreground/60 hover:text-foreground" /></div>
                     </div>
                     {r.comment && <p className="text-sm text-muted-foreground leading-relaxed">{r.comment}</p>}
                   </div>

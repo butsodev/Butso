@@ -18,7 +18,7 @@ const SECTIONS: [string, string[]][] = [
     "2. What we collect",
     [
       "Account details: your email address, or the details from Google if you sign in with Google.",
-      "Profile details: your name, username, area, skills, bio, gender if you give it, and your phone number if you add one. Your phone number is not checked by us yet.",
+      "Profile details: your name, username, area, skills, bio, and your phone number if you add one. Your phone number is not checked by us yet.",
       "Your date of birth and the version of the Terms you agreed to. These are kept private and used only to confirm you are 18 or over.",
       "What you create: jobs, applications, bookings, messages, message and contact requests, reviews, shop details, and photos you upload.",
       "Safety records: blocks and reports.",
