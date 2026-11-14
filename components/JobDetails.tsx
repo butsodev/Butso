@@ -30,13 +30,16 @@ export function JobDetails() {
   const [busy, setBusy] = useState(false)
   const [form, setForm] = useState({ title: '', description: '', budget: '', location: '' })
 
+  // Effects below key on ids, so a refreshed user or job object does not refetch.
+  const userId = currentUser?.id
+
   // Saved jobs persist per account
   useEffect(() => {
-    if (!selectedJobId || !currentUser) { setIsFavorite(false); return }
+    if (!selectedJobId || !userId) { setIsFavorite(false); return }
     let cancelled = false
-    isJobSaved(currentUser.id, selectedJobId).then(v => { if (!cancelled) setIsFavorite(v) })
+    isJobSaved(userId, selectedJobId).then(v => { if (!cancelled) setIsFavorite(v) })
     return () => { cancelled = true }
-  }, [selectedJobId, currentUser?.id])
+  }, [selectedJobId, userId])
 
   const toggleSaved = async () => {
     if (!currentUser) { useAppStore.getState().openAuth('login'); return }
@@ -88,11 +91,11 @@ export function JobDetails() {
   }
 
   useEffect(() => {
-    if (!selectedJobId || !currentUser) { setInvite(null); return }
+    if (!selectedJobId || !userId) { setInvite(null); return }
     let cancelled = false
-    fetchMyPendingInvite(selectedJobId, currentUser.id).then(i => { if (!cancelled) setInvite(i) })
+    fetchMyPendingInvite(selectedJobId, userId).then(i => { if (!cancelled) setInvite(i) })
     return () => { cancelled = true }
-  }, [selectedJobId, currentUser?.id])
+  }, [selectedJobId, userId])
 
   const answerInvite = async (accept: boolean) => {
     if (!invite) return
@@ -108,13 +111,14 @@ export function JobDetails() {
   }
 
   const job = jobs.find(j => j.id === selectedJobId)
+  const employerId = job?.employerId
 
   useEffect(() => {
-    if (!job) return
+    if (!employerId) return
     let cancelled = false
-    fetchProfile(job.employerId).then(p => { if (!cancelled) setEmployer(p) })
+    fetchProfile(employerId).then(p => { if (!cancelled) setEmployer(p) })
     return () => { cancelled = true }
-  }, [job?.employerId])
+  }, [employerId])
 
   const handleApply = () => {
     setIsApplying(true)

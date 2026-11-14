@@ -55,11 +55,12 @@ export async function fetchApplicants(jobId: string): Promise<{ applicants: Appl
     .select('id, name, username, bio, skills, rating, completed_jobs')
     .in('id', rows.map(r => r.worker_id))
   if (pErr) return { applicants: [], error: pErr.message }
-  const byId = new Map((profiles ?? []).map((p: any) => [p.id, p]))
+  type ProfileRow = { id: string; name: string | null; username: string | null; bio: string | null; skills: string[] | null; rating: number | string | null; completed_jobs: number | null }
+  const byId = new Map(((profiles ?? []) as ProfileRow[]).map(p => [p.id, p]))
 
   return {
     applicants: rows.map(r => {
-      const p: any = byId.get(r.worker_id)
+      const p = byId.get(r.worker_id)
       return {
         id: r.id,
         workerId: r.worker_id,

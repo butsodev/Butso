@@ -3,9 +3,15 @@
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info'
 
+declare global {
+  interface Window {
+    showToast?: (toast: { type: ToastType; message: string; duration?: number }) => void
+  }
+}
+
 export function showToast(type: ToastType, message: string, duration?: number) {
   if (typeof window === 'undefined') return
-  const fn = (window as any).showToast
+  const fn = window.showToast
   if (typeof fn === 'function') fn({ type, message, duration })
   else console.warn('[toast]', type, message)
 }

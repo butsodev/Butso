@@ -742,7 +742,7 @@ export function LandingPage() {
           </div>
           <div style={{ display: 'flex', gap: '1.25rem' }}>
             {[['Privacy', 'privacy'], ['Terms', 'terms'], ['Help', 'support']].map(([label, page]) => (
-              <button key={page} onClick={() => setCurrentPage(page as any)}
+              <button key={page} onClick={() => setCurrentPage(page)}
                 style={{ fontSize: '0.72rem', color: C.faint, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
                 onMouseEnter={e => (e.currentTarget.style.color = C.muted)}
                 onMouseLeave={e => (e.currentTarget.style.color = C.faint)}

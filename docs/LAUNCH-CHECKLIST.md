@@ -5,7 +5,7 @@ Everything to check before real users get the link. Work top to bottom. Tick eac
 ## 1. Code
 
 - [ ] `npm run typecheck` passes
-- [ ] `npm run lint` shows **0 errors**
+- [ ] `npm run lint -- --max-warnings 0` passes (0 errors, 0 warnings)
 - [ ] `npm run build` passes locally
 - [ ] `docs/HOW-TO-USE.md` is up to date: `npx tsx scripts/make-guide-md.ts` makes no change
 

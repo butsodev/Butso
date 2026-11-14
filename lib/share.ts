@@ -15,9 +15,9 @@ export async function shareLink(input: { path: string; title: string; text: stri
             await navigator.share({ title: input.title, text: input.text, url })
             return 'shared'
         }
-    } catch (e: any) {
+    } catch (e) {
         // The person closed the share sheet: not an error, and no copy needed
-        if (e?.name === 'AbortError') return 'failed'
+        if ((e as { name?: string } | null)?.name === 'AbortError') return 'failed'
     }
     try {
         await navigator.clipboard.writeText(`${input.text} ${url}`)

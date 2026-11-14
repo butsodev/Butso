@@ -18,19 +18,16 @@ export function Toast() {
     setToasts(prev => prev.filter(t => t.id !== id))
   }
 
-  const addToast = (toast: Omit<ToastMessage, 'id'>) => {
-    const id = Math.random().toString(36).slice(2, 11)
-    const newToast = { ...toast, id }
-    setToasts(prev => [...prev, newToast])
-
-    if (toast.duration !== Infinity) {
-      setTimeout(() => removeToast(id), toast.duration || 3000)
-    }
-  }
-
-  // Expose to window for global usage
+  // Expose to window for global usage (see lib/toast.ts). Only uses the stable state
+  // setter, so it is created once.
   useEffect(() => {
-    ;(window as any).showToast = addToast
+    window.showToast = (toast: Omit<ToastMessage, 'id'>) => {
+      const id = Math.random().toString(36).slice(2, 11)
+      setToasts(prev => [...prev, { ...toast, id }])
+      if (toast.duration !== Infinity) {
+        setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), toast.duration || 3000)
+      }
+    }
   }, [])
 
   const getIcon = (type: string) => {

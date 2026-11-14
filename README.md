@@ -72,7 +72,7 @@ Create an unsigned upload preset with unique filenames on, overwrite off, allowe
 | `npm run dev` | Start the dev server |
 | `npm run build` | Production build |
 | `npm run start` | Run the production build |
-| `npm run lint` | ESLint (Next.js rules). Must show 0 errors; warnings are allowed but worth fixing |
+| `npm run lint` | ESLint (Next.js rules). Currently 0 errors and 0 warnings; keep it that way |
 | `npm run typecheck` | TypeScript check |
 | `npx tsx scripts/make-guide-md.ts` | Rebuild `docs/HOW-TO-USE.md` from `lib/guideContent.ts` |
 

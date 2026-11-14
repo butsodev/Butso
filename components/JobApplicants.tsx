@@ -25,14 +25,15 @@ export function JobApplicants() {
   const [appliedFilter, setAppliedFilter] = useState<Filter>('all')
   const [busy, setBusy] = useState(false)
 
+  const jobId = job?.id
   const load = useCallback(async () => {
-    if (!job) return
+    if (!jobId) return
     setLoading(true); setLoadError('')
-    const { applicants: list, error } = await fetchApplicants(job.id)
+    const { applicants: list, error } = await fetchApplicants(jobId)
     if (error) setLoadError('Could not load applicants. Please try again.')
     else setApplicants(list)
     setLoading(false)
-  }, [job?.id])
+  }, [jobId])
 
   useEffect(() => { void load() }, [load])
 

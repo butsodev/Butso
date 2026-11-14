@@ -72,7 +72,7 @@ export function ShopSetup() {
     const [photoUrl, setPhotoUrl] = useState(existing?.photoUrl ?? '')
     const [acceptMessages, setAcceptMessages] = useState(existing?.acceptMessagesFromAnyone ?? true)
     const [showPhone, setShowPhone] = useState(existing?.showPhonePublicly ?? false)
-    const [defaultTab, setDefaultTab] = useState<'services' | 'portfolio' | 'reviews'>(existing?.defaultTab ?? 'services')
+    const [defaultTab] = useState<'services' | 'portfolio' | 'reviews'>(existing?.defaultTab ?? 'services')
     const [services, setServices] = useState<ShopService[]>(existing?.services ?? [])
     const [hours, setHours] = useState<OpeningHours>(existing?.openingHours ?? DEFAULT_HOURS)
 

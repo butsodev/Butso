@@ -351,7 +351,6 @@ export function AuthPage() {
         setValue: (v: string) => void,
         onBack: () => void,
         onNext: () => void,
-        isSignup: boolean
     ) => (
         <motion.div
             key="phone-input"
@@ -563,8 +562,7 @@ export function AuthPage() {
                                         renderPhoneInput(
                                             signupPhone, setSignupPhone,
                                             () => setSignupMethod(null),
-                                            () => sendCode(signupPhone, 'phone', () => setSignupPhoneStep('otp')),
-                                            true
+                                            () => sendCode(signupPhone, 'phone', () => setSignupPhoneStep('otp'))
                                         )
                                     }
 
@@ -608,8 +606,7 @@ export function AuthPage() {
                                         renderPhoneInput(
                                             loginPhone, setLoginPhone,
                                             () => setLoginMethod(null),
-                                            () => sendCode(loginPhone, 'phone', () => setLoginPhoneStep('otp')),
-                                            false
+                                            () => sendCode(loginPhone, 'phone', () => setLoginPhoneStep('otp'))
                                         )
                                     }
 

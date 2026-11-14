@@ -54,7 +54,7 @@ export async function fetchReviewedPerson(workerId: string): Promise<ReviewedPer
     .eq('id', workerId)
     .maybeSingle()
   if (!data) return null
-  const d = data as any
+  const d = data as { id: string; name: string | null; username: string | null; rating: number | string | null; completed_jobs: number | null }
   return {
     id: d.id,
     name: d.name ?? 'This person',

@@ -20,7 +20,7 @@ Getting ready for the first real users.
 
 ### Changed
 - **Builds now fail on type errors and lint errors.** `next.config.mjs` used to ignore type errors.
-- Removed unused imports and leftover lint directives. Plain `<img>` is allowed on purpose, since photos are already shrunk before upload and `images.unoptimized` is on.
+- Lint is fully clean (0 errors, 0 warnings): removed unused imports and leftover directives, typed the remaining `any`s (including a typed global `window.showToast`), and made effects depend on ids rather than whole objects. Plain `<img>` is allowed on purpose, since photos are already shrunk before upload and `images.unoptimized` is on.
 - Package renamed from `my-project` to `butso`.
 - `tsconfig.tsbuildinfo` (a build cache) is no longer tracked in git.
 - Removed unused placeholder images from `public/`.
