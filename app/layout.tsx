@@ -5,6 +5,7 @@ import './globals.css'
 import { AuthGate } from '@/components/AuthGate'
 import { MotionProvider } from '@/components/MotionProvider'
 import { GlobalUI } from '@/components/GlobalUI'
+import { siteUrl } from '@/lib/seo'
 
 const jakartaSans = Plus_Jakarta_Sans({
   variable: '--font-body-var',
@@ -21,6 +22,7 @@ const fraunces = Fraunces({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: 'Butsó: Your Local Work Network',
   description: 'Butsó connects skilled workers and employers near you. No CV needed. Free to join.',
   icons: {

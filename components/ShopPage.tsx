@@ -18,7 +18,7 @@ import { PhotoViewer, type ViewerPhoto } from '@/components/PhotoViewer'
 import { FoundingBadge } from '@/components/FoundingBadge'
 import { imgUrl } from '@/lib/upload'
 import { showToast } from '@/lib/toast'
-import { useAppStore, type Shop, type ShopService, rememberReturnTo } from '@/lib/store'
+import { useAppStore, type ShopService, rememberReturnTo } from '@/lib/store'
 
 import { EmojiIcon } from '@/components/EmojiIcon'
 import { RatingMeter } from '@/components/Rating'
@@ -149,7 +149,6 @@ export function ShopPage() {
         if (r === 'copied') showToast('success', 'Photo link copied')
     }
 
-    const openDays = Object.entries(shop.openingHours).filter(([, h]) => h.open)
 
     return (
         <div className="min-h-screen bg-background pb-24">
@@ -189,7 +188,6 @@ export function ShopPage() {
                     {/* Main shop photo: one wide picture, square corners, edge to edge */}
                     <div className="relative -mx-4 aspect-[3/1] bg-gradient-to-r from-primary/25 via-primary/10 to-primary/5 flex items-center justify-center text-5xl mb-4">
                         {shop.photoUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
                             <button aria-label="View shop photo full screen" onClick={() => setBannerOpen(true)} className="absolute inset-0 w-full h-full">
                                 <img src={imgUrl(shop.photoUrl, 'f_auto,q_auto,w_1200,h_400,c_fill,g_auto')} alt={shop.name} className="w-full h-full object-cover" />
                             </button>
@@ -261,7 +259,6 @@ export function ShopPage() {
                                 return (
                                     <button key={p.id} aria-label={`Open gallery, photo ${slot + 1} of ${photos.length}`}
                                         onClick={() => { setEmptyNote(false); setViewerIndex(slot) }} className={box}>
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src={imgUrl(p.imageUrl, 'f_auto,q_auto,w_360,h_360,c_fill')} alt={p.caption || `Work by ${shop.name}`} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
                                         {slot === 2 && photos.length > 3 && (
                                             <span className="absolute inset-0 bg-black/55 text-white text-base font-black flex items-center justify-center">+{photos.length - 3}</span>
@@ -358,7 +355,6 @@ export function ShopPage() {
                                     {photos.map((p, idx) => (
                                         <div key={p.id} className="relative aspect-square rounded-xl overflow-hidden bg-secondary">
                                             <button aria-label={`Open photo ${idx + 1} of ${photos.length}`} onClick={() => setViewerIndex(idx)} className="absolute inset-0">
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                                 <img src={imgUrl(p.imageUrl, 'f_auto,q_auto,w_360,h_360,c_fill')} alt={p.caption || `Work by ${shop.name}`} loading="lazy" className="w-full h-full object-cover" />
                                             </button>
                                             {isOwner && (

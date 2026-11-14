@@ -67,7 +67,6 @@ export function PhotoViewer({ photos, startIndex, title, onClose, onShare, allow
       </div>
 
       <div className="relative flex-1 min-h-0 flex items-center justify-center">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <motion.img key={p.id} src={imgUrl(p.imageUrl, 'f_auto,q_auto,w_1400')} alt={p.caption || title}
           initial={{ opacity: 0, scale: 0.985 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.15 }}
           className="max-w-full max-h-full object-contain select-none" draggable={false} />
@@ -79,7 +78,6 @@ export function PhotoViewer({ photos, startIndex, title, onClose, onShare, allow
         )}
         {/* load the next photo quietly so swiping feels instant */}
         {next && (
-          // eslint-disable-next-line @next/next/no-img-element
           <img src={imgUrl(next.imageUrl, 'f_auto,q_auto,w_1400')} alt="" className="hidden" />
         )}
       </div>

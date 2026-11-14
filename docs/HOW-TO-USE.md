@@ -60,6 +60,14 @@ Butsó is free to join. These guides cover the main things you can do. The same 
 4. Hiring someone, or accepting a booking, shares contact details both ways automatically.
 5. Someone bothering you? Open the chat menu and tap Block or Report. They cannot contact you again.
 
+## Report a problem, and control your data
+*For: Everyone.* Flag anything that looks wrong, and take your data with you or ask us to delete it.
+
+1. See a fake job, a scam shop, a rude review or a fake profile? Tap the flag icon on it, pick a reason, and send. We look at every report.
+2. To get a copy of everything Butsó holds about you, open Settings and tap Download my data. A file is saved to your phone.
+3. To leave Butsó, open Settings and tap Delete my account, then confirm. We delete your account within 30 days.
+4. When our Terms or Privacy Policy change, we ask you to agree again before you carry on. Read them, tick the box, then tap I agree.
+
 ## Fees
 
 Butsó is free to join, free to post and free to apply while we grow. When secure in-app payments launch, we may take a small cut from the person who earns, never from the person hiring, and only on payments made through the app. We will give you at least 30 days’ notice before any fee starts. For now, agree the price directly and pay each other directly. Only pay when you are happy with the work.

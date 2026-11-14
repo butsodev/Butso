@@ -201,7 +201,6 @@ export function ShopSetup() {
                                 <label className="block text-sm font-bold text-foreground mb-2">Shop photo</label>
                                 <div className="w-full aspect-[3/1] bg-gradient-to-r from-primary/25 via-primary/10 to-primary/5 border border-border overflow-hidden flex items-center justify-center text-xs text-muted-foreground">
                                     {photoUrl
-                                        // eslint-disable-next-line @next/next/no-img-element
                                         ? <img src={imgUrl(photoUrl, 'f_auto,q_auto,w_1200,h_400,c_fill,g_auto')} alt="Your shop" className="w-full h-full object-cover" />
                                         : 'No photo yet'}
                                 </div>

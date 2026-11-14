@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Calendar, Clock, CheckCircle, ChevronLeft } from 'lucide-react'
+import { Calendar, Clock, ChevronLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useAppStore } from '@/lib/store'
 import { createBooking } from '@/lib/dataBookings'

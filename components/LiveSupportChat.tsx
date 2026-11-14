@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageCircle, X, Send, Minimize2, ChevronDown } from 'lucide-react'
+import { MessageCircle, X, Send, ChevronDown } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 
 import { EmojiIcon } from '@/components/EmojiIcon'

@@ -3,7 +3,7 @@
 import { ReportButton } from '@/components/ReportDialog'
 import { FoundingBadge } from '@/components/FoundingBadge'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Zap, SlidersHorizontal, X } from 'lucide-react'
+import { Search, MapPin, Zap, X } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
 import { useState, useEffect, useRef } from 'react'
 import { proximityLabel } from '@/lib/areas'

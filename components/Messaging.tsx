@@ -30,7 +30,7 @@ const clock = (iso: string) =>
 
 export function Messaging() {
   const {
-    currentUser, setCurrentPage, viewWorkerProfile,
+    currentUser, viewWorkerProfile,
     conversations, messages, pendingChat, clearPendingChat,
   } = useAppStore()
   // null = show list, string = show chat (mobile stack behaviour)

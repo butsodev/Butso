@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronRight, Briefcase, HardHat, Search, X, Check, AtSign, Shuffle,
-  Wrench, ClipboardList, Users, UserRound, CheckCircle2, ShieldCheck, type LucideIcon,
+  Wrench, ClipboardList, Users, CheckCircle2, ShieldCheck, type LucideIcon,
 } from 'lucide-react'
 import { LEGAL_VERSION, ageFromBirthDate, ADULT_AGE } from '@/lib/legal'
 import { signOutUser } from '@/lib/auth'
@@ -265,7 +265,7 @@ function SkillsPicker({ selected, onChange }: { selected: string[]; onChange: (s
               onKeyDown={e => {
                 if (e.key === 'Enter' && query.trim()) {
                   const exact = ALL_SKILLS.find(s => s.toLowerCase() === query.toLowerCase())
-                  exact ? add(exact) : addCustom()
+                  if (exact) add(exact); else addCustom()
                 }
                 if (e.key === 'Escape') setOpen(false)
               }}

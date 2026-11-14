@@ -2,9 +2,8 @@
 
 import { FirstJobChecklist } from '@/components/FirstJobChecklist'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Award, Briefcase, Clock, ArrowRight, Bell, Plus, Users, Compass, Search, Calendar, MessageCircle, Wallet, Store, Pin, User } from 'lucide-react'
+import { Award, Briefcase, Clock, ArrowRight, Bell, Plus, Users, Compass, Calendar, MessageCircle, Wallet, Store, Pin, User } from 'lucide-react'
 import { NairaIcon } from '@/components/NairaIcon'
-import { useState, useEffect } from 'react'
 import { useAppStore, type DashboardMode } from '@/lib/store'
 import { SkeletonDashboard } from '@/components/Skeleton'
 
@@ -19,22 +18,15 @@ const item = {
 }
 
 export function UnifiedDashboard() {
-  const { currentUser, dashboardMode, setDashboardMode, setCurrentPage, setSelectedJobId, jobs } = useAppStore()
-  const [loading, setLoading] = useState(true)
-  const [prevMode, setPrevMode] = useState<DashboardMode>(dashboardMode)
+  const { currentUser, dashboardMode, setDashboardMode, setCurrentPage, setSelectedJobId, jobs, jobsStatus } = useAppStore()
 
-  useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 800)
-    return () => clearTimeout(t)
-  }, [])
-
-  if (loading) return <SkeletonDashboard />
+  // Skeleton only while jobs are really loading for the first time, never a fixed delay.
+  if (jobs.length === 0 && (jobsStatus === 'idle' || jobsStatus === 'loading')) return <SkeletonDashboard />
 
   const isLooking = dashboardMode === 'find-work'
   const myPostedJobs = jobs.filter(j => j.employerId === currentUser?.id)
 
   const switchMode = (mode: DashboardMode) => {
-    setPrevMode(dashboardMode)
     setDashboardMode(mode)
   }
 

@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion'
 import { ArrowLeft, Search, Filter, X } from 'lucide-react'
 import { useState } from 'react'
-import { WUKARI_AREAS } from '@/lib/areas'
 import { useAppStore, goBackTo } from '@/lib/store'
 
 const CATEGORIES = [

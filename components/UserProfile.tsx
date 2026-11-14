@@ -1,14 +1,14 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowLeft, MapPin, Copy, Check, LogOut } from 'lucide-react'
+import { ArrowLeft, Copy, Check, LogOut } from 'lucide-react'
 import { RatingBadge } from '@/components/Rating'
 import { useState } from 'react'
 import { useAppStore, goBackTo } from '@/lib/store'
 import { signOutUser } from '@/lib/auth'
 
 export function UserProfile() {
-  const { setCurrentPage, currentUser, setCurrentUser } = useAppStore()
+  const { setCurrentPage, currentUser } = useAppStore()
   const [copied, setCopied] = useState(false)
 
   if (!currentUser) return null

@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowLeft, Bell, Lock, Globe, LogOut, User, Edit2, Shield, Download, Trash2 } from 'lucide-react'
+import { ArrowLeft, Bell, Globe, LogOut, Edit2, Shield, Download, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { WUKARI_AREAS } from '@/lib/areas'
 import { useAppStore, goBackTo } from '@/lib/store'
@@ -11,7 +11,7 @@ import { showToast } from '@/lib/toast'
 import { confirmAction } from '@/lib/confirm'
 
 export function Settings() {
-  const { currentUser, setCurrentPage, setCurrentUser, darkMode, toggleDarkMode } = useAppStore()
+  const { currentUser, setCurrentUser, darkMode, toggleDarkMode } = useAppStore()
   const [isEditing, setIsEditing] = useState(false)
   const [editedName, setEditedName] = useState(currentUser?.name || '')
   const [editedBio, setEditedBio] = useState(currentUser?.bio || '')

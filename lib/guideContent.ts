@@ -97,4 +97,16 @@ export const GUIDES: Guide[] = [
       { text: 'Someone bothering you? Open the chat menu and tap Block or Report. They cannot contact you again.', screen: { title: 'Chat menu', rows: ['Report', 'Block'], button: 'Block' } },
     ],
   },
+  {
+    id: 'your-data',
+    title: 'Report a problem, and control your data',
+    forWho: 'Everyone',
+    intro: 'Flag anything that looks wrong, and take your data with you or ask us to delete it.',
+    steps: [
+      { text: 'See a fake job, a scam shop, a rude review or a fake profile? Tap the flag icon on it, pick a reason, and send. We look at every report.', screen: { title: 'Report this job', rows: ['Spam or scam', 'Asked for money upfront'], button: 'Send report' } },
+      { text: 'To get a copy of everything Butsó holds about you, open Settings and tap Download my data. A file is saved to your phone.', screen: { title: 'Settings', rows: ['Notifications', 'Privacy'], button: 'Download my data' } },
+      { text: 'To leave Butsó, open Settings and tap Delete my account, then confirm. We delete your account within 30 days.', screen: { title: 'Settings', rows: ['Download my data'], button: 'Delete my account' } },
+      { text: 'When our Terms or Privacy Policy change, we ask you to agree again before you carry on. Read them, tick the box, then tap I agree.', screen: { title: 'Before you continue', rows: ['Terms', 'Privacy Policy'], button: 'I agree' } },
+    ],
+  },
 ]
