@@ -6,8 +6,7 @@ import { Send, Phone, Video, Search, ArrowLeft, MoreVertical, Lock, Ban, Flag, C
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { useAppStore, type Conversation, type Message } from '@/lib/store'
 import {
-  getOrCreateConversation, rememberConversation, sendMessage, markConversationRead, unreadCountFor, refreshMessages,
-} from '@/lib/dataMessages'
+  getOrCreateConversation, rememberConversation, sendMessage, markConversationRead, unreadCountFor, refreshMessages, MESSAGE_NOT_ALLOWED } from '@/lib/dataMessages'
 import {
   fetchRequests, fetchPairState, fetchContactDetails, sendMessageRequest, respondMessageRequest,
   sendContactRequest, respondContactRequest, blockUser, unblockUser, reportUser,
@@ -189,7 +188,10 @@ export function Messaging() {
     setMessageInput('')
     const error = await sendMessage(selectedConv, currentUser, text)
     setSending(false)
-    if (error) {
+    if (error === MESSAGE_NOT_ALLOWED) {
+      // Deliberately does not say "blocked": that would tell them what the other person did
+      showToast('error', 'You can no longer message this person.')
+    } else if (error) {
       setMessageInput(text) // give the text back so nothing is lost
       showToast('error', 'Message not sent. Check your connection and try again.')
     }

@@ -10,6 +10,7 @@ import { useAppStore } from '@/lib/store'
 import { signOutUser } from '@/lib/auth'
 import { LEGAL_VERSION, ADULT_AGE, ageFromBirthDate } from '@/lib/legal'
 import { useLegalStatus } from '@/lib/legalStatus'
+import { DateWheelPicker } from '@/components/DateWheelPicker'
 
 type Need = 'none' | 'age' | 'terms'
 
@@ -87,10 +88,8 @@ export function LegalGate() {
               We now check that everyone is {ADULT_AGE} or over. Your date of birth stays private. Nobody else sees it.
             </p>
             <div>
-              <label htmlFor="gate-birth" className="block text-sm font-bold text-foreground mb-1">Date of birth</label>
-              <input id="gate-birth" type="date" value={birthDate} min="1920-01-01" max={new Date().toISOString().slice(0, 10)}
-                onChange={e => setBirthDate(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground bg-background transition" />
+              <p className="block text-sm font-bold text-foreground mb-2" aria-hidden="true">Date of birth</p>
+              <DateWheelPicker value={birthDate} onChange={setBirthDate} />
             </div>
             <label className="flex items-start gap-3 text-sm text-foreground cursor-pointer">
               <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} className="mt-1 w-5 h-5 accent-primary shrink-0" />

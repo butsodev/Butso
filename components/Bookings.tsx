@@ -8,6 +8,12 @@ import { useAppStore, type Booking } from '@/lib/store'
 import { updateBookingStatus } from '@/lib/dataBookings'
 import { showToast } from '@/lib/toast'
 
+/** "Wed, 18 Nov 2026". A bare YYYY-MM-DD is read as a local date, so it never shifts a day. */
+function formatBookingDate(d: string): string {
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(d) ? new Date(`${d}T00:00`) : new Date(d)
+  return Number.isNaN(date.getTime()) ? d : date.toLocaleDateString('en-NG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+}
+
 export function Bookings() {
   const { bookings, setCurrentPage, currentUser, openChatWith } = useAppStore()
   const [busyId, setBusyId] = useState<string | null>(null)
@@ -125,11 +131,11 @@ export function Bookings() {
                       <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Calendar size={16} />
-                          <span>{new Date(booking.date).toLocaleDateString()}</span>
+                          <span>{formatBookingDate(booking.date)}</span>
                         </div>
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <NairaIcon size={16} />
-                          <span className="font-semibold">₦{booking.totalPrice}</span>
+                          <span className="font-semibold">₦{Number(booking.totalPrice).toLocaleString('en-NG')}</span>
                         </div>
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <User size={16} />
@@ -162,14 +168,26 @@ export function Bookings() {
                             <button disabled={busy} onClick={() => changeStatus(booking, 'cancelled', 'Booking declined.')} className={`${btn} border border-border text-foreground`}>Decline</button>
                           </>
                         )}
+                        {/* The customer confirms the work was done (the database only accepts it from
+                            them), which then lets them leave a review. The shop sees who it waits on. */}
+                        {!isProvider && booking.status === 'confirmed' && (
+                          <button disabled={busy} onClick={() => changeStatus(booking, 'completed', 'Marked as done. You can now leave a review.')} className={`${btn} bg-primary text-primary-foreground`}>Mark as done</button>
+                        )}
                         {isProvider && booking.status === 'confirmed' && (
-                          <button disabled={busy} onClick={() => changeStatus(booking, 'completed', 'Marked as completed.')} className={`${btn} bg-primary text-primary-foreground`}>Mark completed</button>
+                          <p className="w-full text-xs text-muted-foreground">After the appointment, {otherName} marks it as done. Then they can leave you a review.</p>
                         )}
                         {!isProvider && (booking.status === 'pending' || booking.status === 'confirmed') && (
                           <button disabled={busy} onClick={() => changeStatus(booking, 'cancelled', 'Booking cancelled.')} className={`${btn} border border-border text-foreground`}>Cancel booking</button>
                         )}
+                        {/* A shop booking is reviewed on the shop (its rating and Reviews tab);
+                            a job booking on the person who did it */}
                         {!isProvider && booking.status === 'completed' && (
-                          <button onClick={() => useAppStore.getState().openReviews(booking.workerId)} className={`${btn} bg-primary text-primary-foreground`}>Rate {otherName}</button>
+                          booking.type === 'shop' && booking.shopId ? (
+                            <button onClick={() => { const st = useAppStore.getState(); st.setSelectedShopId(booking.shopId!); st.setCurrentPage('shop') }}
+                              className={`${btn} bg-primary text-primary-foreground`}>Rate {booking.shopName ?? 'the shop'}</button>
+                          ) : (
+                            <button onClick={() => useAppStore.getState().openReviews(booking.workerId)} className={`${btn} bg-primary text-primary-foreground`}>Rate {otherName}</button>
+                          )
                         )}
                         <button onClick={() => openChatWith({ userId: otherId, name: otherName, context: booking.jobTitle })} className={`${btn} border border-border text-foreground`}>Message</button>
                       </div>

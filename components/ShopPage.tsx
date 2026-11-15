@@ -71,7 +71,8 @@ export function ShopPage() {
     const submitReview = async () => {
         if (!shop || !currentUser || reviewRating === 0 || reviewSaving) return
         setReviewSaving(true)
-        const error = await addShopReview(shop.id, { id: currentUser.id, name: currentUser.name }, reviewRating, reviewComment)
+        // shop_reviews is public: store the handle, never the real name
+        const error = await addShopReview(shop.id, { id: currentUser.id, name: currentUser.username || currentUser.name }, reviewRating, reviewComment)
         setReviewSaving(false)
         if (error) { showToast('error', error); return }
         setReviewRating(0)

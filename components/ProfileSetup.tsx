@@ -12,6 +12,7 @@ import { WUKARI_AREAS } from '@/lib/areas'
 import { isReservedUsername } from '@/lib/usernames'
 import { useAppStore, generateUsernameFromName, isUsernameAvailable, type UserRole, type AppStore, goAfterAuth } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
+import { DateWheelPicker } from '@/components/DateWheelPicker'
 
 
 /** sessionStorage, but safe on the server and in private browsing (both can throw). */
@@ -225,12 +226,14 @@ function SkillsPicker({ selected, onChange }: { selected: string[]; onChange: (s
     if (selected.length >= 6) return
     onChange([...selected, skill])
     setQuery('')
-    inputRef.current?.focus()
+    // Close the list after a pick: left open, it covers the Next button, and a tap meant for
+    // Next would add another skill. Typing again (or tapping the box) opens it.
+    setOpen(false)
   }
   const remove = (skill: string) => onChange(selected.filter(s => s !== skill))
   const addCustom = () => {
     const t = query.trim()
-    if (t && !selected.includes(t) && selected.length < 6) { onChange([...selected, t]); setQuery('') }
+    if (t && !selected.includes(t) && selected.length < 6) { onChange([...selected, t]); setQuery(''); setOpen(false) }
   }
 
   useEffect(() => {
@@ -268,6 +271,7 @@ function SkillsPicker({ selected, onChange }: { selected: string[]; onChange: (s
               value={query}
               onChange={e => { setQuery(e.target.value); setOpen(true) }}
               onFocus={() => setOpen(true)}
+              onClick={() => setOpen(true)}
               onKeyDown={e => {
                 if (e.key === 'Enter' && query.trim()) {
                   const exact = ALL_SKILLS.find(s => s.toLowerCase() === query.toLowerCase())
@@ -447,11 +451,26 @@ export function ProfileSetup() {
     sessionStorage.removeItem('userPhone')
   }
 
+  // The profile is saved when the last details step is done, before "You're in" is shown,
+  // so closing the app on that screen never loses it. It is put in the store only when they
+  // pick where to go next (signed-in people on this screen are otherwise sent away at once).
+  const savedUser = useRef<Awaited<ReturnType<typeof createUser>>>(null)
+  const saveAndFinish = async () => {
+    if (savedUser.current) { setStep('next'); return }
+    setIsLoading(true)
+    setSubmitError('')
+    const u = await createUser()
+    setIsLoading(false)
+    if (!u) return // submitError is set; stay on this step
+    savedUser.current = u
+    setStep('next')
+  }
+
   const handleNext = async (option: typeof NEXT_OPTIONS[0]) => {
     setPressedNext(option.id)
     setIsLoading(true)
     setSubmitError('')
-    const newUser = await createUser()
+    const newUser = savedUser.current ?? await createUser()
     setIsLoading(false)
     setPressedNext(null)
     if (!newUser) return // submitError is already set; stay on this screen
@@ -488,10 +507,8 @@ export function ProfileSetup() {
         <p className="text-muted-foreground text-sm">Butsó is for people {ADULT_AGE} and over. Your date of birth stays private. Nobody else sees it.</p>
       </div>
       <div>
-        <label htmlFor="birth-date" className="block text-sm font-bold text-foreground mb-1">Date of birth</label>
-        <input id="birth-date" type="date" value={birthDate} min="1920-01-01" max={new Date().toISOString().slice(0, 10)}
-          onChange={e => setBirthDate(e.target.value)}
-          className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:border-primary text-foreground bg-background transition" />
+        <p className="block text-sm font-bold text-foreground mb-2" aria-hidden="true">Date of birth</p>
+        <DateWheelPicker value={birthDate} onChange={setBirthDate} />
       </div>
       <label className="flex items-start gap-3 text-sm text-foreground cursor-pointer">
         <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} className="mt-1 w-5 h-5 accent-primary shrink-0" />
@@ -633,11 +650,12 @@ export function ProfileSetup() {
       </div>
 
       <motion.button whileTap={{ scale: 0.98 }}
-        onClick={() => setStep(isWorker ? 'skills' : 'next')}
-        disabled={!name.trim() || !usernameValid || !phoneOk}
+        onClick={() => { if (isWorker) setStep('skills'); else void saveAndFinish() }}
+        disabled={!name.trim() || !usernameValid || !phoneOk || isLoading}
         className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition disabled:opacity-40 flex items-center justify-center gap-2 text-base">
-        Next <ChevronRight size={20} />
+        {isLoading ? 'Saving...' : 'Next'} <ChevronRight size={20} />
       </motion.button>
+      {submitError && <p className="text-center text-sm text-destructive" role="alert">{submitError}</p>}
     </motion.div>
   )
 
@@ -654,10 +672,12 @@ export function ProfileSetup() {
       <SkillsPicker selected={skills} onChange={setSkills} />
 
       <motion.button whileTap={{ scale: 0.98 }}
-        onClick={() => setStep('next')}
-        className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition flex items-center justify-center gap-2 text-base">
-        {skills.length === 0 ? 'Skip for now' : 'Next'} <ChevronRight size={20} />
+        onClick={() => void saveAndFinish()}
+        disabled={isLoading}
+        className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition disabled:opacity-40 flex items-center justify-center gap-2 text-base">
+        {isLoading ? 'Saving...' : skills.length === 0 ? 'Skip for now' : 'Next'} <ChevronRight size={20} />
       </motion.button>
+      {submitError && <p className="text-center text-sm text-destructive" role="alert">{submitError}</p>}
 
       <button onClick={() => setStep('basic')} className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition py-1">
         ← Back
@@ -706,10 +726,11 @@ export function ProfileSetup() {
       <button
         onClick={async () => {
           setSubmitError('')
-          const newUser = await createUser()
+          const newUser = savedUser.current ?? await createUser()
           if (!newUser) return
           setCurrentUser(newUser)
-          setDashboardMode('find-work')
+          // Open the dashboard in the mode that matches what they said they are here for
+          setDashboardMode(role === 'employer' ? 'need-help' : 'find-work')
           seedData()
           goAfterAuth()
         }}

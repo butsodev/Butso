@@ -2,6 +2,9 @@ import { supabase } from '@/lib/supabase'
 import { useAppStore, type Conversation, type Message } from '@/lib/store'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 
+/** sendMessage's answer when the database refuses (blocked, or no accepted request yet). */
+export const MESSAGE_NOT_ALLOWED = 'not-allowed'
+
 type ConversationRow = {
   id: string
   user_a: string
@@ -155,6 +158,8 @@ export async function sendMessage(conversation: Conversation, me: { id: string }
   const now = useAppStore.getState()
   if (error || !data) {
     now.setMessages(now.messages.filter(m => m.id !== tempId))
+    // 42501 = the database said no (blocked, or no accepted request): retrying will not help
+    if (error?.code === '42501') return MESSAGE_NOT_ALLOWED
     return error?.message ?? 'Message not sent'
   }
   const real = mapMessage(data as MessageRow, me.id, conversation.otherUserId)

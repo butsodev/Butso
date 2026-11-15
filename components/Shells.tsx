@@ -11,8 +11,15 @@ import { BottomNav } from '@/components/BottomNav'
 import { LiveSupportChat } from '@/components/LiveSupportChat'
 import { FeedbackWidget } from '@/components/FeedbackWidget'
 
+// Screens with their own input bar at the bottom. The floating assistant and feedback
+// buttons sit exactly over it on phones (the assistant covered the chat's Send button),
+// so they are left out there.
+const NO_FLOATING_BUTTONS = new Set(['messaging'])
+
 /** Signed-in frame: header, sidebar, bottom navigation. */
 function AppShell({ children }: { children: React.ReactNode }) {
+  const page = pageFromPath(usePathname()).page
+  const floating = !NO_FLOATING_BUTTONS.has(page)
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-background">
@@ -20,8 +27,8 @@ function AppShell({ children }: { children: React.ReactNode }) {
         <Sidebar />
         <main className="lg:ml-64">{children}</main>
         <BottomNav />
-        <LiveSupportChat />
-        <FeedbackWidget />
+        {floating && <LiveSupportChat />}
+        {floating && <FeedbackWidget />}
       </div>
     </ErrorBoundary>
   )

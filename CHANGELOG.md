@@ -12,6 +12,19 @@ What changed in Butsó, newest first. Dates are when the work landed on `main`.
 - **Dark mode follows the phone** until you use the toggle; after that your choice wins. Existing members who had switched it on keep it.
 - Entrance and scroll animations are plain CSS (`.rise`, `.reveal`), so content is never hidden waiting for JavaScript.
 
+### Date of birth picker
+- Date of birth is now three scroll wheels (day, month, year) that snap into place, with items fading, blurring and tilting away from the centre, like a phone's own picker. Tap any value to jump to it; works with the keyboard and screen readers (spin buttons); days follow the month and leap years; a line underneath confirms the date and age. Used at sign-up and on the age check screen (`components/DateWheelPicker.tsx`).
+
+### Fixed (found by running every signed-in flow end to end with test accounts)
+- **No booking could ever be completed, so reviews were impossible.** The database only lets the customer complete a booking, but the app showed "Mark completed" to the shop owner, who always got "Could not update that booking". The customer now has "Mark as done"; the shop sees who it is waiting on.
+- **Phone users could not tap Send in chats**: the floating assistant button sat exactly on top of it (feedback button over the input). Both are hidden on the messages screen.
+- **Sign-up could be lost at the last step**: the profile was only saved after picking an option on the "You're in" screen. It is now saved before that screen appears. "Just take me to my dashboard" also opened the wrong mode for people who came to hire.
+- After picking a skill at sign-up, the suggestions list stayed open over Next, so a tap meant for Next added another skill.
+- Rating a shop booking reviewed the owner's personal profile instead of the shop; it now opens the shop's reviews.
+- Shop reviews would have stored the reviewer's real name in a public table; they now store the username.
+- A blocked person was told "Check your connection and try again" (retrying can never work). They now see "You can no longer message this person", which does not reveal the block.
+- Booking dates showed US-style (11/18/2026) and prices without commas; now "Wed, 18 Nov 2026" and "₦2,000".
+
 ### Fixed (found while testing against the live database)
 - Worker share links (`/@username`) always showed the generic preview: the query asked for a `location` column that `public_profiles` does not have. Also escaped `_` in the username lookup.
 - Help & Support sent signed-out visitors back to the landing page; it is now open to everyone (and in the sitemap).
