@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase'
 import { useAppStore } from '@/lib/store'
 import { signOutUser } from '@/lib/auth'
 import { LEGAL_VERSION, ADULT_AGE, ageFromBirthDate } from '@/lib/legal'
+import { useLegalStatus } from '@/lib/legalStatus'
 
 type Need = 'none' | 'age' | 'terms'
 
@@ -21,17 +22,22 @@ export function LegalGate() {
   const [tooYoung, setTooYoung] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const setStatus = useLegalStatus(s => s.set)
 
   useEffect(() => {
-    if (!userId) { setNeed('none'); return }
+    if (!userId) { setNeed('none'); setStatus('unknown'); return }
     let alive = true
+    setStatus('unknown')
     supabase.from('profile_private').select('terms_version').eq('user_id', userId).maybeSingle()
       .then(({ data, error: err }) => {
-        if (!alive || err) return // if this check fails, never lock people out of the app
-        setNeed(!data ? 'age' : data.terms_version !== LEGAL_VERSION ? 'terms' : 'none')
+        if (!alive) return
+        if (err) { setStatus('ok'); return } // if this check fails, never lock people out of the app
+        const next: Need = !data ? 'age' : data.terms_version !== LEGAL_VERSION ? 'terms' : 'none'
+        setNeed(next)
+        setStatus(next === 'none' ? 'ok' : 'blocked')
       })
     return () => { alive = false }
-  }, [userId])
+  }, [userId, setStatus])
 
   if (!userId || need === 'none' || page === 'profile-setup') return null
 
@@ -49,6 +55,7 @@ export function LegalGate() {
     setBusy(false)
     if (err) { setError(err.message.includes('18') ? `Butsó is for people aged ${ADULT_AGE} and over.` : err.message); return }
     setNeed('none')
+    setStatus('ok')
   }
 
   const links = (

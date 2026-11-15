@@ -14,11 +14,23 @@ export interface Guide {
   forWho: string
   intro: string
   steps: GuideStep[]
+  /** Extra words people might search with ("money", "scam"). Helps Help & Support search. */
+  keywords?: string[]
+  /** Shown on the last step: takes the person to the screen where they can do it for real. */
+  action?: { label: string; page: string }
+  /**
+   * Optional screen recording. When set, the guide offers "Watch video" next to the steps.
+   * Keep it short (under a minute), MP4 (H.264), and hosted on Cloudinary. Add captions (WebVTT)
+   * so it works with the sound off.
+   */
+  video?: { src: string; poster?: string; captions?: string }
 }
 
 export const GUIDES: Guide[] = [
   {
     id: 'get-started',
+    keywords: ['sign up', 'register', 'join', 'account', 'profile', 'username', 'age', 'start', 'new'],
+    action: { label: 'Edit my profile', page: 'profile' },
     title: 'Join and set up your profile',
     forWho: 'Everyone',
     intro: 'Free to join, for people 18 and over. Takes about three minutes.',
@@ -32,6 +44,8 @@ export const GUIDES: Guide[] = [
   },
   {
     id: 'find-work',
+    keywords: ['apply', 'job', 'work', 'gig', 'worker', 'application', 'earn'],
+    action: { label: 'Browse jobs', page: 'jobs' },
     title: 'Find work and apply',
     forWho: 'Workers',
     intro: 'Apply early. Each job takes at most 30 applicants.',
@@ -45,6 +59,8 @@ export const GUIDES: Guide[] = [
   },
   {
     id: 'post-and-hire',
+    keywords: ['hire', 'post', 'employer', 'applicants', 'worker', 'edit job', 'close job'],
+    action: { label: 'Post a job', page: 'post-job' },
     title: 'Post a job and hire someone',
     forWho: 'Employers',
     intro: 'Free to post. You choose who you hire.',
@@ -59,6 +75,8 @@ export const GUIDES: Guide[] = [
   },
   {
     id: 'set-up-shop',
+    keywords: ['shop', 'business', 'salon', 'barber', 'services', 'prices', 'photos', 'opening hours'],
+    action: { label: 'Set up my shop', page: 'shop-setup' },
     title: 'Set up your shop',
     forWho: 'Shop owners',
     intro: 'Let customers find you, see your work and book you.',
@@ -73,6 +91,8 @@ export const GUIDES: Guide[] = [
   },
   {
     id: 'book-service',
+    keywords: ['book', 'booking', 'appointment', 'shop', 'service', 'review', 'pay'],
+    action: { label: 'Find a shop', page: 'shops' },
     title: 'Book a service',
     forWho: 'Customers',
     intro: 'Pick a shop, pick a time, and agree the price directly.',
@@ -86,6 +106,8 @@ export const GUIDES: Guide[] = [
   },
   {
     id: 'messages-privacy',
+    keywords: ['message', 'chat', 'contact', 'phone number', 'privacy', 'safe', 'block', 'report'],
+    action: { label: 'Open messages', page: 'messaging' },
     title: 'Messages, privacy and staying safe',
     forWho: 'Everyone',
     intro: 'Your real name and phone number stay hidden until you decide.',
@@ -99,6 +121,8 @@ export const GUIDES: Guide[] = [
   },
   {
     id: 'your-data',
+    keywords: ['report', 'scam', 'delete account', 'download data', 'privacy', 'terms', 'flag'],
+    action: { label: 'Open settings', page: 'settings' },
     title: 'Report a problem, and control your data',
     forWho: 'Everyone',
     intro: 'Flag anything that looks wrong, and take your data with you or ask us to delete it.',
@@ -110,3 +134,23 @@ export const GUIDES: Guide[] = [
     ],
   },
 ]
+
+/**
+ * The welcome tour: shown once to everyone after they sign in (new and existing members),
+ * and again from Help & Support any time. Bump TOUR_VERSION in lib/tour.ts after a big
+ * change here, and everyone sees the new tour once.
+ */
+export const WELCOME_TOUR: Guide = {
+  id: 'welcome',
+  title: 'Welcome to Butsó',
+  forWho: 'Quick tour',
+  intro: 'The main things you can do, in under a minute.',
+  steps: [
+    { text: 'Welcome! Butsó helps you find work, hire people and book local shops near you. It is free.', screen: { title: 'Butsó', rows: ['Find work', 'Hire people', 'Book a shop'], button: 'Let’s go' } },
+    { text: 'Looking for work? Open Jobs, pick a job and tap Apply. The employer chooses from the people who applied.', screen: { title: 'Jobs', rows: ['Phone screen repair', 'Home cleaning'], button: 'Apply' } },
+    { text: 'Need help with something? Tap Post Job from your dashboard, or open someone’s profile and hire them directly.', screen: { title: 'Dashboard', rows: ['Find workers', 'My jobs'], button: 'Post Job' } },
+    { text: 'Have a shop? Set it up under My Shop with your services, prices and work photos, so customers can book you.', screen: { title: 'My Shop', rows: ['Services', 'Work photos', 'Opening hours'], button: 'Set up my shop' } },
+    { text: 'Your real name and phone number stay hidden. People see @username until you choose to share your contact details.', screen: { title: 'Privacy', rows: ['@yourname', 'Phone hidden'], button: 'Got it' } },
+    { text: 'Stuck? Open Help & Support (in Settings, or Help in the side menu). Search for anything, or tap Show me on a guide. You can replay this tour there too.', screen: { title: 'Help & Support', rows: ['Search help', 'How to use Butsó'], button: 'Show me' } },
+  ],
+}

@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowLeft, Bell, Globe, LogOut, Edit2, Shield, Download, Trash2 } from 'lucide-react'
+import { ArrowLeft, Bell, Globe, LogOut, Edit2, Shield, Download, Trash2, LifeBuoy, Compass, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { WUKARI_AREAS } from '@/lib/areas'
 import { useAppStore, goBackTo } from '@/lib/store'
@@ -9,9 +9,11 @@ import { supabase } from '@/lib/supabase'
 import { signOutUser } from '@/lib/auth'
 import { showToast } from '@/lib/toast'
 import { confirmAction } from '@/lib/confirm'
+import { useTourStore } from '@/lib/tour'
 
 export function Settings() {
-  const { currentUser, setCurrentUser, darkMode, toggleDarkMode } = useAppStore()
+  const { currentUser, setCurrentUser, setCurrentPage, darkMode, toggleDarkMode } = useAppStore()
+  const openTour = useTourStore(s => s.openTour)
   const [isEditing, setIsEditing] = useState(false)
   const [editedName, setEditedName] = useState(currentUser?.name || '')
   const [editedBio, setEditedBio] = useState(currentUser?.bio || '')
@@ -258,6 +260,28 @@ export function Settings() {
         transition={{ delay: 0.3 }}
         className="px-4 sm:px-6 mt-8"
       >
+        <h3 className="text-sm font-bold text-muted-foreground uppercase mb-3">
+          Help
+        </h3>
+        <button
+          onClick={() => setCurrentPage('support')}
+          className="w-full bg-card hover:bg-secondary text-foreground rounded-lg p-4 flex items-center gap-3 transition mb-3"
+        >
+          <LifeBuoy size={20} />
+          <span className="flex-1 text-left">
+            <span className="block font-medium">Help & Support</span>
+            <span className="block text-xs text-muted-foreground">Search guides and answers, or contact us</span>
+          </span>
+          <ChevronRight size={18} className="text-muted-foreground" />
+        </button>
+        <button
+          onClick={openTour}
+          className="w-full bg-card hover:bg-secondary text-foreground rounded-lg p-4 flex items-center gap-3 transition mb-6"
+        >
+          <Compass size={20} />
+          <span className="flex-1 text-left font-medium">Replay the welcome tour</span>
+          <ChevronRight size={18} className="text-muted-foreground" />
+        </button>
         <h3 className="text-sm font-bold text-muted-foreground uppercase mb-3">
           Your data
         </h3>

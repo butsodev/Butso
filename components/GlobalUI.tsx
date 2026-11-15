@@ -5,12 +5,14 @@
 //  2. Hover labels on desktop, long-press labels on touch, for icon-only buttons
 //  3. "You are offline" banner
 //  4. Hides the broken-image icon when a picture fails to load
+//  5. The one-time welcome tour (components/WelcomeTour)
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { WifiOff } from 'lucide-react'
 import { useConfirmStore, answerConfirm } from '@/lib/confirm'
 import { useFocusTrap } from '@/lib/useFocusTrap'
 import { LegalGate } from '@/components/LegalGate'
+import { WelcomeTour } from '@/components/WelcomeTour'
 
 function ConfirmHost() {
   const { open, opts } = useConfirmStore()
@@ -225,6 +227,7 @@ export function GlobalUI() {
       <TipHost />
       <OfflineBanner />
       <LegalGate />
+      <WelcomeTour />
     </>
   )
 }

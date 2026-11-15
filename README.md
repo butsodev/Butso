@@ -17,7 +17,8 @@ Butsó connects workers and employers, and helps shops get found and booked, wit
 - **Your data:** download a copy of your data or request account deletion from Settings. When the Terms or Privacy Policy change, everyone is asked to agree again, and each agreement is recorded.
 - **Trust:** reviews only after a completed booking, block, report (on any job, shop, review or profile), and a Founding Member badge for the first 100 members.
 - **Sharing and search:** every profile, job and shop has a share link with a WhatsApp preview. A sitemap and robots.txt let search engines find public pages, and keep them off private ones.
-- **Help built in:** step-by-step guides in the app (Help & Support). See also [docs/HOW-TO-USE.md](docs/HOW-TO-USE.md).
+- **Welcome tour:** a one-minute tour shown once to every member, new or existing, after sign-in. Skip it any time; replay it from Help & Support or Settings.
+- **Help Center:** search the guides and FAQs in everyday words ("money" finds payments, "scam" finds reporting). Each guide plays like a short video (autoplay, swipe, tap to pause), can start at the step that matched, and ends with a "Try it now" button. A guide can also carry a real screen recording. See also [docs/HOW-TO-USE.md](docs/HOW-TO-USE.md).
 
 Everything is free to use for now. Payments are "coming soon".
 
@@ -102,7 +103,10 @@ lib/
   usernames.ts    reserved usernames
   seo.ts          site URL and link-preview metadata (public fields only)
   supabase.ts     Supabase client
-  guideContent.ts how-to guides (source for the in-app guides and docs/HOW-TO-USE.md)
+  guideContent.ts how-to guides + welcome tour (source for the in-app guides and docs/HOW-TO-USE.md)
+  faqContent.ts   FAQs shown and searched in Help & Support
+  helpSearch.ts   Help search: accents, word endings, synonyms, highlighting
+  tour.ts         welcome tour "seen" memory (this device + the account) and replay
 docs/             user guide (HOW-TO-USE.md) and go-live list (LAUNCH-CHECKLIST.md)
 scripts/          small build helpers
 ```
@@ -121,7 +125,11 @@ Supabase Postgres with Row Level Security on every table. The key rules live in 
 ## Common changes
 
 - **Terms or Privacy Policy changed?** Edit the page, then set `LEGAL_VERSION` in `lib/legal.ts` to today's date. Everyone is asked to agree again on their next visit, and the version they agreed to is saved.
-- **Guide changed?** Edit `lib/guideContent.ts`, then run `npx tsx scripts/make-guide-md.ts` so `docs/HOW-TO-USE.md` matches.
+- **Guide changed?** Edit `lib/guideContent.ts`, then run `npx tsx scripts/make-guide-md.ts` so `docs/HOW-TO-USE.md` matches. Give each guide `keywords` (words people search with) and an `action` (the screen "Try it now" opens).
+- **Adding a video to a guide?** Record the screen on a phone (under a minute), upload the MP4 to Cloudinary, and set `video: { src, poster, captions }` on the guide. Captions are a WebVTT file, so it works with the sound off. The guide then offers "Watch video" next to the steps. Keep the steps too: they are a few KB and work on slow data.
+- **Welcome tour changed a lot?** Edit `WELCOME_TOUR` in `lib/guideContent.ts` and bump `TOUR_VERSION` in `lib/tour.ts`. Everyone sees the new tour once.
+- **FAQ changed?** Edit `lib/faqContent.ts`. If a common search finds nothing, add the words people used to `keywords`, or a synonym group in `lib/helpSearch.ts`.
+- **Linking to help:** `/support?q=book+a+shop` opens a search; `/support?guide=set-up-shop&step=3` opens a guide at a step.
 - **New area?** Add it to `lib/areas.ts`. It is used by profiles, job posts and search filters.
 - **New private page?** Add it to the `disallow` list in `app/robots.ts`.
 

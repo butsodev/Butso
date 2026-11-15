@@ -2,6 +2,22 @@
 
 What changed in Butsó, newest first. Dates are when the work landed on `main`.
 
+## Unreleased
+
+### Added
+- **Welcome tour**, shown once to every member (new and existing) on a main screen after sign-in. Skip counts as seen. "Seen" is remembered on the device and on the account (Supabase user metadata, no migration), so a new phone does not show it again. It waits for the age / Terms check and never opens on top of another pop-up. Replay from Help & Support or Settings.
+- **Help Center search** over guides and FAQs: accent-insensitive, handles word endings and partial words, understands everyday words (synonyms), highlights matches, and opens a guide at the step that matched. No results offers "Ask us", which carries the question into the support form.
+- **Walkthrough player** upgrades: autoplay with a video-style progress bar, tap the screen to pause, swipe between steps, tap a dot to jump, "Try it now" on the last step, and optional real video (`guide.video`) with captions.
+- Deep links: `/support?q=...` and `/support?guide=<id>&step=<n>`.
+- Popular topic chips on Help & Support, and an FAQ for forgotten passwords.
+
+### Fixed
+- Help & Support could not be reached on phones once signed in (it was only in the desktop sidebar). It is now in Settings and on the Profile screen.
+- Two FAQ answers described fields that do not exist (cover letter, portfolio link). They now match the real forms.
+
+### Changed
+- FAQs moved from the Support screen to `lib/faqContent.ts`; `HowToGuide` replaced by `HelpCenter`.
+
 ## 0.1.0 (MVP), 2026-11-14
 
 Getting ready for the first real users.

@@ -52,6 +52,8 @@ Use a real phone on mobile data, with two test accounts (A and B).
 - [ ] B sends A a message request; A accepts; they chat; block works
 - [ ] Report a job and a profile: the report is saved
 - [ ] Settings → Download my data gives a file; Delete my account adds a request
+- [ ] A brand-new account sees the welcome tour once after setup; Skip closes it; it does not come back after a reload or on a second phone. Settings → Replay the welcome tour shows it again
+- [ ] Help & Support (from Settings on a phone): search "money", "scam" and "book a barber" and get sensible results; Show me plays; Try it now opens the right screen
 - [ ] Share a profile, job and shop link on WhatsApp: the preview shows title and description, never a real name or phone number
 - [ ] `/robots.txt` and `/sitemap.xml` load, and the sitemap uses the live domain, not `localhost`
 - [ ] Turn data off: the offline banner shows; turn it back on: the app recovers

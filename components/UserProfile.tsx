@@ -155,6 +155,15 @@ export function UserProfile() {
         >
           Settings
         </motion.button>
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          onClick={() => setCurrentPage('support')}
+          className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition py-2 lg:hidden"
+        >
+          Help & Support
+        </motion.button>
       </div>
     </motion.div>
   )
