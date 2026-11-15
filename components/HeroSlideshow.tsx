@@ -1,159 +1,107 @@
 'use client'
 
-import { motion, AnimatePresence } from 'framer-motion'
-import { useEffect, useState, useRef } from 'react'
-import { IMAGES } from '@/lib/cloudinary'
+// Photo backdrop for the landing hero: a slow crossfade between real workers.
+//
+// Loading is the point of this file. Only the current photo and the next one are ever in
+// the page, each at the size it is shown (srcset), so a phone on mobile data downloads
+// one ~60 KB image to see the hero, not sixteen full-size originals. Until a photo has
+// loaded, a brand-tinted backdrop shows instead of a black box, and the text on top never
+// waits for it.
+import { useEffect, useRef, useState } from 'react'
+import { preload } from 'react-dom'
+import { useReducedMotion } from 'framer-motion'
+import { cldSized, cldSrcSet } from '@/lib/cloudinary'
 
-// Only the best worker shots for the hero — action/portrait images
-// busyafricanstreet is saved for the bottom CTA section
 const SLIDES = [
-    { src: IMAGES.barberman, caption: 'Barbers', accent: '#1B9E6E' },
-    { src: IMAGES.plumberman, caption: 'Plumbers', accent: '#3B82F6' },
-    { src: IMAGES.electricianman, caption: 'Electricians', accent: '#F59E0B' },
-    { src: IMAGES.cleanerwoman, caption: 'Cleaners', accent: '#EC4899' },
-    { src: IMAGES.carpenterman, caption: 'Carpenters', accent: '#D97706' },
-    { src: IMAGES.painterman, caption: 'Painters', accent: '#8B5CF6' },
-    { src: IMAGES.tailorgirl, caption: 'Tailors', accent: '#F55D1E' },
-    { src: IMAGES.cheflady, caption: 'Cooks & chefs', accent: '#EF4444' },
-    { src: IMAGES.mechanicman, caption: 'Mechanics', accent: '#6366F1' },
-    { src: IMAGES.bricklayer, caption: 'Bricklayers', accent: '#F55D1E' },
-    { src: IMAGES.securityman, caption: 'Security', accent: '#0EA5E9' },
-    { src: IMAGES.braidergirl, caption: 'Hair braiders', accent: '#EC4899' },
-    { src: IMAGES.laundryladies, caption: 'Laundry services', accent: '#14B8A6' },
-    { src: IMAGES.farmerwoman, caption: 'Farm work', accent: '#10B981' },
-    { src: IMAGES.constructionworkerpointing, caption: 'Builders', accent: '#F55D1E' },
-    { src: IMAGES.workershandshake, caption: 'Get connected', accent: '#1B9E6E' },
+    { id: 'barberman', caption: 'Barbers' },
+    { id: 'plumberman', caption: 'Plumbers' },
+    { id: 'tailorgirl', caption: 'Tailors' },
+    { id: 'electricianman', caption: 'Electricians' },
+    { id: 'braidergirl', caption: 'Hair braiders' },
+    { id: 'carpenterman', caption: 'Carpenters' },
+    { id: 'cheflady', caption: 'Cooks and caterers' },
+    { id: 'mechanicman', caption: 'Mechanics' },
 ]
 
-const INTERVAL = 9000   // 9s per slide — slower, more time to register each worker
-const TRANS_DUR = 2      // 2s crossfade — noticeably smoother, less jarring
-const ZOOM_SCALE = 1.05   // very subtle Ken Burns — barely perceptible
+const INTERVAL_MS = 7000
+const FADE_MS = 1200
+// The hero is full width on phones and half width from the lg breakpoint
+const SIZES = '(min-width: 1024px) 50vw, 100vw'
 
-export function HeroSlideshow({ style, className }: { style?: React.CSSProperties; className?: string }) {
+/** Position it from outside, e.g. className="absolute inset-0 -z-10" (it fills its box). */
+export function HeroSlideshow({ className = 'relative' }: { className?: string }) {
+    // Ask for the first photo from the page <head>, alongside the scripts, not after them
+    preload(cldSized(SLIDES[0].id, 1080), {
+        as: 'image', fetchPriority: 'high', imageSrcSet: cldSrcSet(SLIDES[0].id), imageSizes: SIZES,
+    })
+    const reduce = useReducedMotion()
     const [idx, setIdx] = useState(0)
-    const [paused, setPaused] = useState(false)
-    const timer = useRef<ReturnType<typeof setInterval> | null>(null)
+    const [prev, setPrev] = useState<number | null>(null) // stays underneath while the new one fades in
+    const [loaded, setLoaded] = useState<Record<number, boolean>>({})
+    const [hidden, setHidden] = useState(false)
+    const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const next = (idx + 1) % SLIDES.length
 
-    const startTimer = () => {
-        if (timer.current) clearInterval(timer.current)
-        timer.current = setInterval(() => setIdx(i => (i + 1) % SLIDES.length), INTERVAL)
-    }
-
+    // Pause while the tab is in the background: no point fetching photos nobody sees
     useEffect(() => {
-        startTimer()
-        return () => { if (timer.current) clearInterval(timer.current) }
+        const onVis = () => setHidden(document.hidden)
+        document.addEventListener('visibilitychange', onVis)
+        return () => document.removeEventListener('visibilitychange', onVis)
     }, [])
 
-    const goTo = (i: number) => {
-        setIdx(i)
-        startTimer() // reset interval so it doesn't jump immediately after manual nav
-    }
+    // Advance only once the next photo is ready, so a slow network never fades to nothing
+    useEffect(() => {
+        if (reduce || hidden || !loaded[next]) return
+        timer.current = setTimeout(() => { setPrev(idx); setIdx(next) }, INTERVAL_MS)
+        return () => { if (timer.current) clearTimeout(timer.current) }
+    }, [idx, next, loaded, reduce, hidden])
+
+    // Once the fade has finished, the previous photo can leave the page
+    useEffect(() => {
+        if (prev === null) return
+        const t = setTimeout(() => setPrev(null), FADE_MS + 100)
+        return () => clearTimeout(t)
+    }, [prev])
+
+    const markLoaded = (i: number) => setLoaded(l => (l[i] ? l : { ...l, [i]: true }))
 
     return (
-        <div
-            style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', background: '#0a1a12', ...style }}
-            className={className}
-            onMouseEnter={() => { setPaused(true); if (timer.current) clearInterval(timer.current) }}
-            onMouseLeave={() => { setPaused(false); startTimer() }}
-        >
-
-            {/* ── SLIDES — crossfade stack ──────────────────────── */}
-            {SLIDES.map((slide, i) => (
-                <motion.div
-                    key={slide.src}
-                    animate={{ opacity: i === idx ? 1 : 0 }}
-                    transition={{ duration: TRANS_DUR, ease: 'easeInOut' }}
-                    style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
-                >
-                    {/* Ken Burns — only animate the active slide */}
-                    <motion.img
-                        src={slide.src}
-                        alt={slide.caption}
-                        key={`img-${i}-${i === idx ? 'active' : 'idle'}`}
-                        initial={{ scale: i === idx ? 1 : ZOOM_SCALE }}
-                        animate={{ scale: i === idx ? ZOOM_SCALE : ZOOM_SCALE }}
-                        transition={i === idx ? { duration: INTERVAL / 1000 + TRANS_DUR, ease: 'linear' } : { duration: 0 }}
+        <div className={`overflow-hidden bg-[radial-gradient(120%_80%_at_70%_20%,#1f5c45_0%,#10261d_55%,#0b1712_100%)] ${className}`}>
+            {/* Only the previous (fading out under), current and next (preloading) slides are rendered */}
+            {SLIDES.map((s, i) => {
+                if (i !== idx && i !== next && i !== prev) return null
+                const show = (i === idx && loaded[i]) || i === prev
+                return (
+                    <img
+                        key={s.id}
+                        src={cldSized(s.id, 1080)}
+                        srcSet={cldSrcSet(s.id)}
+                        sizes={SIZES}
+                        alt=""
+                        aria-hidden="true"
+                        decoding="async"
                         loading={i === 0 ? 'eager' : 'lazy'}
                         fetchPriority={i === 0 ? 'high' : 'low'}
-                        style={{
-                            width: '100%', height: '100%',
-                            objectFit: 'cover', objectPosition: 'center top',
-                            display: 'block',
-                        }}
+                        onLoad={() => markLoaded(i)}
+                        // The first photo is in the server HTML and can finish loading before
+                        // React attaches onLoad, so also check when React picks it up
+                        ref={el => { if (el?.complete && el.naturalWidth > 0) markLoaded(i) }}
+                        className="absolute inset-0 h-full w-full object-cover object-[center_25%] transition-opacity ease-in-out"
+                        style={{ opacity: show ? 1 : 0, zIndex: i === idx ? 1 : 0, transitionDuration: `${FADE_MS}ms` }}
                     />
-                </motion.div>
-            ))}
+                )
+            })}
 
-            {/* ── GRADIENT overlays — always on top of images ─────── */}
-            {/* Dark vignette left — for hero text readability */}
-            <div style={{
-                position: 'absolute', inset: 0, pointerEvents: 'none',
-                background: 'linear-gradient(to right, rgba(8,8,8,0.80) 0%, rgba(8,8,8,0.45) 45%, rgba(8,8,8,0.15) 100%)',
-            }} />
-            {/* Bottom fade — for dots/caption area */}
-            <div style={{
-                position: 'absolute', inset: 0, pointerEvents: 'none',
-                background: 'linear-gradient(to top, rgba(8,8,8,0.70) 0%, transparent 35%)',
-            }} />
+            {/* Scrims: keep the text readable whichever photo is showing */}
+            <div aria-hidden="true" className="absolute inset-0 z-[2] bg-gradient-to-r from-black/80 via-black/50 to-black/10" />
+            <div aria-hidden="true" className="absolute inset-0 z-[2] bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
-            {/* ── CAPTION — fades with slide ───────────────────────── */}
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key={`cap-${idx}`}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                    style={{
-                        position: 'absolute', bottom: '3.5rem', left: '1.5rem',
-                        display: 'inline-flex', alignItems: 'center', gap: 6,
-                        fontSize: '0.72rem', fontWeight: 700, color: '#fff',
-                        background: SLIDES[idx].accent + 'bb',
-                        backdropFilter: 'blur(10px)',
-                        padding: '0.28rem 0.7rem',
-                        borderRadius: 99,
-                    }}
-                >
-                    {SLIDES[idx].caption}
-                </motion.div>
-            </AnimatePresence>
-
-            {/* ── PROGRESS BAR — thin, top edge ────────────────────── */}
-            <AnimatePresence>
-                {!paused && (
-                    <motion.div
-                        key={`prog-${idx}`}
-                        style={{
-                            position: 'absolute', top: 0, left: 0, height: 2,
-                            background: SLIDES[idx].accent,
-                            transformOrigin: 'left',
-                        }}
-                        initial={{ width: '0%' }}
-                        animate={{ width: '100%' }}
-                        transition={{ duration: INTERVAL / 1000, ease: 'linear' }}
-                    />
-                )}
-            </AnimatePresence>
-
-            {/* ── DOT INDICATORS — bottom center ───────────────────── */}
-            <div style={{
-                position: 'absolute', bottom: '1rem', left: 0, right: 0,
-                display: 'flex', justifyContent: 'center', gap: 5,
-            }}>
-                {SLIDES.map((slide, i) => (
-                    <button
-                        key={i}
-                        onClick={() => goTo(i)}
-                        style={{
-                            width: i === idx ? 18 : 5, height: 5,
-                            borderRadius: 99, border: 'none', cursor: 'pointer', padding: 0,
-                            background: i === idx ? SLIDES[idx].accent : 'rgba(255,255,255,0.25)',
-                            transition: 'width 0.5s cubic-bezier(0.16,1,0.3,1), background 0.4s',
-                        }}
-                    />
-                ))}
-            </div>
-
+            {/* Which trade is showing: decorative, so hidden from screen readers */}
+            <p aria-hidden="true"
+                className="absolute bottom-6 right-6 z-[3] rounded-full bg-black/45 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm transition-opacity duration-500"
+                style={{ opacity: loaded[idx] ? 1 : 0 }}>
+                {SLIDES[idx].caption}
+            </p>
         </div>
     )
 }

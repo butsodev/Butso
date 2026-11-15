@@ -117,7 +117,8 @@ export function ShopSetup() {
         const { shop, error } = await saveShop(
             {
                 ownerId: currentUser.id,
-                ownerName: currentUser.name,
+                // shops is readable by anyone, so never store the real name here: use the handle
+                ownerName: currentUser.username || currentUser.name,
                 ownerUsername: currentUser.username,
                 name, tagline, category, description, location, isMobile, phone, photoUrl,
                 acceptMessagesFromAnyone: acceptMessages, showPhonePublicly: showPhone,

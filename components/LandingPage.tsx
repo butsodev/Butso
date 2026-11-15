@@ -1,170 +1,101 @@
 'use client'
 
-import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useEffect, useRef } from 'react'
-import { ChevronRight, MapPin, ArrowRight, CheckCircle, Award, Menu as MenuIcon, X as CloseIcon } from 'lucide-react'
-
+// The landing page: one story, top to bottom.
+//   hero -> who is already here (real data) -> trades -> how it works for each kind of person
+//   -> the privacy promise -> join.
+// Colours come from the theme tokens (app/globals.css, brand.md), so light and dark both work.
+// Photos come from Cloudinary at the size they are shown. Entrance and scroll animations are
+// plain CSS (.rise / .reveal), so nothing waits for JavaScript to become visible.
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import {
+  ArrowRight, Check, Menu as MenuIcon, X as CloseIcon, Sun, Moon, EyeOff, MessageCircle, ShieldCheck,
+  Briefcase, Hammer, Store, MapPin,
+} from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 import { HeroSlideshow } from '@/components/HeroSlideshow'
-import { IMAGES } from '@/lib/cloudinary'
+import { cldSized, cldSrcSet, cldThumb } from '@/lib/cloudinary'
 import { fetchWorkers, type PublicWorker } from '@/lib/data'
-
-import { EmojiIcon } from '@/components/EmojiIcon'
-// ─── MEDIA SLOTS ──────────────────────────────────────────────────────────────
-// All images now served from Cloudinary — see lib/cloudinary.ts.
-// Everything shows a clean placeholder until real media arrives.
-const MEDIA = {
-  // Worker avatars — real worker images mapped by trade
-  workers: [
-    IMAGES.plumberman,          // Wunuken Danladi — Plumber
-    IMAGES.cleanerwoman,        // Fatima Abdullahi — Cleaner
-    IMAGES.electricianman,      // Zando Ishaku — Electrician
-    IMAGES.carpenterman,        // Emeka Eze — Carpenter
-    IMAGES.painterman,          // Wapuken Amos — Painter
-    IMAGES.mechanicman,         // Yusuf Garba — Mechanic/Welder
-  ],
-
-  // Feature carousel slides
-  slideWorkerPhone: IMAGES.mancalling,
-  slideHandshake: IMAGES.workershandshake,
-  slideShop: IMAGES.barberman,
-
-  // Two-column tiles
-  tileHire: IMAGES.happyman,
-  tileWork: IMAGES.tailorgirl,
-
-  // "Who is Butsó for?" section
-  whoFor: IMAGES.constructionworkerpointing,
-
-  // Bottom CTA section — wide street scene
-  bottomBg: IMAGES.busyafricanstreet,
-
-  // Success story section
-  successStory: IMAGES.workershandshake,
-
-  // Success story tile extras
-  successExtra: IMAGES.familyinparlor,
-}
-
-// ─── DATA ─────────────────────────────────────────────────────────────────────
-const CATEGORIES = [
-  { emoji: '🔧', label: 'Plumbing', workers: 48, img: IMAGES.plumberman },
-  { emoji: '⚡', label: 'Electrical', workers: 32, img: IMAGES.electricianman },
-  { emoji: '🪵', label: 'Carpentry', workers: 27, img: IMAGES.carpenterman },
-  { emoji: '🧹', label: 'Cleaning', workers: 91, img: IMAGES.cleanerwoman },
-  { emoji: '🎨', label: 'Painting', workers: 35, img: IMAGES.painterman },
-  { emoji: '🍳', label: 'Cooking', workers: 22, img: IMAGES.cheflady },
-  { emoji: '🚗', label: 'Mechanics', workers: 18, img: IMAGES.mechanicman },
-  { emoji: '🧵', label: 'Tailoring', workers: 14, img: IMAGES.tailorgirl },
-  { emoji: '🏗️', label: 'Construction', workers: 56, img: IMAGES.bricklayer },
-  { emoji: '🌿', label: 'Farming', workers: 11, img: IMAGES.farmerwoman },
-  { emoji: '💇', label: 'Hair & Beauty', workers: 29, img: IMAGES.braidergirl },
-  { emoji: '👕', label: 'Laundry', workers: 19, img: IMAGES.laundryladies },
-  { emoji: '🔒', label: 'Security', workers: 8, img: IMAGES.securityman },
-  { emoji: '🏠', label: 'Repairs', workers: 44, img: IMAGES.barberman },
-]
-
-// Quick-tap trending searches — what people in Wukari are actually asking for this week
-const TRENDING: { emoji: string; label: string; situation: Situation }[] = [
-  { emoji: '🔧', label: 'Emergency plumber', situation: 'need-done' },
-  { emoji: '🧹', label: 'Weekend cleaner', situation: 'need-done' },
-  { emoji: '💇', label: 'Hair braiding appointment', situation: 'exploring' },
-  { emoji: '🔌', label: 'Generator repair', situation: 'need-done' },
-  { emoji: '🎨', label: 'House painter', situation: 'need-done' },
-  { emoji: '🚗', label: 'Daily school run driver', situation: 'need-done' },
-  { emoji: '🍽️', label: 'Event caterer', situation: 'need-done' },
-  { emoji: '🏗️', label: 'Bricklayer for extension', situation: 'need-done' },
-  { emoji: '🧵', label: 'Aso-ebi tailor', situation: 'need-done' },
-  { emoji: '🔒', label: 'Event security', situation: 'need-done' },
-  { emoji: '🌿', label: 'Farm hand', situation: 'need-done' },
-  { emoji: '🚗', label: 'Mechanic near me', situation: 'need-done' },
-]
-
-// Practical know-how — not fluff, just what actually moves the needle for workers and employers
-
-// LinkedIn-style carousel slides: text left, circle-cropped image right
-const SLIDES = [
-  {
-    tag: 'For employers',
-    headline: 'Let workers know you have a job',
-    body: 'Need a plumber, cleaner or carpenter? Post your job in under 2 minutes and start getting applications from nearby workers.',
-    cta: 'Post a job',
-    img: MEDIA.slideWorkerPhone,
-    emoji: '📱',
-    situation: 'need-done' as const,
-  },
-  {
-    tag: 'For everyone',
-    headline: 'Direct messages, no middleman',
-    body: 'Chat directly with workers or employers. Agree a price, confirm the job, get it done. No agency in the middle.',
-    cta: 'Start messaging',
-    img: MEDIA.slideHandshake,
-    emoji: '💬',
-    situation: 'exploring' as const,
-  },
-  {
-    tag: 'Book services',
-    headline: 'Book a shop slot instantly',
-    body: 'Book barbers, tailors and mechanics straight from the app. See who\'s available now. No calls. No waiting.',
-    cta: 'Browse shops',
-    img: MEDIA.slideShop,
-    emoji: '🏪',
-    situation: 'exploring' as const,
-  },
-]
-
-// "Who is Butsó for?" — LinkedIn's chevron list
-const WHO_FOR = [
-  { icon: '🛠️', label: 'Find work near you', situation: 'have-skill' as const },
-  { icon: '📋', label: 'Hire someone for a job', situation: 'need-done' as const },
-  { icon: '🏪', label: 'Book a shop or service', situation: 'exploring' as const },
-  { icon: '👀', label: 'Browse what\'s available', situation: 'exploring' as const },
-]
 
 type Situation = 'need-done' | 'have-skill' | 'exploring'
 
-// ─── SMART IMAGE — shows placeholder when file isn't there yet ─────────────
-function Img({ src, alt, emoji, label, style, className, eager }: {
-  src: string; alt: string; emoji: string; label: string
-  style?: React.CSSProperties; className?: string; eager?: boolean
-}) {
-  const [err, setErr] = useState(false)
-  if (err) return (
-    <div style={{
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      gap: 8, background: 'rgba(27,158,110,0.07)', border: '1.5px dashed rgba(27,158,110,0.25)',
-      borderRadius: 12, padding: '1rem', textAlign: 'center', color: '#1B9E6E', ...style,
-    }} className={className}>
-      <span style={{ display: 'inline-flex' }}>{emoji ? <EmojiIcon e={emoji} size={32} /> : null}</span>
-      <span style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.7 }}>{label}</span>
-    </div>
+const NAV = [
+  { label: 'Jobs', href: '/jobs' },
+  { label: 'Workers', href: '/people' },
+  { label: 'Shops', href: '/shops' },
+  { label: 'Help', href: '/support' },
+]
+
+// Trades with a real photo. Tapping one opens the people list, which guests can browse.
+const TRADES = [
+  { label: 'Plumbing', img: 'plumberman' },
+  { label: 'Electrical', img: 'electricianman' },
+  { label: 'Tailoring', img: 'tailorgirl' },
+  { label: 'Barbing', img: 'barberman' },
+  { label: 'Hair braiding', img: 'braidergirl' },
+  { label: 'Carpentry', img: 'carpenterman' },
+  { label: 'Cleaning', img: 'cleanerwoman' },
+  { label: 'Painting', img: 'painterman' },
+  { label: 'Cooking', img: 'cheflady' },
+  { label: 'Mechanics', img: 'mechanicman' },
+  { label: 'Building', img: 'bricklayer' },
+  { label: 'Laundry', img: 'laundryladies' },
+]
+
+const PATHS: {
+  icon: typeof Briefcase; tag: string; title: string; img: string; steps: string[]; cta: string; situation: Situation
+}[] = [
+  {
+    icon: Briefcase, tag: 'Need something done', title: 'Hire someone near you', img: 'happyman',
+    steps: ['Post a job in two minutes. It is free.', 'People nearby apply. Check their skills and reviews.', 'Pick one, chat, agree a price and pay them directly.'],
+    cta: 'Post a job', situation: 'need-done',
+  },
+  {
+    icon: Hammer, tag: 'Looking for work', title: 'Get hired for your skills', img: 'mancalling',
+    steps: ['Make a profile with your skills. No CV needed.', 'Apply to jobs near you, or get hired straight from your profile.', 'Do good work, get reviews, get picked again.'],
+    cta: 'Find work', situation: 'have-skill',
+  },
+  {
+    icon: Store, tag: 'Run a shop', title: 'Let customers book you', img: 'familyinparlor',
+    steps: ['List your services, prices, opening hours and work photos.', 'Customers pick a time and send a booking.', 'Accept it, do the job, collect reviews.'],
+    cta: 'Set up a shop', situation: 'have-skill',
+  },
+]
+
+const initials = (s: string) => s.replace(/^@/, '').slice(0, 2).toUpperCase()
+
+function ThemeToggle({ className = '' }: { className?: string }) {
+  const darkMode = useAppStore(s => s.darkMode)
+  const toggle = useAppStore(s => s.toggleDarkMode)
+  return (
+    <button type="button" onClick={toggle} aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+      className={`inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors ${className}`}>
+      {darkMode ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
+    </button>
   )
-  return <img src={src} alt={alt} style={style} className={className} onError={() => setErr(true)}
-    loading={eager ? 'eager' : 'lazy'}
-    fetchPriority={eager ? 'high' : 'low'}
-  />
 }
 
+function Logo() {
+  return (
+    <Link href="/" className="flex items-center gap-2.5 rounded-lg" aria-label="Butsó home">
+      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-white font-black text-[15px]" aria-hidden="true">B</span>
+      <span className="font-heading text-xl font-black tracking-tight text-foreground">Butsó</span>
+    </Link>
+  )
+}
 
-// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export function LandingPage() {
-  const { setCurrentPage, darkMode, toggleDarkMode } = useAppStore()
-  const jobs = useAppStore(st => st.jobs)
-  const openJobs = jobs.filter(j => j.status === 'open').slice(0, 5)
-  const [realWorkers, setRealWorkers] = useState<PublicWorker[]>([])
+  const setCurrentPage = useAppStore(s => s.setCurrentPage)
+  const openAuth = useAppStore(s => s.openAuth)
+  const jobs = useAppStore(s => s.jobs)
+  const openJobs = jobs.filter(j => j.status === 'open').slice(0, 4)
+  const [workers, setWorkers] = useState<PublicWorker[] | null>(null) // null = still loading
+  const [menuOpen, setMenuOpen] = useState(false)
+
   useEffect(() => {
     let alive = true
-    fetchWorkers().then(({ workers }) => { if (alive) setRealWorkers(workers) })
+    fetchWorkers(undefined, { limit: 8 }).then(({ workers }) => { if (alive) setWorkers(workers) })
     return () => { alive = false }
-  }, [])
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [slideIdx, setSlideIdx] = useState(0)
-  const slideTimer = useRef<ReturnType<typeof setInterval> | null>(null)
-
-  // Auto-advance carousel (LinkedIn pattern)
-  useEffect(() => {
-    slideTimer.current = setInterval(() => setSlideIdx(i => (i + 1) % SLIDES.length), 5000)
-    return () => { if (slideTimer.current) clearInterval(slideTimer.current) }
   }, [])
 
   useEffect(() => {
@@ -174,617 +105,312 @@ export function LandingPage() {
     return () => window.removeEventListener('keydown', onKey)
   }, [menuOpen])
 
+  // Remember what they came for, so sign-up can skip the "what brings you here" step
   const go = (situation: Situation) => {
-    sessionStorage.setItem('selectedSituation', situation)
-    if (situation === 'exploring') {
-      // Browse without logging in — land on jobs/workers view directly
-      setCurrentPage('jobs')
-    } else {
-      // Role chosen — save it so ProfileSetup skips the role step
-      sessionStorage.setItem('selectedRole', situation === 'need-done' ? 'employer' : 'worker')
-      setCurrentPage('auth')
-    }
+    try {
+      sessionStorage.setItem('selectedSituation', situation)
+      if (situation !== 'exploring') sessionStorage.setItem('selectedRole', situation === 'need-done' ? 'employer' : 'worker')
+    } catch { /* private mode: they just answer the question again */ }
+    if (situation === 'exploring') setCurrentPage('jobs')
+    else setCurrentPage('auth')
   }
 
-  // Palette — Butsó's own identity, switches with darkMode
-  const C = darkMode ? {
-    canvas: '#111110',
-    surface: '#161614',
-    card: '#1C1C1A',
-    cardHover: '#222220',
-    border: 'rgba(255,255,255,0.07)',
-    text: '#F0EFEB',
-    mid: '#C0BFB8',
-    muted: '#8A8980',
-    faint: '#3A3A36',
-    green: '#1B9E6E',
-    orange: '#F55D1E',
-    greenBg: 'rgba(27,158,110,0.12)',
-    headerBg: 'rgba(17,17,16,0.92)',
-    pillBg: 'rgba(255,255,255,0.04)',
-    pillBorder: 'rgba(255,255,255,0.14)',
-    faqHover: 'rgba(255,255,255,0.05)',
-    faqBase: 'rgba(255,255,255,0.02)',
-  } : {
-    canvas: '#FAFAF8',
-    surface: '#FFFFFF',
-    card: '#F2F1EC',
-    cardHover: '#E8E7E0',
-    border: 'rgba(17,17,16,0.08)',
-    text: '#171715',
-    mid: '#45443E',
-    muted: '#6B6A61',
-    faint: '#9A988D',
-    green: '#1B9E6E',
-    orange: '#F55D1E',
-    greenBg: 'rgba(27,158,110,0.10)',
-    headerBg: 'rgba(255,255,255,0.92)',
-    pillBg: 'rgba(17,17,16,0.03)',
-    pillBorder: 'rgba(17,17,16,0.12)',
-    faqHover: 'rgba(17,17,16,0.05)',
-    faqBase: 'rgba(17,17,16,0.02)',
-  }
+  const showLive = workers === null || workers.length > 0 || openJobs.length > 0
 
   return (
-    <div style={{ minHeight: '100dvh', background: C.canvas, color: C.text, fontFamily: 'var(--font-sans), system-ui, sans-serif', overflowX: 'hidden' }}>
-
-      {/* ── NAV ─────────────────────────────────────────────────────────── */}
-      <header style={{ position: 'sticky', top: 0, zIndex: 50, background: C.headerBg, backdropFilter: 'blur(16px)', borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto', padding: '0 1.5rem', height: 58, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
-
-          {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-            <div style={{ width: 32, height: 32, background: C.green, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ color: '#fff', fontWeight: 900, fontSize: 15 }}>B</span>
-            </div>
-            <span style={{ fontWeight: 900, fontSize: '1.18rem', letterSpacing: '-0.03em' }}>Butsó</span>
-          </div>
-
-          {/* Nav links — LinkedIn style, desktop only */}
-          <nav style={{ display: 'flex', gap: 4 }} className="ld-nav">
-            {[
-              { label: 'Browse Jobs', page: 'jobs' },
-              { label: 'Find Workers', page: 'people' },
-              { label: 'Book a Service', page: 'shops' },
-            ].map(item => (
-              <button key={item.label} onClick={() => setCurrentPage(item.page)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem 0.8rem', fontSize: '0.82rem', color: C.muted, fontWeight: 600, borderBottom: '2px solid transparent', transition: 'color 0.15s, border-color 0.15s' }}
-                onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.color = C.text; el.style.borderBottomColor = C.green }}
-                onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.color = C.muted; el.style.borderBottomColor = 'transparent' }}
-              >{item.label}</button>
+    <div className="min-h-dvh bg-background text-foreground overflow-x-clip">
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+          <Logo />
+          <nav aria-label="Main" className="hidden md:flex items-center gap-1">
+            {NAV.map(n => (
+              <Link key={n.href} href={n.href}
+                className="rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+                {n.label}
+              </Link>
             ))}
           </nav>
-
-          {/* Right: desktop shows everything, mobile keeps only Join free + menu */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ alignItems: 'center', gap: 5, fontSize: '0.7rem', color: C.faint, background: C.pillBg, border: `1px solid ${C.border}`, padding: '0.25rem 0.65rem', borderRadius: 99, flexShrink: 0 }} className="ld-location">
-              <MapPin size={9} style={{ color: C.green }} />Near you
-            </div>
-            <button onClick={toggleDarkMode} aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="ld-desktop-only"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, minWidth: 44, minHeight: 44, borderRadius: 8, fontSize: '0.9rem', alignItems: 'center', justifyContent: 'center' }}>
-              {darkMode ? '☀️' : '🌙'}
-            </button>
-            <button onClick={() => useAppStore.getState().openAuth('login')}
-              className="ld-desktop-only"
-              style={{ background: 'none', border: `1px solid ${C.pillBorder}`, borderRadius: 8, padding: '0 1rem', minHeight: 44, fontSize: '0.82rem', color: C.mid, fontWeight: 600, cursor: 'pointer', alignItems: 'center' }}>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <button type="button" onClick={() => openAuth('login')}
+              className="hidden md:inline-flex h-11 items-center rounded-xl px-4 text-sm font-semibold text-foreground hover:bg-secondary transition-colors">
               Log in
             </button>
-            <button onClick={() => go('have-skill')}
-              style={{ background: C.green, border: 'none', borderRadius: 8, padding: '0 1rem', minHeight: 44, fontSize: '0.82rem', color: '#fff', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-              Join free →
+            <button type="button" onClick={() => go('have-skill')}
+              className="inline-flex h-11 items-center gap-1.5 rounded-xl bg-primary px-4 text-sm font-bold text-primary-foreground hover:opacity-90 transition-opacity">
+              Join free
             </button>
-            <button onClick={() => setMenuOpen(o => !o)}
-              className="ld-mobile-only"
+            <button type="button" onClick={() => setMenuOpen(o => !o)} aria-expanded={menuOpen} aria-controls="landing-menu"
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={menuOpen}
-              aria-controls="ld-mobile-menu"
-              style={{ background: 'none', border: `1px solid ${C.pillBorder}`, borderRadius: 8, minWidth: 44, minHeight: 44, color: C.mid, cursor: 'pointer', alignItems: 'center', justifyContent: 'center' }}>
-              {menuOpen ? <CloseIcon size={20} /> : <MenuIcon size={20} />}
+              className="md:hidden inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border text-foreground">
+              {menuOpen ? <CloseIcon size={20} aria-hidden="true" /> : <MenuIcon size={20} aria-hidden="true" />}
             </button>
           </div>
         </div>
-
-        {/* Mobile menu panel */}
         {menuOpen && (
-          <div id="ld-mobile-menu" className="ld-mobile-menu" style={{ borderTop: `1px solid ${C.border}`, background: C.canvas, padding: '0.5rem 1.5rem 1rem' }}>
-            <nav aria-label="Main" style={{ display: 'flex', flexDirection: 'column' }}>
-              {[
-              { label: 'Browse Jobs', page: 'jobs' },
-              { label: 'Find Workers', page: 'people' },
-              { label: 'Book a Service', page: 'shops' },
-            ].map(item => (
-                <button key={item.label} onClick={() => { setMenuOpen(false); setCurrentPage(item.page) }}
-                  style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', minHeight: 48, padding: '0 0.25rem', fontSize: '0.95rem', color: C.text, fontWeight: 600, borderBottom: `1px solid ${C.border}` }}>
-                  {item.label}
-                </button>
+          <div id="landing-menu" className="md:hidden border-t border-border bg-background px-4 pb-4">
+            <nav aria-label="Main" className="flex flex-col">
+              {NAV.map(n => (
+                <Link key={n.href} href={n.href} onClick={() => setMenuOpen(false)}
+                  className="flex min-h-12 items-center border-b border-border text-base font-semibold text-foreground">
+                  {n.label}
+                </Link>
               ))}
             </nav>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.9rem', flexWrap: 'wrap' }}>
-              <button onClick={() => { setMenuOpen(false); useAppStore.getState().openAuth('login') }}
-                style={{ flex: 1, minWidth: 120, background: 'none', border: `1px solid ${C.pillBorder}`, borderRadius: 8, minHeight: 44, fontSize: '0.9rem', color: C.mid, fontWeight: 600, cursor: 'pointer' }}>
-                Log in
-              </button>
-              <button onClick={toggleDarkMode} aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-                style={{ background: 'none', border: `1px solid ${C.pillBorder}`, borderRadius: 8, minWidth: 44, minHeight: 44, fontSize: '1rem', cursor: 'pointer' }}>
-                {darkMode ? '☀️' : '🌙'}
-              </button>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.75rem', color: C.muted }}>
-                <MapPin size={11} style={{ color: C.green }} />Near you
-              </div>
-            </div>
+            <button type="button" onClick={() => { setMenuOpen(false); openAuth('login') }}
+              className="mt-4 h-11 w-full rounded-xl border border-border text-sm font-semibold text-foreground">
+              Log in
+            </button>
           </div>
         )}
       </header>
 
-      {/* ── HERO — Fiverr video left + LinkedIn live-content right ───── */}
-      <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 'calc(100vh - 96px)', overflow: 'hidden' }} className="ld-hero-grid">
-
-        {/* LEFT — animated image slideshow */}
-        <div style={{ position: 'relative', overflow: 'hidden', minHeight: 520 }}>
-
-          {/* Slideshow sits behind the text overlay */}
-          <HeroSlideshow style={{ position: 'absolute', inset: 0 }} />
-
-          {/* Hero text overlay */}
-          <div style={{ position: 'relative', zIndex: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 'clamp(2rem,5vw,3.5rem) clamp(1.5rem,4vw,3rem)' }}>
-
-            {/* Eyebrow */}
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.68rem', fontWeight: 700, color: C.green, background: C.greenBg, border: `1px solid rgba(27,158,110,0.25)`, padding: '0.25rem 0.8rem', borderRadius: 99, marginBottom: '1.25rem' }}>
-                "Butsó" means work in Jukun
-              </span>
-            </motion.div>
-
-            {/* Headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.07, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              style={{ fontSize: 'clamp(1.9rem,3.8vw,3rem)', fontWeight: 900, lineHeight: 1.08, letterSpacing: '-0.035em', marginBottom: '1rem', maxWidth: 460, color: '#F5F4F0' }}
-            >
-              Skilled workers.<br />
-              <span style={{ color: C.green }}>Real jobs.</span><br />
-              Right where you are.
-            </motion.h1>
-
-            {/* Subhead */}
-            <motion.p
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.14, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              style={{ fontSize: '0.92rem', color: 'rgba(240,239,235,0.62)', lineHeight: 1.7, marginBottom: '2rem', maxWidth: 380 }}
-            >
-              Need work done? Find skilled workers near you. Looking for work? List your skills and get hired. No agency. No CV. No wahala.
-            </motion.p>
-
-            {/* CTAs */}
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-              <button onClick={() => go('need-done')}
-                style={{ background: C.green, color: '#fff', border: 'none', borderRadius: 10, padding: '0.82rem 1.5rem', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer', boxShadow: '0 4px 20px rgba(27,158,110,0.35)', display: 'flex', alignItems: 'center', gap: 7 }}>
-                Hire someone <ArrowRight size={14} />
-              </button>
-              <button onClick={() => go('have-skill')}
-                style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', color: '#F5F4F0', border: `1px solid rgba(255,255,255,0.14)`, borderRadius: 10, padding: '0.82rem 1.5rem', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer' }}>
-                Find work →
-              </button>
-            </motion.div>
-
-            {/* Upwork-style social proof avatars */}
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35, duration: 0.5 }}
-              style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: '0.75rem', color: 'rgba(240,239,235,0.5)' }}>
-                <strong style={{ color: '#F5F4F0' }}>Free to join</strong> · No CV needed
-              </span>
-            </motion.div>
-          </div>
-        </div>
-
-        {/* RIGHT — LinkedIn live-content panel */}
-        <div style={{ background: C.surface, borderLeft: `1px solid ${C.border}`, overflowY: 'auto', maxHeight: 'calc(100vh - 96px)', padding: '1.75rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="ld-right-panel">
-
-          {realWorkers.length > 0 && (
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
-                <p style={{ fontSize: '0.75rem', fontWeight: 800, color: C.text }}>People on Butsó</p>
-                <button onClick={() => go('exploring')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.7rem', color: C.green, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2, minHeight: 44 }}>
-                  See all <ChevronRight size={11} />
-                </button>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {realWorkers.slice(0, 5).map((w, i) => (
-                  <motion.div key={w.id}
-                    initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 + i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    onClick={() => go('exploring')}
-                    style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.7rem', borderRadius: 10, background: C.card, border: `1px solid ${C.border}`, cursor: 'pointer' }}
-                  >
-                    <div style={{ width: 38, height: 38, borderRadius: '50%', flexShrink: 0, background: C.greenBg, border: `2px solid ${C.green}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800, color: C.green }}>
-                      {w.username.slice(0, 2).toUpperCase()}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <span style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>@{w.username}</span>
-                      <span style={{ fontSize: '0.68rem', color: C.muted }}>{w.skills.slice(0, 2).join(', ') || 'New member'}</span>
-                    </div>
-                    <div style={{ textAlign: 'right', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 3 }}>
-                      {w.rating != null ? (
-                        <>
-                          <Award size={11} color="#F59E0B" strokeWidth={2.2} />
-                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: C.text }}>{w.rating.toFixed(1)}</span>
-                        </>
-                      ) : (
-                        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: C.green }}>New</span>
-                      )}
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {realWorkers.length > 0 && openJobs.length > 0 && <div style={{ height: 1, background: C.border }} />}
-
-          {openJobs.length > 0 && (
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
-                <p style={{ fontSize: '0.75rem', fontWeight: 800, color: C.text }}>Latest jobs</p>
-                <button onClick={() => go('have-skill')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.7rem', color: C.green, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2, minHeight: 44 }}>
-                  Apply <ChevronRight size={11} />
-                </button>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                {openJobs.map((job, i) => (
-                  <motion.div key={job.id}
-                    initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 + i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    onClick={() => go('have-skill')}
-                    style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, padding: '0.65rem', borderRadius: 10, background: C.card, border: `1px solid ${C.border}`, cursor: 'pointer' }}
-                  >
-                    <div style={{ minWidth: 0 }}>
-                      <p style={{ fontSize: '0.78rem', fontWeight: 700, color: C.text, marginBottom: 3 }}>{job.title}</p>
-                      {job.location && job.location !== 'Not specified' && (
-                        <span style={{ fontSize: '0.65rem', color: C.muted }}>{job.location}</span>
-                      )}
-                    </div>
-                    <p style={{ fontSize: '0.78rem', fontWeight: 800, color: C.green, flexShrink: 0 }}>₦{job.budget.toLocaleString()}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {realWorkers.length === 0 && openJobs.length === 0 && (
-            <div style={{ padding: '1.25rem', borderRadius: 12, background: C.card, border: `1px solid ${C.border}`, textAlign: 'center' }}>
-              <p style={{ fontSize: '0.9rem', fontWeight: 800, color: C.text, marginBottom: 6 }}>Be one of the first</p>
-              <p style={{ fontSize: '0.78rem', color: C.muted, lineHeight: 1.5, marginBottom: '1rem' }}>
-                Butsó is just getting started. Post a job or list your skills and show up first.
+      <main>
+        {/* ── Hero ───────────────────────────────────────────────────────── */}
+        <section className="relative isolate flex min-h-[560px] items-center lg:min-h-[640px] h-[calc(100svh-4rem)] max-h-[780px]">
+          <HeroSlideshow className="absolute inset-0 -z-10" />
+          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
+            <div className="max-w-xl">
+              <p className="rise mb-5 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 backdrop-blur-sm">
+                <MapPin size={12} aria-hidden="true" /> “Butsó” means “work” in Jukun
               </p>
-              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-                <button onClick={() => go('need-done')} style={{ background: C.green, color: '#fff', border: 'none', borderRadius: 8, padding: '0 1rem', minHeight: 44, fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}>Post a job</button>
-                <button onClick={() => go('have-skill')} style={{ background: 'none', color: C.text, border: `1px solid ${C.border}`, borderRadius: 8, padding: '0 1rem', minHeight: 44, fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}>List your skills</button>
+              <h1 className="rise font-heading text-[2.6rem] leading-[1.02] font-black tracking-tight text-balance text-white sm:text-6xl" style={{ '--d': '60ms' } as React.CSSProperties}>
+                Skilled workers.<br />
+                {/* Fixed light green: this text always sits on a dark photo, in both themes */}
+                <span className="text-[#5EE0A8]">Real jobs.</span><br />
+                Right where you are.
+              </h1>
+              <p className="rise mt-5 max-w-md text-base leading-relaxed text-white/80 sm:text-lg" style={{ '--d': '120ms' } as React.CSSProperties}>
+                Find a plumber, tailor or cleaner nearby, or get hired for what you do. No agency, no CV, no wahala.
+              </p>
+              <div className="rise mt-8 flex flex-wrap gap-3" style={{ '--d': '180ms' } as React.CSSProperties}>
+                <button type="button" onClick={() => go('need-done')}
+                  className="inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-6 text-base font-bold text-primary-foreground shadow-raised hover:opacity-90 transition-opacity">
+                  Hire someone <ArrowRight size={18} aria-hidden="true" />
+                </button>
+                <button type="button" onClick={() => go('have-skill')}
+                  className="inline-flex h-12 items-center rounded-xl border border-white/30 bg-white/10 px-6 text-base font-bold text-white backdrop-blur-sm hover:bg-white/20 transition-colors">
+                  Find work
+                </button>
               </div>
+              <ul className="rise mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/85" style={{ '--d': '240ms' } as React.CSSProperties}>
+                {['Free to join', 'No CV needed', 'Your number stays private'].map(t => (
+                  <li key={t} className="flex items-center gap-1.5"><Check size={16} className="text-[#5EE0A8]" aria-hidden="true" />{t}</li>
+                ))}
+              </ul>
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
 
-      {/* ── TRENDING — quick-tap popular searches, Fiverr-style pill row ── */}
-      <section style={{ padding: 'clamp(2.5rem,5vw,3.5rem) 1.5rem', background: C.surface, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-          <p style={{ fontSize: '0.68rem', fontWeight: 700, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Popular right now</p>
-          <h2 style={{ fontSize: 'clamp(1.2rem,2.4vw,1.6rem)', fontWeight: 800, letterSpacing: '-0.02em', color: C.text, marginBottom: '1.5rem' }}>
-            Popular things to look for
-          </h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
-            {TRENDING.map(item => (
-              <button key={item.label} onClick={() => go(item.situation)}
-                style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '0.55rem 1rem', background: C.card, border: `1px solid ${C.border}`, borderRadius: 99, fontSize: '0.82rem', fontWeight: 600, color: C.mid, cursor: 'pointer', transition: 'border-color 0.15s, color 0.15s, background 0.15s' }}
-                onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = C.green; el.style.color = C.green; el.style.background = C.greenBg }}
-                onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = C.border; el.style.color = C.mid; el.style.background = C.card }}
-              >
-                <span><EmojiIcon e={item.emoji} size={20} /></span>{item.label}
-              </button>
+        {/* ── Who is already here (real data) ─────────────────────────────── */}
+        {showLive && (
+          <section aria-labelledby="live-title" className="border-b border-border bg-card">
+            <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+              <div className="mb-5 flex items-end justify-between gap-4">
+                <div>
+                  <h2 id="live-title" className="font-heading text-2xl font-black tracking-tight">Already on Butsó</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">Real people near you. Names and numbers stay hidden until they say yes.</p>
+                </div>
+                <Link href="/people" className="hidden sm:inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-2 text-sm font-bold text-primary hover:underline">
+                  See everyone <ArrowRight size={16} aria-hidden="true" />
+                </Link>
+              </div>
+
+              <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-4">
+                {workers === null
+                  ? Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="h-[84px] w-64 shrink-0 animate-pulse rounded-2xl bg-muted sm:w-auto" aria-hidden="true" />
+                  ))
+                  : workers.slice(0, 8).map(w => (
+                    <Link key={w.id} href={`/@${w.username}`}
+                      className="flex w-64 shrink-0 snap-start items-center gap-3 rounded-2xl border border-border bg-background p-3.5 hover:border-primary/40 hover:shadow-card transition sm:w-auto">
+                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-black text-primary" aria-hidden="true">
+                        {initials(w.username)}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate font-bold text-foreground">@{w.username}</span>
+                        <span className="block truncate text-sm text-muted-foreground">{w.skills.slice(0, 2).join(', ') || 'New on Butsó'}</span>
+                      </span>
+                    </Link>
+                  ))}
+              </div>
+
+              {openJobs.length > 0 && (
+                <div className="mt-8">
+                  <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-muted-foreground">Latest jobs</h3>
+                  <ul className="grid gap-3 sm:grid-cols-2">
+                    {openJobs.map(j => (
+                      <li key={j.id}>
+                        <Link href={`/jobs/${j.id}`} className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-background p-4 hover:border-primary/40 transition">
+                          <span className="min-w-0">
+                            <span className="block truncate font-bold">{j.title}</span>
+                            <span className="block truncate text-sm text-muted-foreground">{[j.category, j.location].filter(Boolean).join(' · ')}</span>
+                          </span>
+                          {j.budget > 0 && <span className="shrink-0 font-bold text-primary">₦{j.budget.toLocaleString('en-NG')}</span>}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <Link href="/people" className="mt-4 inline-flex sm:hidden items-center gap-1 py-2 text-sm font-bold text-primary">
+                See everyone <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {/* ── Trades ─────────────────────────────────────────────────────── */}
+        <section aria-labelledby="trades-title" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+          <div className="reveal mb-8 max-w-xl">
+            <p className="text-sm font-bold uppercase tracking-wide text-primary">Every trade</p>
+            <h2 id="trades-title" className="mt-2 font-heading text-3xl font-black tracking-tight text-balance sm:text-4xl">What do you need done?</h2>
+            <p className="mt-3 text-muted-foreground">From a dripping tap to an aso-ebi order. Pick a trade to see who is around.</p>
+          </div>
+          <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+            {TRADES.map(t => (
+              <li key={t.label} className="reveal">
+                <Link href="/people" className="group block overflow-hidden rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-card transition">
+                  <span className="block aspect-square overflow-hidden bg-muted">
+                    <img src={cldThumb(t.img, 240)} srcSet={`${cldThumb(t.img, 240)} 1x, ${cldThumb(t.img, 480)} 2x`}
+                      alt="" loading="lazy" decoding="async" width={240} height={240}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  </span>
+                  <span className="block px-3 py-2.5 text-sm font-bold text-foreground">{t.label}</span>
+                </Link>
+              </li>
             ))}
-          </div>
-        </div>
-      </section>
+          </ul>
+        </section>
 
-      {/* ── CATEGORIES — Fiverr style ────────────────────────────────────── */}
-      <section style={{ padding: 'clamp(3rem,6vw,5rem) 1.5rem', background: C.canvas, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '4rem', alignItems: 'flex-start' }} className="ld-two-col">
-            <div>
-              <p style={{ fontSize: '0.68rem', fontWeight: 700, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.6rem' }}>Browse by trade</p>
-              <h2 style={{ fontSize: 'clamp(1.3rem,2.8vw,1.9rem)', fontWeight: 800, letterSpacing: '-0.025em', color: C.text, lineHeight: 1.15, marginBottom: '0.6rem' }}>
-                What do you need done?
-              </h2>
-              <p style={{ fontSize: '0.82rem', color: C.muted, lineHeight: 1.65 }}>
-                Skilled workers across every trade, ready to be hired.
-              </p>
+        {/* ── How it works, per kind of person ─────────────────────────────── */}
+        <section aria-labelledby="how-title" className="border-y border-border bg-secondary/60">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+            <div className="reveal mb-10 max-w-xl">
+              <p className="text-sm font-bold uppercase tracking-wide text-primary">How it works</p>
+              <h2 id="how-title" className="mt-2 font-heading text-3xl font-black tracking-tight text-balance sm:text-4xl">Up and running in minutes</h2>
+              <p className="mt-3 text-muted-foreground">One account does it all. Hire today, take a job tomorrow, open your shop next week.</p>
             </div>
-            {/* Pill tags — LinkedIn pattern */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', paddingTop: '0.25rem' }}>
-              {CATEGORIES.map(cat => (
-                <button key={cat.label} onClick={() => go('need-done')}
-                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.4rem 0.9rem 0.4rem 0.4rem', background: C.card, border: `1px solid ${C.border}`, borderRadius: 99, fontSize: '0.8rem', fontWeight: 600, color: C.mid, cursor: 'pointer', transition: 'border-color 0.15s, color 0.15s, background 0.15s' }}
-                  onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = C.green; el.style.color = C.green; el.style.background = C.greenBg }}
-                  onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = C.border; el.style.color = C.mid; el.style.background = C.card }}
-                >
-                  <div style={{ width: 26, height: 26, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, background: C.faint }}>
-                    <img src={cat.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
+            <div className="grid gap-5 lg:grid-cols-3">
+              {PATHS.map(p => (
+                <article key={p.title} className="reveal flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-card">
+                  <div className="relative aspect-[16/9] overflow-hidden bg-muted">
+                    <img src={cldSized(p.img, 640)} srcSet={cldSrcSet(p.img, [400, 640, 960])} sizes="(min-width: 1024px) 33vw, 100vw"
+                      alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                    <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-background/90 px-3 py-1 text-xs font-bold text-foreground backdrop-blur-sm">
+                      <p.icon size={14} className="text-primary" aria-hidden="true" /> {p.tag}
+                    </span>
                   </div>
-                  {cat.label}
-                </button>
-              ))}
-              <button onClick={() => go('need-done')} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '0.5rem 0.95rem', background: 'none', border: 'none', fontSize: '0.8rem', fontWeight: 700, color: C.green, cursor: 'pointer' }}>
-                Show all <ChevronRight size={13} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── POST A JOB BAND ───────────────────────────────────────────────── */}
-      <section style={{ background: 'rgba(245,93,30,0.08)', borderTop: `1px solid rgba(245,93,30,0.15)`, borderBottom: `1px solid rgba(245,93,30,0.15)`, padding: '1.5rem' }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-          <div>
-            <h2 style={{ fontSize: 'clamp(1rem,1.8vw,1.25rem)', fontWeight: 800, color: '#F97341', marginBottom: '0.2rem' }}>Need someone fast? Post a job for free.</h2>
-            <p style={{ fontSize: '0.78rem', color: C.muted }}>Workers nearby can see it and apply.</p>
-          </div>
-          <button onClick={() => go('need-done')}
-            style={{ background: C.orange, color: '#fff', border: 'none', borderRadius: 10, padding: '0.72rem 1.5rem', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer', boxShadow: '0 4px 16px rgba(245,93,30,0.25)', flexShrink: 0 }}>
-            Post a job
-          </button>
-        </div>
-      </section>
-
-      {/* ── CAROUSEL — LinkedIn pattern: text left, circle image right ─── */}
-      <section style={{ padding: 'clamp(3rem,6vw,5rem) 1.5rem', background: C.surface, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-          {/* Slide progress bars — LinkedIn's dots as progress bars */}
-          <div style={{ display: 'flex', gap: '0.45rem', marginBottom: '2.5rem' }}>
-            {SLIDES.map((_, i) => (
-              <button key={i} onClick={() => { setSlideIdx(i); if (slideTimer.current) clearInterval(slideTimer.current) }}
-                style={{ height: 3, flex: slideIdx === i ? 3 : 1, background: slideIdx === i ? C.green : C.border, border: 'none', borderRadius: 99, cursor: 'pointer', transition: 'flex 0.4s, background 0.3s', padding: 0 }} />
-            ))}
-          </div>
-
-          <AnimatePresence mode="wait">
-            <motion.div key={slideIdx}
-              initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
-              transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
-              style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center' }}
-              className="ld-two-col"
-            >
-              {/* Text side */}
-              <div>
-                <p style={{ fontSize: '0.65rem', fontWeight: 800, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.75rem' }}>
-                  {SLIDES[slideIdx].tag}
-                </p>
-                <h2 style={{ fontSize: 'clamp(1.4rem,2.8vw,1.9rem)', fontWeight: 800, color: C.orange, letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: '1rem' }}>
-                  {SLIDES[slideIdx].headline}
-                </h2>
-                <p style={{ fontSize: '0.88rem', color: C.muted, lineHeight: 1.75, marginBottom: '1.5rem' }}>
-                  {SLIDES[slideIdx].body}
-                </p>
-                <button onClick={() => go(SLIDES[slideIdx].situation)}
-                  style={{ background: 'none', border: `1.5px solid ${C.green}`, borderRadius: 99, padding: '0.6rem 1.3rem', fontWeight: 700, fontSize: '0.85rem', color: C.green, cursor: 'pointer', transition: 'background 0.15s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.greenBg }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none' }}
-                >
-                  {SLIDES[slideIdx].cta} →
-                </button>
-              </div>
-
-              {/* Circle-cropped image — LinkedIn's rounded-[50%] pattern */}
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <div style={{ width: 'min(360px, 80vw)', height: 'min(360px, 80vw)', borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
-                  <Img
-                    src={SLIDES[slideIdx].img}
-                    alt={SLIDES[slideIdx].headline}
-                    emoji={SLIDES[slideIdx].emoji}
-                    label={`Slide ${slideIdx + 1} · 450px circle`}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
-                  />
-                </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </section>
-
-      {/* ── TWO TILES — LinkedIn's 128×128 icon + heading + CTA ─────────── */}
-      <section style={{ padding: 'clamp(3rem,6vw,5rem) 1.5rem', background: C.canvas, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }} className="ld-two-col">
-            {[
-              { img: MEDIA.tileHire, emoji: '🔍', title: 'Find a skilled worker near you', body: 'Browse workers near you. Filter by trade, location and availability. Contact them directly.', cta: 'Find workers', situation: 'need-done' as Situation },
-              { img: MEDIA.tileWork, emoji: '📋', title: 'Post your skills and start earning', body: 'No CV, no agency in the middle. Create your profile, list your trade, and start getting hired by people near you.', cta: 'Offer your skills', situation: 'have-skill' as Situation },
-            ].map((tile, i) => (
-              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                {/* 128×128 tile illustration — LinkedIn's exact size */}
-                <div style={{ width: 128, height: 128, borderRadius: 16, overflow: 'hidden', marginBottom: '1.25rem', flexShrink: 0 }}>
-                  <Img src={tile.img} alt={tile.title} emoji={tile.emoji} label="128×128" style={{ width: 128, height: 128, objectFit: 'cover', display: 'block' }} />
-                </div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: C.text, letterSpacing: '-0.015em', lineHeight: 1.25, marginBottom: '0.6rem' }}>{tile.title}</h3>
-                <p style={{ fontSize: '0.82rem', color: C.muted, lineHeight: 1.7, marginBottom: '1.1rem' }}>{tile.body}</p>
-                <button onClick={() => go(tile.situation)}
-                  style={{ background: 'none', border: `1px solid ${C.border}`, borderRadius: 99, padding: '0.58rem 1.3rem', fontWeight: 700, fontSize: '0.82rem', color: C.mid, cursor: 'pointer', transition: 'border-color 0.15s, color 0.15s' }}
-                  onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = C.green; el.style.color = C.green }}
-                  onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = C.border; el.style.color = C.mid }}
-                >
-                  {tile.cta}
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── WHO IS BUTSÓ FOR — LinkedIn's exact pattern ──────────────────── */}
-      <section style={{ background: C.surface, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto', padding: 'clamp(3rem,6vw,5rem) 1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center' }} className="ld-two-col">
-
-          {/* Left — LinkedIn's orange/red heading + chevron list */}
-          <div>
-            <h2 style={{ fontSize: 'clamp(1.5rem,3vw,2.1rem)', fontWeight: 800, color: C.orange, letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: '0.5rem' }}>
-              Who is Butsó for?
-            </h2>
-            <p style={{ fontSize: '0.85rem', color: C.muted, lineHeight: 1.7, marginBottom: '1.75rem' }}>
-              Anyone doing or needing work.
-            </p>
-            {/* LinkedIn's chevron row list */}
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {WHO_FOR.map((item, i) => (
-                <button key={i} onClick={() => go(item.situation)}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.9rem 0.75rem', background: C.faqBase, border: 'none', borderBottom: `1px solid ${C.border}`, cursor: 'pointer', fontSize: '0.88rem', fontWeight: 600, color: C.mid, textAlign: 'left', transition: 'background 0.15s, color 0.15s' }}
-                  onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = C.faqHover; el.style.color = C.text }}
-                  onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = C.faqBase; el.style.color = C.mid }}
-                >
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}><EmojiIcon e={item.icon} size={18} />{item.label}</span>
-                  <ChevronRight size={15} style={{ color: C.faint, flexShrink: 0 }} />
-                </button>
+                  <div className="flex flex-1 flex-col p-6">
+                    <h3 className="font-heading text-xl font-black tracking-tight">{p.title}</h3>
+                    <ol className="mt-4 flex-1 space-y-3">
+                      {p.steps.map((s, i) => (
+                        <li key={i} className="flex gap-3 text-sm leading-relaxed text-foreground">
+                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-black text-primary" aria-hidden="true">{i + 1}</span>
+                          <span>{s}</span>
+                        </li>
+                      ))}
+                    </ol>
+                    <button type="button" onClick={() => go(p.situation)}
+                      className="mt-6 inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border-2 border-primary/30 px-4 text-sm font-bold text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors">
+                      {p.cta} <ArrowRight size={16} aria-hidden="true" />
+                    </button>
+                  </div>
+                </article>
               ))}
             </div>
           </div>
+        </section>
 
-          {/* Right — LinkedIn's 840×840 tall square illustration */}
-          <div>
-            <Img
-              src={MEDIA.whoFor}
-              alt="Who is Butsó for?"
-              emoji=""
-              label={'600×720px · who-for.jpg'}
-              style={{ width: '100%', height: 480, objectFit: 'cover', borderRadius: 20, display: 'block' }}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* ── STATS BAR ────────────────────────────────────────────────────── */}
-      <div style={{ background: C.green, padding: '1.5rem' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem', textAlign: 'center' }}>
-          {[['₦0', 'To sign up'], ['No CV', 'Needed to get hired'], ['Local', 'Work near you'], ['Direct', 'Chat, agree a price, done']].map(([v, l], i) => (
-            <div key={i}>
-              <div style={{ fontSize: 'clamp(1.3rem,2.5vw,1.8rem)', fontWeight: 900, letterSpacing: '-0.03em', color: '#fff', lineHeight: 1 }}>{v}</div>
-              <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.72)', marginTop: '0.25rem', fontWeight: 500 }}>{l}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── HOW IT WORKS ─────────────────────────────────────────────────── */}
-      <section style={{ padding: 'clamp(3rem,6vw,5rem) 1.5rem', background: C.canvas, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <p style={{ fontSize: '0.68rem', fontWeight: 700, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Simple process</p>
-            <h2 style={{ fontSize: 'clamp(1.4rem,3vw,2rem)', fontWeight: 900, letterSpacing: '-0.03em', color: C.text, lineHeight: 1.1 }}>Up and running in 2 minutes</h2>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '1.25rem' }}>
-            {[
-              { e: '', t: 'Sign up free', b: 'Use your email or Google. No CV, no documents. Free to join.' },
-              { e: '', t: 'Browse or post', b: 'Find skilled workers nearby or post your own skills and get hired.' },
-              { e: '', t: 'Chat & agree', b: 'Message directly, agree on price. No middleman taking a cut.' },
-              { e: '', t: 'Get it done', b: 'Work happens, payment tracked. Leave a rating when done.' },
-            ].map((s, i) => (
-              <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '1.6rem' }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: C.greenBg, color: C.green, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.95rem', fontWeight: 900, marginBottom: '1rem' }}>{i + 1}</div>
-                <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: C.text, marginBottom: '0.5rem', lineHeight: 1.3 }}>{s.t}</h3>
-                <p style={{ fontSize: '0.78rem', color: C.muted, lineHeight: 1.65 }}>{s.b}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── BOTTOM CTA — LinkedIn "Join your colleagues" with bg image ─── */}
-      <section style={{ position: 'relative', overflow: 'hidden', minHeight: 300 }}>
-        {/* Background image — LinkedIn's after: pseudo approach */}
-        <Img src={MEDIA.bottomBg} alt="" emoji="" label="bottom-bg.jpg" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-        {/* Dark overlay — text floats on top */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(10,10,10,0.72) 0%, rgba(10,10,10,0.55) 50%, rgba(10,10,10,0.2) 100%)' }} />
-
-        <div style={{ position: 'relative', maxWidth: 1160, margin: '0 auto', padding: 'clamp(3.5rem,7vw,5.5rem) 1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'center' }} className="ld-two-col">
-          <div>
-            <h2 style={{ fontSize: 'clamp(1.6rem,3.5vw,2.5rem)', fontWeight: 900, color: '#F5F4F0', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '1rem' }}>
-              Join workers, employers, and shops already on Butsó
-            </h2>
-            <p style={{ fontSize: '0.88rem', color: 'rgba(245,244,240,0.75)', lineHeight: 1.7, marginBottom: '1.75rem' }}>
-              Work and workers, near you. Free to join, free to post and free to apply while we grow.
-            </p>
-            <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-              {['No CV needed', 'Free to join', 'Agree prices directly'].map(l => (
-                <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <CheckCircle size={13} style={{ color: C.green, flexShrink: 0 }} />
-                  <span style={{ fontSize: '0.8rem', color: 'rgba(245,244,240,0.88)', fontWeight: 600 }}>{l}</span>
-                </div>
+        {/* ── Privacy promise: the thing that makes Butsó different ─────────── */}
+        <section aria-labelledby="privacy-title" className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2">
+          <div className="reveal">
+            <p className="text-sm font-bold uppercase tracking-wide text-primary">Privacy by default</p>
+            <h2 id="privacy-title" className="mt-2 font-heading text-3xl font-black tracking-tight text-balance sm:text-4xl">Your number stays yours</h2>
+            <p className="mt-3 text-muted-foreground">Strangers never get your phone number or real name. You decide who does, and the rules are enforced by the database, not just the screen.</p>
+            <ul className="mt-6 space-y-4">
+              {[
+                { icon: EyeOff, title: 'People see @username', body: 'Your real name and photo stay hidden until you share them.' },
+                { icon: MessageCircle, title: 'First contact is a short request', body: 'Accept it and a chat opens. Decline it and they cannot keep trying.' },
+                { icon: ShieldCheck, title: 'Block or report in one tap', body: 'On any chat, job, shop, review or profile.' },
+              ].map(f => (
+                <li key={f.title} className="flex gap-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-primary"><f.icon size={20} aria-hidden="true" /></span>
+                  <span>
+                    <span className="block font-bold">{f.title}</span>
+                    <span className="block text-sm text-muted-foreground">{f.body}</span>
+                  </span>
+                </li>
               ))}
-            </div>
-            {/* LinkedIn's single "Get started" button */}
-            <button onClick={() => go('have-skill')}
-              style={{ background: C.green, color: '#fff', border: 'none', borderRadius: 10, padding: '0.88rem 2rem', fontWeight: 800, fontSize: '0.92rem', cursor: 'pointer', boxShadow: '0 4px 20px rgba(27,158,110,0.3)' }}>
-              Get started for free
-            </button>
+            </ul>
           </div>
-          {/* Right empty — image bleeds through */}
-          <div />
-        </div>
-      </section>
+          {/* A picture of what a stranger sees: decorative, the list above says it in words */}
+          <div className="reveal" aria-hidden="true">
+            <div className="mx-auto max-w-sm rounded-3xl border border-border bg-card p-6 shadow-raised">
+              <div className="flex items-center gap-3">
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-soft text-lg font-black text-primary">AT</span>
+                <div>
+                  <p className="font-bold">@ada_tailor</p>
+                  <p className="text-sm text-muted-foreground">Tailoring · Aso-ebi · Alterations</p>
+                </div>
+              </div>
+              <div className="mt-5 space-y-2.5">
+                <div className="flex items-center justify-between rounded-xl bg-secondary px-4 py-3 text-sm">
+                  <span className="text-muted-foreground">Real name</span>
+                  <span className="flex items-center gap-1.5 font-semibold"><EyeOff size={14} /> Hidden</span>
+                </div>
+                <div className="flex items-center justify-between rounded-xl bg-secondary px-4 py-3 text-sm">
+                  <span className="text-muted-foreground">Phone number</span>
+                  <span className="flex items-center gap-1.5 font-semibold"><EyeOff size={14} /> Hidden</span>
+                </div>
+              </div>
+              <div className="mt-5 flex h-11 items-center justify-center gap-2 rounded-xl bg-primary text-sm font-bold text-primary-foreground">
+                <MessageCircle size={16} /> Send a message request
+              </div>
+            </div>
+          </div>
+        </section>
 
-      {/* ── FOOTER ───────────────────────────────────────────────────────── */}
-      <footer style={{ background: C.surface, borderTop: `1px solid ${C.border}`, padding: '1.5rem' }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }} className="ld-footer-row">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 22, height: 22, background: C.green, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ color: '#fff', fontWeight: 900, fontSize: 10 }}>B</span>
+        {/* ── Join ───────────────────────────────────────────────────────── */}
+        <section aria-labelledby="join-title" className="relative isolate overflow-hidden">
+          <img src={cldSized('busyafricanstreet', 1280)} srcSet={cldSrcSet('busyafricanstreet', [640, 1280, 1920])} sizes="100vw"
+            alt="" loading="lazy" decoding="async" className="absolute inset-0 -z-20 h-full w-full object-cover" />
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-black/85 via-black/70 to-black/40" />
+          <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24">
+            <div className="reveal max-w-xl">
+              <h2 id="join-title" className="font-heading text-3xl font-black tracking-tight text-white sm:text-5xl">Work is closer than you think</h2>
+              <p className="mt-4 text-lg text-white/80">Free to join, free to post, free to apply. If that ever changes, you will hear from us at least 30 days before.</p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <button type="button" onClick={() => go('have-skill')}
+                  className="inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-6 text-base font-bold text-primary-foreground hover:opacity-90 transition-opacity">
+                  Join Butsó free <ArrowRight size={18} aria-hidden="true" />
+                </button>
+                <Link href="/jobs"
+                  className="inline-flex h-12 items-center rounded-xl border border-white/30 bg-white/10 px-6 text-base font-bold text-white backdrop-blur-sm hover:bg-white/20 transition-colors">
+                  Look around first
+                </Link>
+              </div>
             </div>
-            <span style={{ fontWeight: 900, color: C.text, fontSize: '0.9rem', letterSpacing: '-0.02em' }}>Butsó</span>
-            <span style={{ fontSize: '0.68rem', color: C.faint }}>© 2026 Butsó</span>
           </div>
-          <div style={{ display: 'flex', gap: '1.25rem' }}>
-            {[['Privacy', 'privacy'], ['Terms', 'terms'], ['Help', 'support']].map(([label, page]) => (
-              <button key={page} onClick={() => setCurrentPage(page)}
-                style={{ fontSize: '0.72rem', color: C.faint, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
-                onMouseEnter={e => (e.currentTarget.style.color = C.muted)}
-                onMouseLeave={e => (e.currentTarget.style.color = C.faint)}
-              >{label}</button>
+        </section>
+      </main>
+
+      {/* ── Footer ───────────────────────────────────────────────────────── */}
+      <footer className="border-t border-border bg-card">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div>
+            <Logo />
+            <p className="mt-2 text-sm text-muted-foreground">Your local work network. © {new Date().getFullYear()} Butsó</p>
+          </div>
+          <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-1">
+            {[...NAV, { label: 'Privacy', href: '/privacy' }, { label: 'Terms', href: '/terms' }].map(n => (
+              <Link key={n.href} href={n.href} className="py-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">{n.label}</Link>
             ))}
-          </div>
+          </nav>
         </div>
       </footer>
-
-      {/* ── GLOBAL STYLES ────────────────────────────────────────────────── */}
-      <style>{`
-        @keyframes ld-ticker {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        @keyframes ld-pulse {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0.35; }
-        }
-        .ld-mobile-menu { display: none; }
-        .ld-mobile-only { display: none !important; }
-        .ld-desktop-only { display: flex !important; }
-        .ld-location { display: flex; }
-        @media (max-width: 900px) {
-          .ld-mobile-menu  { display: block; }
-          .ld-mobile-only  { display: flex !important; }
-          .ld-desktop-only { display: none !important; }
-          .ld-hero-grid   { grid-template-columns: 1fr !important; }
-          .ld-right-panel { display: none !important; }
-          .ld-two-col     { grid-template-columns: 1fr !important; gap: 2rem !important; }
-          .ld-story-grid  { grid-template-columns: 1fr !important; }
-          .ld-nav         { display: none !important; }
-          .ld-location    { display: none !important; }
-        }
-        @media (max-width: 480px) {
-          .ld-hero-min    { min-height: 92dvh !important; }
-          .ld-footer-row  { flex-direction: column !important; align-items: flex-start !important; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          * { animation: none !important; transition: none !important; }
-        }
-      `}</style>
     </div>
   )
 }

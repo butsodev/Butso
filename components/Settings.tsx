@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowLeft, Bell, Globe, LogOut, Edit2, Shield, Download, Trash2, LifeBuoy, Compass, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Bell, LogOut, Edit2, Shield, Download, Trash2, LifeBuoy, Compass, ChevronRight, Moon, Sun } from 'lucide-react'
 import { useState } from 'react'
 import { WUKARI_AREAS } from '@/lib/areas'
 import { useAppStore, goBackTo } from '@/lib/store'
@@ -12,7 +12,7 @@ import { confirmAction } from '@/lib/confirm'
 import { useTourStore } from '@/lib/tour'
 
 export function Settings() {
-  const { currentUser, setCurrentUser, setCurrentPage, darkMode, toggleDarkMode } = useAppStore()
+  const { currentUser, setCurrentUser, setCurrentPage, darkMode, themeChosen, toggleDarkMode } = useAppStore()
   const openTour = useTourStore(s => s.openTour)
   const [isEditing, setIsEditing] = useState(false)
   const [editedName, setEditedName] = useState(currentUser?.name || '')
@@ -209,11 +209,11 @@ export function Settings() {
           {/* Theme Toggle */}
           <div className="bg-card rounded-lg p-4 flex items-center justify-between hover:bg-opacity-80 transition">
             <div className="flex items-center gap-3">
-              {darkMode ? <Bell size={20} /> : <Globe size={20} />}
+              {darkMode ? <Moon size={20} aria-hidden="true" /> : <Sun size={20} aria-hidden="true" />}
               <div>
                 <p className="font-medium text-foreground">Dark Mode</p>
                 <p className="text-xs text-muted-foreground">
-                  {darkMode ? 'Enabled' : 'Disabled'}
+                  {!themeChosen ? 'Following your phone' : darkMode ? 'On' : 'Off'}
                 </p>
               </div>
             </div>

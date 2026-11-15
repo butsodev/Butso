@@ -4,6 +4,22 @@ What changed in Butsó, newest first. Dates are when the work landed on `main`.
 
 ## Unreleased
 
+### Loading, landing page and theme
+- **No more blank loading screen.** Public screens (landing, jobs, shops, profiles, help, sign-in) render at once, including in the server HTML. Private screens show the app's frame with placeholders while the sign-in check runs, instead of a spinner on an empty page. Returning members opening `/` see the frame, not a flash of the landing page.
+- **Landing page loads about 10x less.** Photos are fetched at the size shown (`cldSized`, `cldThumb`, `cldSrcSet`), and the hero slideshow only loads the current and next photo (it used to load all 16 full-size originals at once). On a slow mobile connection the page settles in about 6 s instead of 34 s, with ~230 KB of images instead of ~2 MB. The first hero photo is preloaded, and a branded backdrop shows until it arrives.
+- **Landing page restructured** into one story: hero, people already on Butsó (real data), trades, how it works for hiring / working / shops, the privacy promise, join. Shorter (about 5,600 px on a phone, was 6,100), no repeated sections, no fake worker counts. Trade tiles and member cards are real links. Rebuilt on theme tokens, so dark mode works on it.
+- **Theme polished**, same brand: buttons, links and secondary text now pass WCAG AA in light mode (they were 3.1 to 4.4:1). Bright green and orange stay for the logo and decoration. New tokens: `brand`, `brand-soft`, `success`, `warning`, `shadow-card`, `shadow-raised`. See `brand.md`.
+- **Dark mode follows the phone** until you use the toggle; after that your choice wins. Existing members who had switched it on keep it.
+- Entrance and scroll animations are plain CSS (`.rise`, `.reveal`), so content is never hidden waiting for JavaScript.
+
+### Fixed (found while testing against the live database)
+- Worker share links (`/@username`) always showed the generic preview: the query asked for a `location` column that `public_profiles` does not have. Also escaped `_` in the username lookup.
+- Help & Support sent signed-out visitors back to the landing page; it is now open to everyone (and in the sitemap).
+- `/login` rendered the sign-up panel on the server, causing a hydration error.
+- The saved dark-mode choice could be overwritten on load (hydration read the store's initial values), and the app header kept a second copy of the theme logic.
+- New shops stored the owner's real name in a public column; they now store the username.
+- Settings' dark mode row used bell / globe icons.
+
 ### Added
 - **Welcome tour**, shown once to every member (new and existing) on a main screen after sign-in. Skip counts as seen. "Seen" is remembered on the device and on the account (Supabase user metadata, no migration), so a new phone does not show it again. It waits for the age / Terms check and never opens on top of another pop-up. Replay from Help & Support or Settings.
 - **Help Center search** over guides and FAQs: accent-insensitive, handles word endings and partial words, understands everyday words (synonyms), highlights matches, and opens a guide at the step that matched. No results offers "Ask us", which carries the question into the support form.

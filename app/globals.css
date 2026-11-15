@@ -39,6 +39,12 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --shadow-card: var(--shadow-card);
+  --shadow-raised: var(--shadow-raised);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.85);
   --radius-lg: var(--radius);
@@ -49,10 +55,14 @@
 }
 
 :root {
-  /* Butsó Brand — warmer, more alive */
-  --butso-green: #1B9E6E;      /* richer, deeper green */
+  /* Butsó brand. See brand.md for how and where each colour is used.
+     The bright brand green / orange are for the logo and decoration. Text and buttons
+     use the deeper shades below, which pass WCAG AA (4.5:1) on the light background. */
+  --butso-green: #1B9E6E;      /* logo, illustrations, accents */
+  --butso-green-deep: #15805A; /* buttons and green text: 4.9:1 with white */
   --butso-green-light: #E8F7F1;
-  --butso-orange: #F55D1E;     /* more saturated, punchier */
+  --butso-orange: #F55D1E;     /* decoration only */
+  --butso-orange-deep: #C2410C;/* orange text and buttons: 5.2:1 with white */
   --butso-orange-light: #FFF0EA;
   --butso-warm-white: #FAFAF8; /* warm off-white, not clinical */
   --butso-warm-gray: #F5F4F1;
@@ -65,18 +75,24 @@
   --card-foreground: var(--butso-ink);
   --popover: #FFFFFF;
   --popover-foreground: var(--butso-ink);
-  --primary: var(--butso-green);
+  --primary: var(--butso-green-deep);
   --primary-foreground: #FFFFFF;
   --secondary: var(--butso-warm-gray);
   --secondary-foreground: #3D3D39;
   --muted: #E8E7E3;
-  --muted-foreground: #7A7972;
-  --accent: var(--butso-orange);
+  --muted-foreground: #66655E; /* 5.3:1+ on every light surface */
+  --accent: var(--butso-orange-deep);
   --accent-foreground: #FFFFFF;
-  --destructive: #E53E3E;
+  --destructive: #C53030;
   --border: #E4E3DF;
   --input: #FFFFFF;
-  --ring: var(--butso-green);
+  --ring: var(--butso-green-deep);
+  --brand: var(--butso-green);
+  --brand-soft: var(--butso-green-light);
+  --success: var(--butso-green-deep);
+  --warning: #B45309;
+  --shadow-card: 0 1px 2px rgb(26 26 24 / 0.04), 0 2px 8px rgb(26 26 24 / 0.04);
+  --shadow-raised: 0 2px 4px rgb(26 26 24 / 0.05), 0 12px 32px rgb(26 26 24 / 0.08);
   --chart-1: var(--butso-green);
   --chart-2: var(--butso-orange);
   --chart-3: #4CAF9F;
@@ -88,12 +104,12 @@
 
   --sidebar: #FFFFFF;
   --sidebar-foreground: var(--butso-ink);
-  --sidebar-primary: var(--butso-green);
+  --sidebar-primary: var(--butso-green-deep);
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: var(--butso-orange);
+  --sidebar-accent: var(--butso-orange-deep);
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: #E4E3DF;
-  --sidebar-ring: var(--butso-green);
+  --sidebar-ring: var(--butso-green-deep);
 }
 
 .dark {
@@ -103,18 +119,24 @@
   --card-foreground: #F0EFEC;
   --popover: #1E1E1B;
   --popover-foreground: #F0EFEC;
-  --primary: #22C085;           /* lighter green in dark mode — pops better */
+  --primary: #22C085;           /* lighter green in dark mode: 7.9:1 as text */
   --primary-foreground: #0A1A14;
   --secondary: #2A2A26;
   --secondary-foreground: #D4D3CF;
   --muted: #353530;
   --muted-foreground: #9A9990;
-  --accent: var(--butso-orange);
-  --accent-foreground: #FFFFFF;
+  --accent: #FB7A45;            /* lighter orange: readable on the dark background */
+  --accent-foreground: #1A0D06;
   --destructive: #FC8181;
   --border: #2E2E2A;
   --input: #1E1E1B;
   --ring: #22C085;
+  --brand: #22C085;
+  --brand-soft: rgb(34 192 133 / 0.12);
+  --success: #22C085;
+  --warning: #F6AD55;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-raised: 0 2px 4px rgb(0 0 0 / 0.3), 0 12px 32px rgb(0 0 0 / 0.35);
   --chart-1: #22C085;
   --chart-2: var(--butso-orange);
   --chart-3: #4CAF9F;
@@ -193,31 +215,26 @@ body::before {
   outline-offset: 2px;
 }
 
-/* Landing page header: mobile nav visibility */
-@media (max-width: 640px) {
-  .ld-nav,
-  .ld-location,
-  .ld-desktop-only {
-    display: none !important;
-  }
-  .ld-mobile-only {
-    display: inline-flex !important;
-  }
+/* Entrance and scroll reveals in plain CSS, not JavaScript: content in the server HTML is
+   visible the moment it arrives, even on a slow phone before any script has loaded.
+   .rise: a short fade-up on load (stagger with style="--d: 120ms").
+   .reveal: fades up as it scrolls into view, only in browsers with scroll-driven
+   animations; everywhere else it is simply shown. Both are off for reduced motion. */
+@keyframes butso-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
 }
-
-@media (min-width: 641px) {
-  .ld-mobile-only,
-  .ld-mobile-menu {
-    display: none !important;
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: butso-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: var(--d, 0ms);
   }
-}
-
-/* Hero section likely has the same gap: a hardcoded two-column grid
-   (ld-hero-grid) with nothing to collapse it on a phone. Breakpoint is a
-   guess, not verified against the live layout, adjust once visible. */
-@media (max-width: 900px) {
-  .ld-hero-grid {
-    grid-template-columns: 1fr !important;
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: butso-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 30%;
+    }
   }
 }
 

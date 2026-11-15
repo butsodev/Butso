@@ -37,16 +37,18 @@ const FALLBACK = (path: string) =>
 export async function workerMetadata(username: string): Promise<Metadata> {
     const path = `/@${username}`
     try {
-        const { data } = await db()
+        // public_profiles has no location column (area stays private), so it is not asked for.
+        // Escape _ and %: in ILIKE they are wildcards, and usernames can contain _.
+        const { data, error } = await db()
             .from('public_profiles')
-            .select('username, bio, skills, location')
-            .ilike('username', username)
+            .select('username, bio, skills')
+            .ilike('username', username.replace(/[\\%_]/g, '\\$&'))
             .eq('role', 'worker')
             .limit(1)
             .maybeSingle()
+        if (error) console.error('[seo] worker preview:', error.message)
         if (!data) return FALLBACK(path)
-        const skills = Array.isArray(data.skills) ? data.skills.slice(0, 3).join(', ') : ''
-        const bits = [skills, data.location].filter(Boolean).join(' · ')
+        const bits = Array.isArray(data.skills) ? data.skills.slice(0, 3).join(', ') : ''
         const desc = cut([bits, data.bio].filter(Boolean).join('. '), 150) || 'Skilled worker on Butsó. Free to join.'
         return card(`@${data.username} on Butsó`, desc, path)
     } catch {

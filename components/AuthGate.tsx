@@ -3,7 +3,7 @@
 // Must stay the FIRST import: it notes a password-reset link in the URL hash
 // before the Supabase client reads and clears it.
 import '@/lib/recovery'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { isRecovery, markRecovery } from '@/lib/recovery'
 import { useAppStore, type UserRole, goAfterAuth } from '@/lib/store'
@@ -18,6 +18,21 @@ import { pageFromPath, pathFromLegacySearch, isEntryPage, isGuestPage, isOpenPag
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { Toast } from '@/components/Toast'
 import { SuccessHost } from '@/components/SuccessHost'
+import { SkeletonAppFrame } from '@/components/Skeleton'
+
+// useLayoutEffect warns on the server; this runs it only in the browser
+const useBrowserLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
+
+/** Supabase keeps the session under sb-<project>-auth-token. Present = probably signed in. */
+function hasSavedSession(): boolean {
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i)
+      if (k && k.startsWith('sb-') && k.endsWith('-auth-token')) return true
+    }
+  } catch { /* private mode */ }
+  return false
+}
 
 /**
  * Wraps the whole app, once.
@@ -32,7 +47,12 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   const currentUser = useAppStore(s => s.currentUser)
   const pendingBooking = useAppStore(s => s.pendingBooking)
   const [authChecked, setAuthChecked] = useState(false)
+  const [likelySignedIn, setLikelySignedIn] = useState(false)
   const legacyDone = useRef(false)
+
+  // Before the first paint: a returning member opening "/" or /login should see the app
+  // loading, not a flash of the landing page before they are sent to their dashboard.
+  useBrowserLayoutEffect(() => { setLikelySignedIn(hasSavedSession()) }, [])
 
   // Let the store (non-React code) change the URL
   useEffect(() => { registerRouter(router) }, [router])
@@ -149,12 +169,25 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     if (t.page === 'booking-slots' && !pendingBooking) router.replace('/bookings')
   }, [authChecked, pathname, currentUser, pendingBooking, router])
 
-  if (!authChecked && !currentUser) {
+  // What to show while the sign-in check is still running (usually a fraction of a second):
+  //  - public screens (landing, jobs, shops, profiles, help, sign-in): the screen itself, at
+  //    once, including in the server HTML. Never a blank page with a spinner.
+  //  - private screens, or a returning member on the landing / sign-in screens: the app's
+  //    frame with placeholders, so the layout is already there when their data arrives.
+  //  - signed in on the landing / sign-in screens: the frame while we move them on.
+  const page = pageFromPath(pathname).page
+  // profile-setup is only for someone signed in without a profile: never render it blind
+  const publicPage = page !== 'profile-setup' &&
+    (page === 'splash' || page === 'not-found' || isGuestPage(page) || isEntryPage(page) || isOpenPage(page))
+  const leavingForApp = page === 'splash' || (isEntryPage(page) && page !== 'profile-setup')
+  const showFrame = currentUser
+    ? leavingForApp
+    : !authChecked && (!publicPage || (likelySignedIn && leavingForApp))
+
+  if (showFrame) {
     return (
       <ThemeProvider>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <span className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-        </div>
+        <SkeletonAppFrame />
       </ThemeProvider>
     )
   }

@@ -20,6 +20,9 @@ Butsó connects workers and employers, and helps shops get found and booked, wit
 - **Welcome tour:** a one-minute tour shown once to every member, new or existing, after sign-in. Skip it any time; replay it from Help & Support or Settings.
 - **Help Center:** search the guides and FAQs in everyday words ("money" finds payments, "scam" finds reporting). Each guide plays like a short video (autoplay, swipe, tap to pause), can start at the step that matched, and ends with a "Try it now" button. A guide can also carry a real screen recording. See also [docs/HOW-TO-USE.md](docs/HOW-TO-USE.md).
 
+- **Fast on mobile data:** pages appear at once (no blank loading screen), photos are sized for the screen, and the landing page needs about 230 KB of images.
+- **Light and dark:** follows the phone's setting until you choose, with a toggle everywhere. See [brand.md](brand.md) for colours, type and voice.
+
 Everything is free to use for now. Payments are "coming soon".
 
 ## Tech stack
@@ -108,6 +111,7 @@ lib/
   helpSearch.ts   Help search: accents, word endings, synonyms, highlighting
   tour.ts         welcome tour "seen" memory (this device + the account) and replay
 docs/             user guide (HOW-TO-USE.md) and go-live list (LAUNCH-CHECKLIST.md)
+brand.md          colours, type, motion, photo and voice rules
 scripts/          small build helpers
 ```
 
@@ -132,6 +136,9 @@ Supabase Postgres with Row Level Security on every table. The key rules live in 
 - **Linking to help:** `/support?q=book+a+shop` opens a search; `/support?guide=set-up-shop&step=3` opens a guide at a step.
 - **New area?** Add it to `lib/areas.ts`. It is used by profiles, job posts and search filters.
 - **New private page?** Add it to the `disallow` list in `app/robots.ts`.
+- **Colours?** Change the tokens in `app/globals.css` and update [brand.md](brand.md). In components, use token classes (`bg-primary`, `text-muted-foreground`), never hex values, so dark mode keeps working. Check contrast (4.5:1 for text).
+- **Photos?** Use `cldSized`, `cldThumb` or `cldSrcSet` from `lib/cloudinary.ts`, never a full-size original.
+- **Loading states?** Public screens render at once. Private ones show `SkeletonAppFrame` while the sign-in check runs (`components/AuthGate.tsx`). Do not read `window`, `localStorage` or `sessionStorage` during render: pages are rendered on the server too.
 
 ## Deployment
 

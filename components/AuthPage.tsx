@@ -3,6 +3,7 @@
 import { showToast } from '@/lib/toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { Mail, MailCheck, Smartphone, KeyRound } from 'lucide-react'
 import { useAppStore, type UserRole, goAfterAuth } from '@/lib/store'
 import { loadUserData } from '@/lib/loadUserData'
@@ -24,8 +25,10 @@ const GoogleIcon = () => (
 
 export function AuthPage() {
     const { setCurrentPage, setCurrentUser, setDashboardMode } = useAppStore()
-    // "Log in" buttons open the Log in tab; everything else opens Sign up
-    const [panel, setPanel] = useState<Panel>(() => useAppStore.getState().authPanel)
+    // /login opens the Log in tab, /signup the Sign up tab. Read from the URL (not the store)
+    // so the server-rendered page and the browser agree on the first paint.
+    const pathname = usePathname()
+    const [panel, setPanel] = useState<Panel>(() => (pathname === '/login' ? 'login' : 'signup'))
     useEffect(() => { useAppStore.setState({ authPanel: 'signup' }) }, [])
 
     // Shared method state per panel

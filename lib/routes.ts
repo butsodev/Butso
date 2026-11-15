@@ -55,7 +55,7 @@ PATH_TO_PAGE['/people'] = 'people'
 export const ENTRY_PAGES = ['role-select', 'phone-verification', 'auth', 'forgot-password', 'profile-setup', 'explore-onboarding']
 
 /** Screens a signed-out visitor may open (read-only browsing). */
-export const GUEST_PAGES = ['jobs', 'job-details', 'people', 'shops', 'shop', 'privacy', 'terms', 'worker-username']
+export const GUEST_PAGES = ['jobs', 'job-details', 'people', 'shops', 'shop', 'privacy', 'terms', 'worker-username', 'support']
 
 /** Screens that work whether or not you are signed in. */
 export const OPEN_PAGES = ['reset-password']

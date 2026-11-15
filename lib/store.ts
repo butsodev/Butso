@@ -278,6 +278,8 @@ export interface AppStore {
 
   // Theme
   darkMode: boolean
+  /** True once the person picks light or dark themselves. Until then the theme follows the phone. */
+  themeChosen: boolean
   setDarkMode: (isDark: boolean) => void
   toggleDarkMode: () => void
 
@@ -401,8 +403,9 @@ export const useAppStore = create<AppStore>()(
       },
 
       darkMode: false,
-      setDarkMode: (isDark) => set({ darkMode: isDark }),
-      toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
+      themeChosen: false,
+      setDarkMode: (isDark) => set({ darkMode: isDark, themeChosen: true }),
+      toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode, themeChosen: true })),
 
       dashboardMode: 'find-work',
       setDashboardMode: (mode) => set({ dashboardMode: mode }),
@@ -560,9 +563,10 @@ export const useAppStore = create<AppStore>()(
       // Only keep real user preferences on the device. Everything else (current page,
       // selected IDs, mock data, the signed-in user) is rebuilt on load. Supabase is the
       // source of truth for who is signed in, and the URL decides which screen opens.
-      version: 1,
+      version: 2,
       partialize: (state) => ({
         darkMode: state.darkMode,
+        themeChosen: state.themeChosen,
         dashboardMode: state.dashboardMode,
         preferences: state.preferences,
       }),
@@ -571,9 +575,12 @@ export const useAppStore = create<AppStore>()(
       migrate: (persisted: unknown) => {
         const p = (persisted ?? {}) as Record<string, unknown>
         const keep: Record<string, unknown> = {}
-        for (const k of ['darkMode', 'dashboardMode', 'preferences']) {
+        for (const k of ['darkMode', 'themeChosen', 'dashboardMode', 'preferences']) {
           if (p[k] !== undefined) keep[k] = p[k]
         }
+        // Before version 2 there was no themeChosen. Someone who had switched dark mode on
+        // chose it; everyone else now follows their phone's setting.
+        if (keep.themeChosen === undefined) keep.themeChosen = p.darkMode === true
         return keep as never
       },
     }

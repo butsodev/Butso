@@ -86,16 +86,16 @@ export function ExploreOnboarding() {
         }
         .ob-cat:hover { border-color: rgba(27,158,110,0.4); background: #2A2A26; }
         .ob-cat.selected {
-          border-color: #1B9E6E;
+          border-color: var(--primary);
           background: rgba(27,158,110,0.15);
         }
-        .ob-cat.selected .ob-cat-name { color: #1B9E6E; }
+        .ob-cat.selected .ob-cat-name { color: var(--primary); }
       `}</style>
 
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ width: 28, height: 28, background: '#1B9E6E', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ width: 28, height: 28, background: 'var(--primary)', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <span style={{ color: '#fff', fontWeight: 900, fontSize: 13, fontFamily: 'var(--font-heading), serif' }}>B</span>
                     </div>
                     <span style={{ fontWeight: 900, fontFamily: 'var(--font-heading), serif', fontSize: '1.1rem' }}>Butsó</span>
@@ -118,12 +118,12 @@ export function ExploreOnboarding() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.45, ease: 'easeOut' }}
                 >
-                    <p style={{ fontSize: '0.72rem', fontWeight: 700, color: '#1B9E6E', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>
+                    <p style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>
                         Quick setup
                     </p>
                     <h1 style={{ fontFamily: 'var(--font-heading), serif', fontSize: 'clamp(1.6rem, 5vw, 2.1rem)', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.025em', marginBottom: '0.65rem' }}>
                         What are you<br />
-                        <em style={{ color: '#1B9E6E', fontStyle: 'italic' }}>interested in?</em>
+                        <em style={{ color: 'var(--primary)', fontStyle: 'italic' }}>interested in?</em>
                     </h1>
                     <p style={{ fontSize: '0.85rem', color: '#8A8980', lineHeight: 1.6, marginBottom: '1.75rem' }}>
                         Choose up to 5 skills. We'll show you the jobs and workers that match you best. You can change this anytime.
@@ -155,7 +155,7 @@ export function ExploreOnboarding() {
                                 <motion.div
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
-                                    style={{ position: 'absolute', top: 6, right: 6, width: 14, height: 14, background: '#1B9E6E', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    style={{ position: 'absolute', top: 6, right: 6, width: 14, height: 14, background: 'var(--primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 >
                                     <Check size={9} color="#fff" strokeWidth={4} />
                                 </motion.div>
@@ -179,7 +179,7 @@ export function ExploreOnboarding() {
                                     onClick={proceed}
                                     style={{
                                         flex: 1,
-                                        background: '#1B9E6E',
+                                        background: 'var(--primary)',
                                         color: '#fff',
                                         border: 'none',
                                         borderRadius: '0.875rem',

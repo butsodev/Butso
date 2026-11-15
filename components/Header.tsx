@@ -22,12 +22,8 @@ export function Header() {
   const [isMounted, setIsMounted] = useState(false)
   const { currentUser, setCurrentPage, darkMode, toggleDarkMode, currentPage, notifications, messages } = useAppStore()
 
-  useEffect(() => {
-    setIsMounted(true)
-    const root = document.documentElement
-    if (darkMode) root.classList.add('dark')
-    else root.classList.remove('dark')
-  }, [darkMode])
+  // The 'dark' class itself is managed by ThemeProvider
+  useEffect(() => { setIsMounted(true) }, [])
 
   const unreadMsgs = currentUser ? unreadCountFor(messages, currentUser.id) : 0
   const unreadNotifs = notifications?.filter((n: import('@/lib/store').Notification) => !n.read).length ?? 0

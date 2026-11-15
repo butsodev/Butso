@@ -1,7 +1,7 @@
+import { SkeletonAppFrame } from '@/components/Skeleton'
+
+// Shown while a route's code loads. The app's frame with placeholders, not a lone spinner,
+// so the layout is already in place when the screen arrives.
 export default function Loading() {
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <span className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" aria-label="Loading" />
-    </div>
-  )
+  return <SkeletonAppFrame />
 }

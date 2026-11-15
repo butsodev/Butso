@@ -13,6 +13,12 @@ import { isReservedUsername } from '@/lib/usernames'
 import { useAppStore, generateUsernameFromName, isUsernameAvailable, type UserRole, type AppStore, goAfterAuth } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
 
+
+/** sessionStorage, but safe on the server and in private browsing (both can throw). */
+function readSession(key: string): string | null {
+  try { return typeof window === 'undefined' ? null : sessionStorage.getItem(key) } catch { return null }
+}
+
 /* ─── Skills list ────────────────────────────────────────────────────────── */
 export const ALL_SKILLS = [
   'Plumbing', 'Pipe Fitting', 'Electrical', 'Solar Installation', 'Generator Repair',
@@ -325,7 +331,7 @@ export function ProfileSetup() {
   const [pressedNext, setPressedNext] = useState<string | null>(null)
 
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(
-    () => (sessionStorage.getItem('selectedRole') as UserRole | null)
+    () => readSession('selectedRole') as UserRole | null
   )
   // The real, authenticated Supabase user, fetched on mount. Phone-only
   // sign-ins already have `phone` set here. Email and Google sign-ins arrive
@@ -356,7 +362,7 @@ export function ProfileSetup() {
   const isWorker = role === 'worker'
 
   // Skip role step if already chosen on landing page
-  const roleAlreadyChosen = !!sessionStorage.getItem('selectedRole')
+  const roleAlreadyChosen = !!readSession('selectedRole')
 
   // Steps: role (skipped if already chosen) → basic → skills (workers) → next
   const allSteps: Step[] = roleAlreadyChosen

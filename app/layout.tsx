@@ -51,16 +51,18 @@ export default function RootLayout({
         {/*
           Dark mode sync script — runs BEFORE React hydrates so there's
           zero flash of wrong theme on any page including landing, auth screens,
-          and post-login pages. Reads from Zustand's persisted localStorage key.
+          and post-login pages. Uses the person's own choice (saved by the store) if they
+          made one, otherwise the phone's light/dark setting. Keep in step with ThemeProvider.
         */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                var s = JSON.parse(localStorage.getItem('butso-store') || '{}')
-                if (s && s.state && s.state.darkMode === true) {
-                  document.documentElement.classList.add('dark')
-                }
+                var s = (JSON.parse(localStorage.getItem('butso-store') || '{}') || {}).state || {}
+                // themeChosen is missing only in copies saved before it existed (see the store migration)
+                var chosen = s.themeChosen === true || (s.themeChosen === undefined && s.darkMode === true)
+                var dark = chosen ? s.darkMode === true : window.matchMedia('(prefers-color-scheme: dark)').matches
+                if (dark) document.documentElement.classList.add('dark')
               } catch(e) {}
             `,
           }}

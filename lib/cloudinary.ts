@@ -20,6 +20,24 @@ export function cld(publicId: string, transforms: string = 'f_auto,q_auto') {
     return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${transforms}/${publicId}`
 }
 
+/**
+ * A photo at the size it is shown, never the full original (those are 200 KB+ each).
+ * c_limit never upscales; f_auto picks WebP/AVIF; q_auto picks the compression.
+ */
+export function cldSized(publicId: string, width: number) {
+    return cld(publicId, `f_auto,q_auto,c_limit,w_${width}`)
+}
+
+/** A square crop for avatars and thumbnails, focused on the face where there is one. */
+export function cldThumb(publicId: string, size: number) {
+    return cld(publicId, `f_auto,q_auto,c_fill,g_auto,w_${size},h_${size}`)
+}
+
+/** srcset for <img>: the browser picks the smallest one that is sharp on this screen. */
+export function cldSrcSet(publicId: string, widths: number[] = [480, 768, 1080, 1600]) {
+    return widths.map(w => `${cldSized(publicId, w)} ${w}w`).join(', ')
+}
+
 // Every content image currently used across the landing page + slideshow.
 // Filenames are the Cloudinary public IDs (no extension needed).
 export const IMAGES = {
